@@ -234,11 +234,14 @@ export class DesktopM4Methods {
       });
     }
     el.style.display = 'block';
-    const btn = this.headerMoreRef && this.headerMoreRef.current;
+    const btn = this.recentMenuAnchorRef && this.recentMenuAnchorRef.current;
     if (btn) {
       const rect = btn.getBoundingClientRect();
       el.style.left = rect.left + 'px';
       el.style.top = rect.bottom + 4 + 'px';
+    } else {
+      el.style.left = '8px';
+      el.style.top = '120px';
     }
   }
 

@@ -43,6 +43,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this.dividerRef = React.createRef();
     this.splitRef = React.createRef();
     this.fileNameRef = React.createRef();
+    this.recentMenuAnchorRef = React.createRef();
     this.dirtyDotRef = React.createRef();
     this.saveStatusRef = React.createRef();
     this.countRef = React.createRef();
@@ -309,6 +310,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       dividerRef: this.dividerRef,
       splitRef: this.splitRef,
       fileNameRef: this.fileNameRef,
+      recentMenuAnchorRef: this.recentMenuAnchorRef,
       dirtyDotRef: this.dirtyDotRef,
       saveStatusRef: this.saveStatusRef,
       countRef: this.countRef,
@@ -418,7 +420,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       fmtLink: () => this._wrapSel('[', '](https://)', '链接文字'),
       menuInsertImage: () => { this.toggleHeaderMenu(false); this.onInsertImage(); },
       copyHtml: () => this.copyHtmlSelection(),
-      menuRecent: () => { this.toggleHeaderMenu(false); this.toggleRecentMenu(); },
+      menuRecent: () => this.toggleRecentMenu(),
       menuQuickOpen: () => { this.toggleHeaderMenu(false); this.onQuickOpen(); }
     };
   }

@@ -56,10 +56,18 @@ test('中键关闭标签', async ({ page }) => {
   await expect(page.locator('.tab-item')).toHaveCount(1);
 });
 
-test('文件菜单新建文档 = 新标签', async ({ page }) => {
+test('侧边栏文件操作新建文档 = 新标签', async ({ page }) => {
   await openEditor(page);
-  await page.getByRole('button', { name: '更多操作' }).click();
-  await page.locator('.file-menu').getByRole('menuitem', { name: '新建文档' }).click();
+  await page.evaluate(() => {
+    const sb = document.querySelector('.document-sidebar');
+    if (sb) {
+      sb.classList.remove('is-collapsed');
+      sb.classList.add('is-mobile-open');
+    }
+    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
+    tab?.click();
+  });
+  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: '新建文档' }).click();
   await expect(page.locator('.tab-item')).toHaveCount(2);
   await expect(page.locator('.md-source')).toHaveValue('');
 });

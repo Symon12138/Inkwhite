@@ -81,22 +81,7 @@
       <button class="abtn icon font-import" onClick="{{ importFont }}" title="导入字体文件（ttf/otf/woff/woff2）" aria-label="导入字体">＋</button>
       <button class="abtn" onClick="{{ openFileTree }}" aria-label="文件树" title="浏览文件">☰</button>
       <button ref="{{ headerMoreRef }}" class="abtn icon header-more" onClick="{{ toggleHeaderMenu }}" title="更多操作" aria-label="更多操作" aria-haspopup="menu" aria-expanded="false">⋯</button>
-      <div ref="{{ headerMenuRef }}" class="header-menu file-menu" role="menu" aria-label="更多操作">
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileNew }}">新建文档<span class="menu-shortcut">⌘N</span></button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileOpen }}">打开…<span class="menu-shortcut">⌘O</span></button>
-        <div class="header-menu-separator" role="separator"></div>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileSave }}">保存<span class="menu-shortcut">⌘S</span></button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileSaveAs }}">另存为…<span class="menu-shortcut">⌘⇧S</span></button>
-        <div class="header-menu-separator" role="separator"></div>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuRecent }}">最近文档</button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuQuickOpen }}">快速打开…<span class="menu-shortcut">⌘P</span></button>
-        <div class="header-menu-separator" role="separator"></div>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuInsertImage }}">插入图片…</button>
-        <div class="header-menu-separator" role="separator"></div>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportHtml }}">导出为 HTML…</button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportPdf }}">导出为 PDF…（打印）</button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportWord }}">导出为 Word…</button>
-        <div class="header-menu-separator" role="separator"></div>
+      <div ref="{{ headerMenuRef }}" class="header-menu" role="menu" aria-label="更多操作">
         <button class="header-menu-item" role="menuitem" onClick="{{ menuTheme }}">切换主题</button>
         <button class="header-menu-item" role="menuitem" onClick="{{ menuSettings }}">设置…</button>
       </div>
@@ -117,6 +102,21 @@
       <button class="sidebar-tab" role="tab" data-sidebar-tab="outline" onClick="{{ sidebarTabOutline }}" aria-selected="false">大纲</button>
     </div>
     <div class="sidebar-panel sidebar-panel-files is-active" role="tabpanel" data-sidebar-panel="files">
+      <div class="sidebar-file-actions" role="group" aria-label="文件操作">
+        <button class="sfa-btn sfa-primary" role="menuitem" onClick="{{ menuFileNew }}">＋ 新建文档</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuFileOpen }}">打开…</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuFileSave }}">保存</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuFileSaveAs }}">另存为…</button>
+        <button ref="{{ recentMenuAnchorRef }}" class="sfa-btn" role="menuitem" onClick="{{ menuRecent }}">最近文档</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuQuickOpen }}">快速打开…</button>
+        <div class="sfa-sep" role="separator"></div>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuInsertImage }}">插入图片…</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuExportHtml }}">导出 HTML…</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuExportPdf }}">导出 PDF…（打印）</button>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuExportWord }}">导出 Word…</button>
+        <div class="sfa-sep" role="separator"></div>
+        <button class="sfa-btn" role="menuitem" onClick="{{ menuSettings }}">设置…</button>
+      </div>
       <div ref="{{ documentListRef }}" class="recent-document-list"></div>
     </div>
     <div class="sidebar-panel sidebar-panel-outline" role="tabpanel" data-sidebar-panel="outline">

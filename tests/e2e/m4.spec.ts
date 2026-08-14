@@ -9,11 +9,19 @@ test('四项统计口径（B22）：字数/字符/行/段落', async ({ page }) 
   await expect(page.locator('.word-count')).toHaveText('6 字 · 10 字符 · 3 行 · 2 段');
 });
 
-test('最近文档：无记录时显示空态，有记录时渲染列表（B17）', async ({ page }) => {
+test('最近文档：侧边栏入口打开浮层，空态与列表渲染（B17）', async ({ page }) => {
   await openEditor(page);
   const openRecent = async () => {
-    await page.getByRole('button', { name: '更多操作' }).click();
-    await page.locator('.file-menu').getByRole('menuitem', { name: '最近文档' }).click();
+    await page.evaluate(() => {
+      const sb = document.querySelector('.document-sidebar');
+      if (sb) {
+        sb.classList.remove('is-collapsed');
+        sb.classList.add('is-mobile-open');
+      }
+      const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
+      tab?.click();
+    });
+    await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: '最近文档' }).click();
   };
   // 空态
   await openRecent();
@@ -54,7 +62,15 @@ test('跨文件搜索：浏览器端给出桌面端提示（P7 接线）', async
 
 test('快速打开：浏览器端给出桌面端提示（B17）', async ({ page }) => {
   await openEditor(page);
-  await page.getByRole('button', { name: '更多操作' }).click();
-  await page.locator('.file-menu').getByRole('menuitem', { name: /快速打开/ }).click();
+  await page.evaluate(() => {
+    const sb = document.querySelector('.document-sidebar');
+    if (sb) {
+      sb.classList.remove('is-collapsed');
+      sb.classList.add('is-mobile-open');
+    }
+    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
+    tab?.click();
+  });
+  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: /快速打开/ }).click();
   await expect(page.locator('.save-status')).toHaveText(/桌面端环境/);
 });

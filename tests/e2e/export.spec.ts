@@ -26,9 +26,17 @@ const EXPORT_SOURCE = [
 ].join('\n');
 
 async function exportViaMenu(page: import('@playwright/test').Page, label: RegExp) {
-  await page.getByRole('button', { name: '更多操作' }).click();
+  await page.evaluate(() => {
+    const sb = document.querySelector('.document-sidebar');
+    if (sb) {
+      sb.classList.remove('is-collapsed');
+      sb.classList.add('is-mobile-open');
+    }
+    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
+    tab?.click();
+  });
   const downloadPromise = page.waitForEvent('download', { timeout: 30_000 });
-  await page.locator('.file-menu').getByRole('menuitem', { name: label }).click();
+  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: label }).click();
   return downloadPromise;
 }
 
@@ -37,7 +45,7 @@ test('导出为 HTML：自包含结构断言（无脚本/无批注/变量冻结/
   await setSource(page, EXPORT_SOURCE);
   await expect(page.locator('.md-preview .katex')).toBeVisible();
 
-  const download = await exportViaMenu(page, /导出为 HTML/);
+  const download = await exportViaMenu(page, /导出 HTML/);
   const stream = await download.createReadStream();
   let html = '';
   for await (const chunk of stream) html += chunk.toString('utf8');
@@ -78,8 +86,16 @@ test('导出为 PDF：触发系统打印（window.print 被调用）且先等预
   await setSource(page, '```mermaid\ngraph TD;\n  A-->B;\n```');
   await expect(page.locator('.mermaid-rendered svg')).toBeVisible();
 
-  await page.getByRole('button', { name: '更多操作' }).click();
-  await page.locator('.file-menu').getByRole('menuitem', { name: /导出为 PDF/ }).click();
+  await page.evaluate(() => {
+    const sb = document.querySelector('.document-sidebar');
+    if (sb) {
+      sb.classList.remove('is-collapsed');
+      sb.classList.add('is-mobile-open');
+    }
+    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
+    tab?.click();
+  });
+  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: /导出 PDF/ }).click();
 
   await expect.poll(() => page.evaluate(() => (window as any).__printCalled)).toBe(true);
   await expect(page.locator('.save-status')).toHaveText(/打印对话框/);
@@ -90,7 +106,7 @@ test('导出为 Word：docx ZIP 结构断言（PK 头 + 关键条目 + 公式图
   await setSource(page, EXPORT_SOURCE);
   await expect(page.locator('.md-preview .katex')).toBeVisible();
 
-  const download = await exportViaMenu(page, /导出为 Word/);
+  const download = await exportViaMenu(page, /导出 Word/);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
   for await (const chunk of stream) chunks.push(chunk as Buffer);

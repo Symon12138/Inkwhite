@@ -2,17 +2,26 @@ import { test, expect, openEditor, setSource, selectInSource } from './fixtures'
 
 // 扁平顶栏（ui-ux-pro-max 重构）：单行导航、字体选择与导入、工具栏更多浮层。
 
-test('扁平顶栏：无菜单栏行，文件菜单在顶栏，字体选择器就位', async ({ page }) => {
+test('扁平顶栏：无菜单栏行，文件操作在侧边栏文件页签，字体选择器就位', async ({ page }) => {
   await openEditor(page);
 
   // 菜单栏整行已移除
   await expect(page.locator('.app-menubar')).toHaveCount(0);
 
-  // 文件菜单回到顶栏（aria-label 不变）
-  await page.getByRole('button', { name: '更多操作' }).click();
-  await expect(page.locator('.file-menu')).toHaveClass(/is-open/);
-  await page.locator('.md-source').click();
-  await expect(page.locator('.file-menu')).not.toHaveClass(/is-open/);
+  // 文件操作集中在侧边栏「文件」页签（展开侧边栏可见）
+  await page.evaluate(() => {
+    const sb = document.querySelector('.document-sidebar');
+    if (sb) {
+      sb.classList.remove('is-collapsed');
+      sb.classList.add('is-mobile-open');
+    }
+    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
+    tab?.click();
+  });
+  await expect(page.locator('.sidebar-file-actions')).toBeVisible();
+  await expect(page.locator('.sidebar-file-actions').getByRole('menuitem', { name: '新建文档' })).toBeVisible();
+  // 顶栏无独立文件菜单按钮（⋯ 仅小屏显示）
+  await expect(page.locator('.file-menu-toggle')).toHaveCount(0);
 
   // 字体选择器有系统字体选项
   const fontSelect = page.locator('.font-select');
