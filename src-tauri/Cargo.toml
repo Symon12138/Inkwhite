@@ -1,0 +1,29 @@
+[package]
+name = "symark"
+version = "1.0.0"
+description = "飞白 Inkwhite - 个人 Markdown 桌面工具"
+edition = "2021"
+
+[lib]
+name = "symark_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+# 为测试二进制注入 comctl32 v6 清单（muda 的 TaskDialogIndirect 是 v6 专有导出，
+# 测试 exe 缺清单加载即崩 0xc0000139；见 build.rs 注释）。
+# 说明：embed-resource 已是 tauri-winres（tauri-build 的传递依赖）的依赖，
+# Cargo.lock 已锁定 3.0.11；此处仅提升为直接 build-dependency，不引入新版本、
+# 不新增网络下载。
+embed-resource = "3.0.11"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+notify = "6"
+base64 = "0.22"
+# 外链 scheme 校验（lock 中已有 2.5.8，提升为直接依赖，无新版本/无下载）
+url = "2"

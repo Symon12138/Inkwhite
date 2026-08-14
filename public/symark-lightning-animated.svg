@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">飞白 闪电图标</title>
+  <desc id="desc">带有流动能量环与放电闪电的飞白动态图标。</desc>
+  <style>
+    :root { --bolt-speed: 2.2s; }
+    .energy-ring { transform-box: fill-box; transform-origin: center; animation: spin 7s linear infinite; }
+    .pulse { animation: pulse 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .bolt { animation: strike 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .sweep { stroke-dasharray: 72 520; animation: sweep 2.2s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: .35; transform: scale(.92); } 42%, 58% { opacity: .9; transform: scale(1.04); } }
+    @keyframes strike { 0%, 18%, 100% { opacity: .64; filter: url(#glow); } 25%, 34% { opacity: 1; filter: url(#hardGlow); } 40%, 78% { opacity: .82; filter: url(#glow); } }
+    @keyframes sweep { from { stroke-dashoffset: 592; } to { stroke-dashoffset: -592; } }
+    @media (prefers-reduced-motion: reduce) {
+      .energy-ring, .pulse, .bolt, .sweep { animation: none; }
+      .energy-ring { opacity: .72; }
+      .pulse { opacity: .65; transform: none; }
+      .bolt { opacity: 1; filter: url(#glow); }
+      .sweep { stroke-dashoffset: 0; }
+    }
+  </style>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101b36"/><stop offset=".5" stop-color="#060914"/><stop offset="1" stop-color="#24103f"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#58f5ff"/><stop offset=".48" stop-color="#456dff"/><stop offset="1" stop-color="#ef4dff"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#f7ffff"/><stop offset=".22" stop-color="#49f7ff"/><stop offset=".58" stop-color="#6174ff"/><stop offset="1" stop-color="#f14cff"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="13" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="hardGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="20" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="30"/></filter>
+  </defs>
+  <rect x="12" y="12" width="488" height="488" rx="116" fill="url(#bg)" stroke="url(#edge)" stroke-width="8"/>
+  <g class="energy-ring">
+    <circle cx="256" cy="256" r="178" fill="none" stroke="#37eaff" stroke-opacity=".2" stroke-width="26" filter="url(#softGlow)"/>
+    <circle cx="256" cy="256" r="178" fill="none" stroke="url(#edge)" stroke-opacity=".65" stroke-width="3" stroke-dasharray="8 18"/>
+    <path class="sweep" d="M256 78a178 178 0 1 1-.1 0" fill="none" stroke="#e9ffff" stroke-opacity=".86" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <path d="M137 389C177 433 245 447 310 418C363 394 392 355 382 313C371 270 331 251 272 233L213 215C165 200 147 177 158 151C170 123 212 108 256 113C300 118 332 139 354 168" fill="none" stroke="#38eaff" stroke-opacity=".22" stroke-width="70" stroke-linecap="round" filter="url(#softGlow)"/>
+  <path d="M137 389C177 433 245 447 310 418C363 394 392 355 382 313C371 270 331 251 272 233L213 215C165 200 147 177 158 151C170 123 212 108 256 113C300 118 332 139 354 168" fill="none" stroke="url(#edge)" stroke-width="26" stroke-linecap="round"/>
+  <g class="pulse">
+    <circle cx="256" cy="257" r="126" fill="none" stroke="#5ef7ff" stroke-opacity=".42" stroke-width="3"/>
+  </g>
+  <g class="bolt">
+    <path d="M270 92L180 277H249L221 420L344 225H273L310 92Z" fill="#07101f" stroke="#07101f" stroke-width="20" stroke-linejoin="round"/>
+    <path d="M270 92L180 277H249L221 420L344 225H273L310 92Z" fill="url(#bolt)" stroke="#efffff" stroke-opacity=".9" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M188 278H247L220 405" fill="none" stroke="#ffffff" stroke-opacity=".8" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <circle cx="158" cy="151" r="8" fill="#f2ffff"/>
+  <circle cx="354" cy="168" r="6" fill="#ff8bff"/>
+</svg>

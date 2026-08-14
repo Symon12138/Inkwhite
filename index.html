@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="application-name" content="飞白">
+<meta name="theme-color" content="#070913">
+<title>飞白 · Write. Read. Mark.</title>
+<link rel="icon" href="/symark-lightning-animated.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/src/theme/tokens.css">
+<script type="module" src="/src/main.ts"></script>
+</head>
+<body>
+<script>
+  // 首帧前应用持久化的主题与纸色，避免"先暗后亮"闪变（编辑器 JS 就绪后会接管）
+  (function () {
+    try {
+      var saved = JSON.parse(localStorage.getItem('md-editor-warm-v1') || 'null');
+      var light = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      var theme = (saved && saved.theme) || (light ? 'light' : 'dark');
+      document.body.setAttribute('data-theme', theme);
+      var paper = (saved && (theme === 'light' ? saved.paperLight : saved.paperDark))
+        || (theme === 'light' ? 'parchment' : 'ink');
+      document.body.setAttribute('data-paper', paper);
+    } catch (e) {}
+  })();
+</script>
+<template id="__bundler_thumbnail" data-bg-color="#14110d">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#14110d"/>
+    <rect x="250" y="250" width="320" height="300" rx="10" fill="#1c1814" stroke="#322a22" sc-camel-stroke-width="3"/>
+    <rect x="630" y="250" width="320" height="300" rx="10" fill="#1c1814" stroke="#322a22" sc-camel-stroke-width="3"/>
+    <text x="300" y="345" font-family="monospace" font-size="34" fill="#f0a838" font-weight="700">#</text>
+    <rect x="345" y="325" width="170" height="14" rx="7" fill="#5a5142"/>
+    <rect x="290" y="375" width="225" height="11" rx="5.5" fill="#3a3328"/>
+    <rect x="290" y="405" width="200" height="11" rx="5.5" fill="#3a3328"/>
+    <rect x="290" y="450" width="170" height="11" rx="5.5" fill="#3a3328"/>
+    <rect x="680" y="320" width="150" height="22" rx="6" fill="#f4ebd9"/>
+    <rect x="680" y="375" width="225" height="11" rx="5.5" fill="#8a7d68"/>
+    <rect x="680" y="405" width="210" height="11" rx="5.5" fill="#8a7d68"/>
+    <rect x="680" y="450" width="120" height="11" rx="5.5" fill="#f0a838"/>
+    <circle cx="600" cy="160" r="13" fill="#f0a838"/>
+    <text x="600" y="640" font-family="Georgia,serif" font-size="44" fill="#f4ebd9" text-anchor="middle" font-style="italic">Markdown</text>
+  </svg>
+</template>
+<x-dc>
+<helmet>
+</helmet>
+
+<div class="app-shell">
+
+  <!-- ===== M5 标签栏（tabMethods 注入） ===== -->
+  <div ref="{{ tabBarRef }}" class="tab-bar-host"></div>
+
+  <!-- ===== HEADER（单行顶栏：品牌 | 视图切换 | 动作组，扁平导航） ===== -->
+  <header class="app-header">
+    <div class="header-main">
+    <div class="header-brand">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <a class="brand-mark" href="#" title="返回首页" aria-label="返回首页">
+        <img src="/symark-lightning-animated.svg" alt="">
+      </a>
+      <a class="brand-title" href="#" title="飞白" aria-label="飞白">飞白</a>
+      <span class="file-meta">
+        <span ref="{{ dirtyDotRef }}" class="dirty-dot"></span>
+        <span ref="{{ fileNameRef }}" class="file-name">未命名.md</span>
+      </span>
+    </div>
+    <div class="header-actions">
+      <span ref="{{ viewModeSwitcherRef }}" class="view-mode-switcher" role="group" aria-label="编辑器视图">
+        <button class="view-mode-option" data-mode="editor" onClick="{{ showEditorMode }}" aria-pressed="false" title="仅显示 Markdown 原文">编辑</button>
+        <button class="view-mode-option split-mode-option" data-mode="split" onClick="{{ showSplitMode }}" aria-pressed="true" title="同时显示原文和预览">分屏</button>
+        <button class="view-mode-option" data-mode="preview" onClick="{{ showPreviewMode }}" aria-pressed="false" title="仅显示只读预览">预览</button>
+      </span>
+      <button class="abtn icon collapsible-action" onClick="{{ toggleTheme }}" title="切换 亮色/暗黑" aria-label="切换亮色或暗黑主题"><span ref="{{ themeIconRef }}">☾</span></button>
+      <button ref="{{ outlineButtonRef }}" class="abtn" onClick="{{ toggleOutline }}" title="查看文章大纲" aria-label="查看文章大纲" aria-expanded="false"><span>☷</span> <span class="action-label">大纲</span> <span ref="{{ outlineCountRef }}" class="outline-count">0</span></button>
+      <button class="abtn" onClick="{{ toggleComments }}" aria-label="批注"><span class="action-label">批注</span> <span ref="{{ commentCountRef }}" class="count-badge">0</span></button>
+      <button class="abtn" onClick="{{ toggleTypewriterMode }}" title="打字机模式" aria-label="打字机模式"><span class="action-label">打字机</span></button>
+      <select ref="{{ fontSelectRef }}" class="font-select" onChange="{{ fontSelectChanged }}" aria-label="选择字体" title="选择编辑与预览字体"></select>
+      <button class="abtn icon font-import" onClick="{{ importFont }}" title="导入字体文件（ttf/otf/woff/woff2）" aria-label="导入字体">＋</button>
+      <button class="abtn" onClick="{{ openFileTree }}" aria-label="文件树" title="浏览文件">☰</button>
+      <button ref="{{ headerMoreRef }}" class="abtn icon header-more" onClick="{{ toggleHeaderMenu }}" title="更多操作" aria-label="更多操作" aria-haspopup="menu" aria-expanded="false">⋯</button>
+      <div ref="{{ headerMenuRef }}" class="header-menu file-menu" role="menu" aria-label="更多操作">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileNew }}">新建文档<span class="menu-shortcut">⌘N</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileOpen }}">打开…<span class="menu-shortcut">⌘O</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileSave }}">保存<span class="menu-shortcut">⌘S</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileSaveAs }}">另存为…<span class="menu-shortcut">⌘⇧S</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuRecent }}">最近文档</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuQuickOpen }}">快速打开…<span class="menu-shortcut">⌘P</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuInsertImage }}">插入图片…</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportHtml }}">导出为 HTML…</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportPdf }}">导出为 PDF…（打印）</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportWord }}">导出为 Word…</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuTheme }}">切换主题</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuSettings }}">设置…</button>
+      </div>
+    </div>
+    </div>
+  </header>
+
+  <!-- ===== SPLIT BODY ===== -->
+  <div class="app-body">
+  <aside ref="{{ documentSidebarRef }}" class="document-sidebar is-collapsed" aria-label="文件列表">
+    <div ref="{{ documentSidebarResizeRef }}" class="document-sidebar-resize" title="拖动调整宽度" aria-hidden="true"></div>
+    <div class="document-sidebar-header">
+      <span class="document-sidebar-title">文件列表</span>
+      <button class="document-sidebar-close" onClick="{{ closeDocumentSidebar }}" aria-label="收起侧边栏" title="收起侧边栏">&times;</button>
+    </div>
+    <div class="document-sidebar-tabs" role="tablist" aria-label="侧边栏视图">
+      <button class="sidebar-tab is-active" role="tab" data-sidebar-tab="files" onClick="{{ sidebarTabFiles }}" aria-selected="true">文件</button>
+      <button class="sidebar-tab" role="tab" data-sidebar-tab="outline" onClick="{{ sidebarTabOutline }}" aria-selected="false">大纲</button>
+    </div>
+    <div class="sidebar-panel sidebar-panel-files is-active" role="tabpanel" data-sidebar-panel="files">
+      <div ref="{{ documentListRef }}" class="recent-document-list"></div>
+    </div>
+    <div class="sidebar-panel sidebar-panel-outline" role="tabpanel" data-sidebar-panel="outline">
+      <nav ref="{{ outlineListRef }}" class="outline-list" aria-label="文章标题导航"></nav>
+    </div>
+  </aside>
+
+  <main ref="{{ splitRef }}" class="editor-main">
+
+    <!-- LEFT: source -->
+    <section class="source-pane">
+      <div class="pane-toolbar">
+        <div class="source-toolbar-leading">
+          <span class="pane-title">Markdown 原文</span>
+          <div class="history-toolbar-actions" role="group" aria-label="编辑历史">
+          <button ref="{{ undoButtonRef }}" class="tbtn fmt history-action" onClick="{{ undoEdit }}" title="撤销（⌘Z / Ctrl+Z）" aria-label="撤销" disabled><svg class="history-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2.6" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 1 1 0 11H11"></path></svg></button>
+          <button ref="{{ redoButtonRef }}" class="tbtn fmt history-action" onClick="{{ redoEdit }}" title="重做（⌘⇧Z / Ctrl+Y）" aria-label="重做" disabled><svg class="history-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2.6" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"></path><path d="M20 9H9.5a5.5 5.5 0 1 0 0 11H13"></path></svg></button>
+          </div>
+          <button class="tbtn fmt history-action search-toggle" onClick="{{ toggleSearch }}" title="搜索替换（⌘F）" aria-label="搜索替换"><svg class="history-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2.4" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg></button>
+        </div>
+        <div class="source-toolbar-actions" role="group" aria-label="Markdown 格式">
+          <button class="tbtn fmt fmt-h" onClick="{{ fmtH }}" title="标题">H</button>
+          <button class="tbtn fmt fmt-b" onClick="{{ fmtB }}" title="加粗">B</button>
+          <button class="tbtn fmt fmt-i" onClick="{{ fmtI }}" title="斜体">i</button>
+          <button class="tbtn fmt" onClick="{{ fmtStrike }}" title="删除线">~~</button>
+          <button class="tbtn fmt" onClick="{{ fmtHighlight }}" title="高亮">==</button>
+          <button class="tbtn fmt" onClick="{{ fmtUnderline }}" title="下划线">U</button>
+          <button class="tbtn fmt fmt-lg" onClick="{{ fmtQuote }}" title="引用">&rdquo;</button>
+          <button class="tbtn fmt fmt-lg" onClick="{{ fmtList }}" title="列表">•</button>
+          <button class="tbtn fmt fmt-code" onClick="{{ fmtCode }}" title="行内代码">&lt;&gt;</button>
+          <button class="tbtn fmt" onClick="{{ fmtLink }}" title="链接">&#128279;</button>
+          <span ref="{{ moreToolsRef }}" class="more-tools-wrap">
+            <button class="tbtn fmt more-tools-toggle" onClick="{{ toggleMoreTools }}" title="更多格式" aria-label="更多格式" aria-expanded="false">⋯</button>
+            <div class="more-tools" role="menu" aria-label="更多格式选项">
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtImage }}">插入图片…</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtTable }}">插入表格</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtTask }}">任务列表</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtCodeBlock }}">代码块</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtSup }}">上标</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtSub }}">下标</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtFootnote }}">脚注</button>
+              <div class="header-menu-separator" role="separator"></div>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtHr }}">分隔线</button>
+            </div>
+          </span>
+        </div>
+      </div>
+      <div ref="{{ searchBarRef }}" class="search-bar" role="search" aria-label="搜索与替换">
+        <button ref="{{ searchExpandRef }}" class="search-expand-toggle" onClick="{{ toggleSearchReplaceRow }}" title="切换替换（⌘⌥F）" aria-label="展开或收起替换" aria-expanded="false"><span class="search-expand-icon">›</span></button>
+        <div class="search-bar-rows">
+          <div class="search-row">
+            <span class="search-input-wrap">
+              <input ref="{{ searchInputRef }}" class="search-input" type="text" placeholder="搜索原文…" aria-label="搜索文本" sc-camel-spell-check="" />
+              <span class="search-input-tools">
+                <button ref="{{ searchCaseRef }}" class="search-opt" onClick="{{ toggleSearchCase }}" title="区分大小写" aria-label="区分大小写" aria-pressed="false">Aa</button>
+                <button ref="{{ searchWordRef }}" class="search-opt search-opt-word" onClick="{{ toggleSearchWord }}" title="全字匹配" aria-label="全字匹配" aria-pressed="false">ab</button>
+                <button ref="{{ searchRegexRef }}" class="search-opt" onClick="{{ toggleSearchRegex }}" title="使用正则表达式" aria-label="使用正则表达式" aria-pressed="false">.*</button>
+              </span>
+            </span>
+            <span ref="{{ searchCountRef }}" class="search-count" aria-live="polite"></span>
+            <button class="tbtn search-tool" onClick="{{ searchPrev }}" title="上一处（Shift+Enter）" aria-label="上一处">↑</button>
+            <button class="tbtn search-tool" onClick="{{ searchNext }}" title="下一处（Enter）" aria-label="下一处">↓</button>
+            <button class="tbtn search-tool search-close" onClick="{{ closeSearch }}" title="关闭（Esc）" aria-label="关闭搜索">&times;</button>
+          </div>
+          <div class="search-row search-row-replace">
+            <span class="search-input-wrap">
+              <input ref="{{ replaceInputRef }}" class="search-input replace-input" type="text" placeholder="替换…" aria-label="替换文本" sc-camel-spell-check="" />
+            </span>
+            <button class="tbtn search-tool search-replace-btn" onClick="{{ replaceCurrent }}" title="替换当前匹配" aria-label="替换当前匹配">替换</button>
+            <button class="tbtn search-tool search-replace-btn" onClick="{{ replaceAll }}" title="替换全部匹配" aria-label="替换全部匹配">全部</button>
+          </div>
+        </div>
+      </div>
+      <div class="source-editor-area">
+        <div ref="{{ sourceHighlightRef }}" class="source-highlight-layer" aria-hidden="true"></div>
+        <textarea ref="{{ sourceRef }}" class="md-source" sc-camel-spell-check="" placeholder="# 在这里写 Markdown…"></textarea>
+      </div>
+    </section>
+
+    <!-- DIVIDER -->
+    <div ref="{{ dividerRef }}" class="editor-divider">
+      <div class="editor-divider-hit"></div>
+    </div>
+
+    <!-- RIGHT: preview -->
+    <section ref="{{ previewPaneRef }}" class="preview-pane">
+      <div class="pane-toolbar">
+        <span ref="{{ previewTitleRef }}" class="pane-title">预览 · 仅阅读</span>
+        <span class="preview-toolbar-actions">
+          <span class="preview-toolbar-hint">
+            <span class="hint-dot"></span>选中文字可划线
+          </span>
+          <button class="tbtn tool-pill preview-search-toggle" onClick="{{ togglePreviewSearch }}" title="搜索预览内容（⌘F）" aria-label="搜索预览内容">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2" sc-camel-stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          </button>
+          <span ref="{{ paperPickerRef }}" class="paper-picker" role="group" aria-label="选择纸色"></span>
+          <span class="fullscreen-only-control fullscreen-font-controls" aria-label="调整预览字号">
+            <button class="tbtn font-btn font-dec" onClick="{{ fontDec }}" title="缩小字号" aria-label="缩小字号">A−</button>
+            <span ref="{{ fullscreenFontSizeRef }}" class="fullscreen-font-value">16px</span>
+            <button class="tbtn font-btn font-inc" onClick="{{ fontInc }}" title="放大字号" aria-label="放大字号">A+</button>
+          </span>
+          <button class="tbtn tool-pill longimg-entry" onClick="{{ openLongImage }}" title="把当前预览保存成一张可分享的长图" aria-label="保存长图">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="1.8" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round"><rect x="3" y="3" width="18" height="12" rx="2"></rect><path d="m5 13 4-4 3 3 2.5-2.5L21 14"></path><path d="M12 17.5V22m0 0-2.6-2.6M12 22l2.6-2.6"></path></svg>
+            <span class="action-label">长图</span>
+          </button>
+          <button ref="{{ immersiveWideRef }}" class="tbtn tool-pill fullscreen-only-control immersive-wide-toggle" onClick="{{ toggleImmersiveWide }}" title="切换为宽屏阅读" aria-pressed="false">宽屏</button>
+          <button class="tbtn tool-pill fullscreen-only-control" onClick="{{ toggleComments }}" title="显示批注" aria-label="显示批注">
+            <span class="fullscreen-comments-label">批注</span>
+            <span ref="{{ previewCommentCountRef }}" class="count-badge">0</span>
+          </button>
+          <button class="tbtn tool-pill" onClick="{{ togglePreviewFullscreen }}" title="沉浸式阅读（Esc 退出）" aria-label="沉浸式阅读">
+            <svg ref="{{ fullscreenIconRef }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="1.8" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"></path></svg>
+            <span ref="{{ fullscreenLabelRef }}" class="fullscreen-button-label">沉浸式阅读</span>
+          </button>
+        </span>
+      </div>
+      <div ref="{{ previewSearchBarRef }}" class="preview-search-bar" role="search" aria-label="搜索预览内容">
+        <input ref="{{ previewSearchInputRef }}" class="search-input preview-search-input" type="text" placeholder="搜索预览…" aria-label="搜索预览" sc-camel-spell-check="" />
+        <span ref="{{ previewSearchCountRef }}" class="search-count preview-search-count" aria-live="polite"></span>
+        <button class="tbtn search-tool" onClick="{{ previewSearchPrev }}" title="上一处（Shift+Enter）" aria-label="上一处">↑</button>
+        <button class="tbtn search-tool" onClick="{{ previewSearchNext }}" title="下一处（Enter）" aria-label="下一处">↓</button>
+        <button class="tbtn search-tool search-close" onClick="{{ closePreviewSearch }}" title="关闭（Esc）" aria-label="关闭预览搜索">&times;</button>
+      </div>
+      <div ref="{{ previewRef }}" class="md-preview" sc-camel-content-editable="false" sc-camel-spell-check=""></div>
+    </section>
+
+    <!-- COMMENTS PANEL -->
+    <aside ref="{{ commentsRef }}" class="comments-panel">
+      <div ref="{{ commentsResizeRef }}" class="comments-resize-handle" title="拖动调整侧栏宽度" aria-hidden="true"></div>
+      <div class="panel-header">
+        <span class="panel-title">我的批注</span>
+        <button class="panel-close" onClick="{{ closePanel }}" title="收起" aria-label="收起批注面板">&times;</button>
+      </div>
+      <div class="panel-actions">
+        <button class="abtn secondary" onClick="{{ copyAll }}">复制全部批注</button>
+        <button class="abtn primary" onClick="{{ copyFull }}">复制全文+批注</button>
+      </div>
+      <div ref="{{ commentListRef }}" class="comment-list"></div>
+    </aside>
+  </main>
+  </div>
+
+  <!-- ===== STATUS BAR ===== -->
+  <footer class="app-footer">
+    <span ref="{{ saveStatusRef }}" class="save-status">就绪</span>
+    <span ref="{{ footerPathRef }}" class="footer-path" title=""></span>
+    <span class="footer-stats">
+      <span class="font-controls">
+        <span class="font-controls-label">字号</span>
+        <button class="tbtn font-btn-sm font-dec" onClick="{{ fontDec }}" title="缩小">A−</button>
+        <span ref="{{ fontSizeRef }}" class="font-size-value">16px</span>
+        <button class="tbtn font-btn-sm font-inc" onClick="{{ fontInc }}" title="放大">A+</button>
+      </span>
+      <span ref="{{ countRef }}" class="word-count">0 字 · 0 行</span>
+    </span>
+  </footer>
+
+  <!-- ===== SELECTION TOOLBAR ===== -->
+  <div ref="{{ selBarRef }}" class="selection-toolbar" onMouseDown="{{ noop }}">
+    <button class="seltool" onClick="{{ copySel }}" title="复制选中文字">
+      <span class="seltool-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h8"></path></svg></span>复制
+    </button>
+    <button class="seltool" onClick="{{ copyHtml }}" title="复制为带格式 HTML">
+      <span class="seltool-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"></path></svg></span>复制HTML
+    </button>
+    <span class="seltool-divider"></span>
+    <button class="seltool" onClick="{{ markMarker }}" title="马克笔高亮">
+      <span class="seltool-icon"><span class="seltool-glyph glyph-mark">A</span></span>马克笔
+    </button>
+    <button class="seltool" onClick="{{ markWavy }}" title="波浪线">
+      <span class="seltool-icon"><span class="seltool-glyph glyph-wavy">A</span></span>波浪线
+    </button>
+    <button class="seltool" onClick="{{ markStraight }}" title="直线">
+      <span class="seltool-icon"><span class="seltool-glyph glyph-line">A</span></span>直线
+    </button>
+    <span class="seltool-divider"></span>
+    <button class="seltool" onClick="{{ writeIdea }}" title="写想法（加批注）">
+      <span class="seltool-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M12 7v6M9 10h6" sc-camel-stroke-width="1.6"></path></svg></span>写想法
+    </button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;dark&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;tsType&quot;:&quot;'dark'|'light'&quot;},&quot;wrapSource&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const Component = window.createMarkdownEditorComponent(DCLogic, React);
+</script>
+</body>
+</html>

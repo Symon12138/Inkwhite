@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"飞白 默认权限：允许核心 API、对话框和事件通信。","local":true,"windows":["main"],"permissions":["core:default","dialog:default","core:event:default"]}}

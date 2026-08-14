@@ -1,0 +1,2 @@
+// 测试二进制专用资源：RT_MANIFEST（类型 24，ID 1）引用同目录下的 test-manifest.xml。
+1 24 "test-manifest.xml"

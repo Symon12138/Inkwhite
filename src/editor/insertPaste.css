@@ -1,0 +1,23 @@
+/* ===== M3 表格工具栏 ===== */
+.table-toolbar {
+  position: fixed;
+  z-index: 90;
+  display: none;
+  gap: 4px;
+  padding: 6px;
+  background: var(--tool-bg);
+  border: 1px solid var(--tool-border);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-md);
+  align-items: center;
+}
+.table-toolbar-btn {
+  border: 0;
+  background: transparent;
+  color: var(--tool-text);
+  font: var(--fs-xs)/1 var(--sans);
+  padding: 5px 7px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.table-toolbar-btn:hover { background: var(--tool-hover); }
