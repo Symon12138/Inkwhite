@@ -50,41 +50,119 @@
 
 <div class="app-shell">
 
+  <!-- ===== 菜单栏（Typora 风格：文件/编辑/段落/格式/视图/主题/帮助） ===== -->
+  <nav class="menubar" aria-label="主菜单">
+    <div class="menubar-item" data-menubar="file">
+      <button class="menubar-trigger" data-menubar-trigger="file" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarFile }}">文件<span class="mnemonic">(F)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="文件菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileNew }}">新建文档<span class="menu-shortcut">⌘N</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileOpen }}">打开…<span class="menu-shortcut">⌘O</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileSave }}">保存<span class="menu-shortcut">⌘S</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuFileSaveAs }}">另存为…<span class="menu-shortcut">⌘⇧S</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuRecent }}">最近文档</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuQuickOpen }}">快速打开…<span class="menu-shortcut">⌘P</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuInsertImage }}">插入图片…</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportHtml }}">导出 HTML…</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportPdf }}">导出 PDF…（打印）</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuExportWord }}">导出 Word…</button>
+      </div>
+    </div>
+    <div class="menubar-item" data-menubar="edit">
+      <button class="menubar-trigger" data-menubar-trigger="edit" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarEdit }}">编辑<span class="mnemonic">(E)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="编辑菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuUndo }}">撤销<span class="menu-shortcut">⌘Z</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuRedo }}">重做<span class="menu-shortcut">⌘⇧Z</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuSearch }}">查找替换…<span class="menu-shortcut">⌘F</span></button>
+      </div>
+    </div>
+    <div class="menubar-item" data-menubar="para">
+      <button class="menubar-trigger" data-menubar-trigger="para" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarPara }}">段落<span class="mnemonic">(P)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="段落菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuH1 }}">标题 1<span class="menu-shortcut">⌘1</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuH2 }}">标题 2<span class="menu-shortcut">⌘2</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuH3 }}">标题 3<span class="menu-shortcut">⌘3</span></button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtList }}">无序列表</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtQuote }}">引用</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtCodeBlock }}">代码块</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtTask }}">任务列表</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtHr }}">分割线</button>
+      </div>
+    </div>
+    <div class="menubar-item" data-menubar="format">
+      <button class="menubar-trigger" data-menubar-trigger="format" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarFormat }}">格式<span class="mnemonic">(O)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="格式菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtB }}">加粗<span class="menu-shortcut">⌘B</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtI }}">斜体<span class="menu-shortcut">⌘I</span></button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtStrike }}">删除线</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtHighlight }}">高亮</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtUnderline }}">下划线</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtCode }}">行内代码</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtSup }}">上标</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtSub }}">下标</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtFootnote }}">脚注</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtTable }}">插入表格</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ fmtLink }}">链接</button>
+      </div>
+    </div>
+    <div class="menubar-item" data-menubar="view">
+      <button class="menubar-trigger" data-menubar-trigger="view" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarView }}">视图<span class="mnemonic">(V)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="视图菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ showEditorMode }}">编辑视图</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ showSplitMode }}">分屏视图</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ showPreviewMode }}">预览视图</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ toggleOutline }}">大纲</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ openFileTree }}">文件树</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ toggleComments }}">批注</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ toggleTypewriterMode }}">打字机模式</button>
+      </div>
+    </div>
+    <div class="menubar-item" data-menubar="theme">
+      <button class="menubar-trigger" data-menubar-trigger="theme" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarTheme }}">主题<span class="mnemonic">(T)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="主题菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuTheme }}">切换 亮色/暗黑</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperInk }}">纸色 · 墨黑</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperParchment }}">纸色 · 羊皮纸</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperCream }}">纸色 · 米黄</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperSnow }}">纸色 · 清爽白</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperGreen }}">纸色 · 豆沙绿</button>
+        <button class="header-menu-item" role="menuitem" onClick="{{ importFont }}">导入字体…</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuSettings }}">设置…</button>
+        <div class="header-menu-separator" role="separator"></div>
+        <div class="menubar-font-row"><span ref="{{ fontSelectSlotRef }}"></span></div>
+      </div>
+    </div>
+    <div class="menubar-item" data-menubar="help">
+      <button class="menubar-trigger" data-menubar-trigger="help" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarHelp }}">帮助<span class="mnemonic">(H)</span></button>
+      <div class="menubar-menu" role="menu" aria-label="帮助菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuAbout }}">关于 飞白 Inkwhite</button>
+      </div>
+    </div>
+  </nav>
+
   <!-- ===== M5 标签栏（tabMethods 注入） ===== -->
   <div ref="{{ tabBarRef }}" class="tab-bar-host"></div>
 
-  <!-- ===== HEADER（单行顶栏：品牌 | 视图切换 | 动作组，扁平导航） ===== -->
+  <!-- ===== HEADER（精简：品牌 + 文件名） ===== -->
   <header class="app-header">
     <div class="header-main">
     <div class="header-brand">
       <span class="brand-dot" aria-hidden="true"></span>
-      <a class="brand-mark" href="#" title="返回首页" aria-label="返回首页">
-        <img src="/symark-lightning-animated.svg" alt="">
-      </a>
       <a class="brand-title" href="#" title="飞白" aria-label="飞白">飞白</a>
       <span class="file-meta">
         <span ref="{{ dirtyDotRef }}" class="dirty-dot"></span>
         <span ref="{{ fileNameRef }}" class="file-name">未命名.md</span>
       </span>
-    </div>
-    <div class="header-actions">
-      <span ref="{{ viewModeSwitcherRef }}" class="view-mode-switcher" role="group" aria-label="编辑器视图">
-        <button class="view-mode-option" data-mode="editor" onClick="{{ showEditorMode }}" aria-pressed="false" title="仅显示 Markdown 原文">编辑</button>
-        <button class="view-mode-option split-mode-option" data-mode="split" onClick="{{ showSplitMode }}" aria-pressed="true" title="同时显示原文和预览">分屏</button>
-        <button class="view-mode-option" data-mode="preview" onClick="{{ showPreviewMode }}" aria-pressed="false" title="仅显示只读预览">预览</button>
-      </span>
-      <button class="abtn icon collapsible-action" onClick="{{ toggleTheme }}" title="切换 亮色/暗黑" aria-label="切换亮色或暗黑主题"><span ref="{{ themeIconRef }}">☾</span></button>
-      <button ref="{{ outlineButtonRef }}" class="abtn" onClick="{{ toggleOutline }}" title="查看文章大纲" aria-label="查看文章大纲" aria-expanded="false"><span>☷</span> <span class="action-label">大纲</span> <span ref="{{ outlineCountRef }}" class="outline-count">0</span></button>
-      <button class="abtn" onClick="{{ toggleComments }}" aria-label="批注"><span class="action-label">批注</span> <span ref="{{ commentCountRef }}" class="count-badge">0</span></button>
-      <button class="abtn" onClick="{{ toggleTypewriterMode }}" title="打字机模式" aria-label="打字机模式"><span class="action-label">打字机</span></button>
-      <select ref="{{ fontSelectRef }}" class="font-select" onChange="{{ fontSelectChanged }}" aria-label="选择字体" title="选择编辑与预览字体"></select>
-      <button class="abtn icon font-import" onClick="{{ importFont }}" title="导入字体文件（ttf/otf/woff/woff2）" aria-label="导入字体">＋</button>
-      <button class="abtn" onClick="{{ openFileTree }}" aria-label="文件树" title="浏览文件">☰</button>
-      <button ref="{{ headerMoreRef }}" class="abtn icon header-more" onClick="{{ toggleHeaderMenu }}" title="更多操作" aria-label="更多操作" aria-haspopup="menu" aria-expanded="false">⋯</button>
-      <div ref="{{ headerMenuRef }}" class="header-menu" role="menu" aria-label="更多操作">
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuTheme }}">切换主题</button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ menuSettings }}">设置…</button>
-      </div>
     </div>
     </div>
   </header>
@@ -128,40 +206,9 @@
 
     <!-- LEFT: source -->
     <section class="source-pane">
-      <div class="pane-toolbar">
+      <div class="pane-toolbar source-toolbar">
         <div class="source-toolbar-leading">
           <span class="pane-title">Markdown 原文</span>
-          <div class="history-toolbar-actions" role="group" aria-label="编辑历史">
-          <button ref="{{ undoButtonRef }}" class="tbtn fmt history-action" onClick="{{ undoEdit }}" title="撤销（⌘Z / Ctrl+Z）" aria-label="撤销" disabled><svg class="history-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2.6" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 1 1 0 11H11"></path></svg></button>
-          <button ref="{{ redoButtonRef }}" class="tbtn fmt history-action" onClick="{{ redoEdit }}" title="重做（⌘⇧Z / Ctrl+Y）" aria-label="重做" disabled><svg class="history-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2.6" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"></path><path d="M20 9H9.5a5.5 5.5 0 1 0 0 11H13"></path></svg></button>
-          </div>
-          <button class="tbtn fmt history-action search-toggle" onClick="{{ toggleSearch }}" title="搜索替换（⌘F）" aria-label="搜索替换"><svg class="history-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2.4" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg></button>
-        </div>
-        <div class="source-toolbar-actions" role="group" aria-label="Markdown 格式">
-          <button class="tbtn fmt fmt-h" onClick="{{ fmtH }}" title="标题">H</button>
-          <button class="tbtn fmt fmt-b" onClick="{{ fmtB }}" title="加粗">B</button>
-          <button class="tbtn fmt fmt-i" onClick="{{ fmtI }}" title="斜体">i</button>
-          <button class="tbtn fmt" onClick="{{ fmtStrike }}" title="删除线">~~</button>
-          <button class="tbtn fmt" onClick="{{ fmtHighlight }}" title="高亮">==</button>
-          <button class="tbtn fmt" onClick="{{ fmtUnderline }}" title="下划线">U</button>
-          <button class="tbtn fmt fmt-lg" onClick="{{ fmtQuote }}" title="引用">&rdquo;</button>
-          <button class="tbtn fmt fmt-lg" onClick="{{ fmtList }}" title="列表">•</button>
-          <button class="tbtn fmt fmt-code" onClick="{{ fmtCode }}" title="行内代码">&lt;&gt;</button>
-          <button class="tbtn fmt" onClick="{{ fmtLink }}" title="链接">&#128279;</button>
-          <span ref="{{ moreToolsRef }}" class="more-tools-wrap">
-            <button class="tbtn fmt more-tools-toggle" onClick="{{ toggleMoreTools }}" title="更多格式" aria-label="更多格式" aria-expanded="false">⋯</button>
-            <div class="more-tools" role="menu" aria-label="更多格式选项">
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtImage }}">插入图片…</button>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtTable }}">插入表格</button>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtTask }}">任务列表</button>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtCodeBlock }}">代码块</button>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtSup }}">上标</button>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtSub }}">下标</button>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtFootnote }}">脚注</button>
-              <div class="header-menu-separator" role="separator"></div>
-              <button class="header-menu-item" role="menuitem" onClick="{{ fmtHr }}">分隔线</button>
-            </div>
-          </span>
         </div>
       </div>
       <div ref="{{ searchBarRef }}" class="search-bar" role="search" aria-label="搜索与替换">

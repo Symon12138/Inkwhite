@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 
 test('editor uses the complete local Canger reading font without remote fonts', async ({ page }) => {
   const remoteFontRequests: string[] = [];
@@ -46,16 +46,14 @@ test('字数统计跟随内容更新（M4 四项口径）', async ({ page }) => 
   await expect(page.locator('.word-count')).toHaveText('5 字 · 5 字符 · 2 行 · 1 段');
 });
 
-test('顶栏纯图标按钮（主题/更多）字形足够大，不糊成小点', async ({ page }) => {
-  // 单字符图标（☾/⋯）与相邻的多字词按钮不同，14px 时在 34px 按钮里又小又飘，
-  // 桌面端看不清。要求字形明显大于文本按钮的 12px。
-  // 注：旧断言里的 .settings-entry（AI 设置入口）已随飞白桌面端改造移除，
-  // 现以「更多」按钮作为第二枚纯图标按钮验证。
-  const glyphSize = (selector: string) =>
-    page.locator(selector).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-
-  expect(await glyphSize('.abtn.icon.collapsible-action')).toBeGreaterThanOrEqual(17);
-  expect(await glyphSize('.abtn.icon.header-more')).toBeGreaterThanOrEqual(17);
+test('菜单栏条目字形足够大，可读清晰', async ({ page }) => {
+  // Typora 风格菜单栏：触发器文字清晰，不小于 12px。
+  const glyphSize = await page.locator('.menubar-trigger').first().evaluate(
+    (el) => parseFloat(getComputedStyle(el).fontSize)
+  );
+  expect(glyphSize).toBeGreaterThanOrEqual(12);
+  const triggerCount = await page.locator('.menubar-trigger').count();
+  expect(triggerCount).toBeGreaterThanOrEqual(7);
 });
 
 test('视图切换在编辑、分屏、预览三种布局间生效', async ({ page }) => {
@@ -63,17 +61,17 @@ test('视图切换在编辑、分屏、预览三种布局间生效', async ({ pa
   const source = page.locator('.md-source');
   const preview = page.locator('.md-preview');
 
-  await page.locator('.view-mode-option[data-mode="editor"]').click();
+  await clickMenubarItem(page, 'view', '编辑视图');
   await expect(main).toHaveClass(/editor-mode-active/);
   await expect(source).toBeVisible();
   await expect(preview).toBeHidden();
 
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
   await expect(main).toHaveClass(/preview-mode-active/);
   await expect(preview).toBeVisible();
   await expect(source).toBeHidden();
 
-  await page.locator('.view-mode-option[data-mode="split"]').click();
+  await clickMenubarItem(page, 'view', '分屏视图');
   await expect(main).not.toHaveClass(/editor-mode-active|preview-mode-active/);
   await expect(source).toBeVisible();
   await expect(preview).toBeVisible();
@@ -106,7 +104,7 @@ test('窄屏分屏模式下预览工具栏按钮不挤压换行', async ({ page 
 });
 
 test('打开批注面板后预览工具栏收纳，不与面板重叠', async ({ page }) => {
-  await page.getByRole('button', { name: /^批注/ }).click();
+  await clickMenubarItem(page, 'view', '批注');
   const panel = page.locator('.comments-panel');
   await expect(panel).toBeVisible();
 
@@ -128,10 +126,10 @@ test('主题切换写入 data-theme 并可来回切换', async ({ page }) => {
   const initial = await body.getAttribute('data-theme');
   const other = initial === 'dark' ? 'light' : 'dark';
 
-  await page.getByRole('button', { name: '切换亮色或暗黑主题' }).click();
+  await clickMenubarItem(page, 'theme', '切换');
   await expect(body).toHaveAttribute('data-theme', other);
 
-  await page.getByRole('button', { name: '切换亮色或暗黑主题' }).click();
+  await clickMenubarItem(page, 'theme', '切换');
   await expect(body).toHaveAttribute('data-theme', initial!);
 });
 

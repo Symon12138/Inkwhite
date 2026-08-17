@@ -13,7 +13,7 @@
 //   5. FM 内 <script> 恶意值转义为文本、不执行；
 //   6. FM/TOC 文本不进正文锚文本（预览搜索偏移稳定）；
 //   7. TOC 锚点可点击并滚动到目标标题。
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 
 test('Front Matter 卡片与 [TOC] 目录同页渲染', async ({ page }) => {
   await openEditor(page);
@@ -154,7 +154,7 @@ test('FM 与 TOC 文本不进正文锚文本（预览搜索偏移稳定）', asy
     ''
   ].join('\n'));
 
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
   await page.keyboard.press('ControlOrMeta+f');
   await page.getByRole('textbox', { name: '搜索预览' }).fill('目标词');
   // FM title 与 TOC 链接文本均被 bodyText 排除——只有正文一处命中；

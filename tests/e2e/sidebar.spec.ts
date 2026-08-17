@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 
 // Typora 风格左侧边栏：文件 | 大纲 两页签；大纲在编辑视图可用；分屏滚动双向同步。
 
@@ -7,7 +7,7 @@ test('侧边栏默认收起；文件树按钮展开并切到文件页签', async
 
   await expect(page.locator('.document-sidebar')).toHaveClass(/is-collapsed/);
 
-  await page.getByRole('button', { name: '文件树' }).click();
+  await clickMenubarItem(page, 'view', '文件树');
   await expect(page.locator('.document-sidebar')).not.toHaveClass(/is-collapsed/);
   await expect(page.locator('.sidebar-tab[data-sidebar-tab="files"]')).toHaveClass(/is-active/);
   await expect(page.locator('.sidebar-panel[data-sidebar-panel="files"]')).toHaveClass(/is-active/);
@@ -18,11 +18,11 @@ test('大纲在编辑视图可用：展开侧边栏、列表就位、点击跳�
   await setSource(page, '# 标题一\n\n内容段落\n\n## 子标题二\n\n更多内容');
 
   // 切到编辑视图（预览隐藏）
-  await page.locator('.view-mode-option[data-mode="editor"]').click();
+  await clickMenubarItem(page, 'view', '编辑视图');
   await expect(page.locator('.md-preview')).toBeHidden();
 
-  // 点预览工具栏「大纲」→ 侧边栏展开 + 大纲页签激活 + 列表有内容
-  await page.getByRole('button', { name: '查看文章大纲' }).click();
+  // 点「大纲」菜单 → 侧边栏展开 + 大纲页签激活 + 列表有内容
+  await clickMenubarItem(page, 'view', '大纲');
   await expect(page.locator('.document-sidebar')).not.toHaveClass(/is-collapsed/);
   await expect(page.locator('.sidebar-tab[data-sidebar-tab="outline"]')).toHaveClass(/is-active/);
   const items = page.locator('.outline-item');
@@ -84,7 +84,7 @@ test('分屏滚动同步：滚源码预览跟随，滚预览源码跟随', async
 test('收起按钮关闭侧边栏', async ({ page }) => {
   await openEditor(page);
 
-  await page.getByRole('button', { name: '文件树' }).click();
+  await clickMenubarItem(page, 'view', '文件树');
   await expect(page.locator('.document-sidebar')).not.toHaveClass(/is-collapsed/);
 
   await page.getByRole('button', { name: '收起侧边栏' }).click();

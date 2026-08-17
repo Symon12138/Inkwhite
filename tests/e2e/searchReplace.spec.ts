@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource, selectInSource } from './fixtures';
+import { test, expect, openEditor, setSource, selectInSource, clickMenubarItem } from './fixtures';
 
 test('⌘F 打开搜索条，计数、循环跳转与 Esc 关闭', async ({ page }) => {
   await openEditor(page);
@@ -30,7 +30,7 @@ test('选中文字后打开搜索会预填关键字', async ({ page }) => {
   await setSource(page, 'alpha beta alpha');
   await selectInSource(page, 'beta');
 
-  await page.getByRole('button', { name: '搜索替换' }).click();
+  await clickMenubarItem(page, 'edit', '查找替换');
 
   await expect(page.getByRole('textbox', { name: '搜索文本' })).toHaveValue('beta');
   await expect(page.locator('.search-bar .search-count')).toHaveText('第 1 项，共 1 项');
@@ -40,7 +40,7 @@ test('替换当前与全部替换，预览同步且可撤销', async ({ page }) 
   await openEditor(page);
   await setSource(page, '# alpha\n\nalpha beta Alpha');
 
-  await page.getByRole('button', { name: '搜索替换' }).click();
+  await clickMenubarItem(page, 'edit', '查找替换');
   await page.getByRole('textbox', { name: '搜索文本' }).fill('alpha');
   await expect(page.locator('.search-bar .search-count')).toHaveText('第 1 项，共 3 项');
   await page.getByRole('button', { name: '展开或收起替换' }).click();
@@ -55,9 +55,9 @@ test('替换当前与全部替换，预览同步且可撤销', async ({ page }) 
   await expect(page.locator('.search-bar .search-count')).toHaveText(/无结果|^$/);
 
   // 每次替换都是独立的撤销条目
-  await page.getByRole('button', { name: '撤销' }).click();
+  await clickMenubarItem(page, 'edit', '撤销');
   await expect(page.locator('.md-source')).toHaveValue('# omega\n\nalpha beta Alpha');
-  await page.getByRole('button', { name: '撤销' }).click();
+  await clickMenubarItem(page, 'edit', '撤销');
   await expect(page.locator('.md-source')).toHaveValue('# alpha\n\nalpha beta Alpha');
 });
 
@@ -65,7 +65,7 @@ test('区分大小写开关影响匹配数量', async ({ page }) => {
   await openEditor(page);
   await setSource(page, 'Alpha alpha ALPHA');
 
-  await page.getByRole('button', { name: '搜索替换' }).click();
+  await clickMenubarItem(page, 'edit', '查找替换');
   await page.getByRole('textbox', { name: '搜索文本' }).fill('alpha');
   await expect(page.locator('.search-bar .search-count')).toHaveText('第 1 项，共 3 项');
 
@@ -79,7 +79,7 @@ test('区分大小写开关影响匹配数量', async ({ page }) => {
 test('预览模式下 ⌘F 打开预览搜索并用 Highlight API 高亮', async ({ page }) => {
   await openEditor(page);
   await setSource(page, '# 搜索\n\n第一段有目标词的内容。\n\n第二段也有目标词的内容。');
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
 
   await page.keyboard.press('ControlOrMeta+f');
   await expect(page.locator('.preview-search-bar')).toHaveClass(/is-open/);

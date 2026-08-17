@@ -12,7 +12,7 @@
 // 已知边界（实现注释同源）：数学标题的 TOC slug 与大纲 textContent 不同源
 // （KaTeX katex-mathml 双轨 → $z$ 的 textContent 为 'zzz'），故标题不使用公式，
 // 公式只出现在正文中。
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 
 const FAMILY_DOC = [
   '---',
@@ -140,7 +140,7 @@ test('FM/TOC 不进正文锚文本：预览搜索偏移稳定（批注/搜索定
   await openEditor(page);
   await setSource(page, FAMILY_DOC);
 
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
   await page.keyboard.press('ControlOrMeta+f');
 
   // 「结尾」出现在正文标题（计入锚文本）与 TOC 链接文本（被排除）——

@@ -11,7 +11,7 @@
 //   排除区关键词可被搜到（用例 3/4 断言「无结果」，旧行为为「第 1 项，共 1 项」）。
 // 接线后全部转绿。
 
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 import type { Page, Locator } from '@playwright/test';
 
 const STABILITY_DOC = [
@@ -73,7 +73,7 @@ test('脚注区文本不作为批注锚点：在 .footnotes 内创建批注不�
 test('预览搜索：排除区后的正文关键词仍命中', async ({ page }) => {
   await openEditor(page);
   await setSource(page, STABILITY_DOC);
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
 
   await page.keyboard.press('ControlOrMeta+f');
   await page.getByRole('textbox', { name: '搜索预览' }).fill('正文第二段');
@@ -83,7 +83,7 @@ test('预览搜索：排除区后的正文关键词仍命中', async ({ page }) 
 test('预览搜索：仅存在于排除区（.footnotes）的关键词不命中', async ({ page }) => {
   await openEditor(page);
   await setSource(page, STABILITY_DOC);
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
 
   await page.keyboard.press('ControlOrMeta+f');
   await page.getByRole('textbox', { name: '搜索预览' }).fill('脚注内容');
@@ -93,7 +93,7 @@ test('预览搜索：仅存在于排除区（.footnotes）的关键词不命中'
 test('预览搜索：仅存在于排除区（.toc）的关键词不命中', async ({ page }) => {
   await openEditor(page);
   await setSource(page, STABILITY_DOC);
-  await page.locator('.view-mode-option[data-mode="preview"]').click();
+  await clickMenubarItem(page, 'view', '预览视图');
 
   await page.keyboard.press('ControlOrMeta+f');
   await page.getByRole('textbox', { name: '搜索预览' }).fill('目录项');

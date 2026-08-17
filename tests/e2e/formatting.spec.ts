@@ -1,29 +1,29 @@
-import { test, expect, openEditor, setSource, selectInSource } from './fixtures';
+import { test, expect, openEditor, setSource, selectInSource, clickMenubarItem } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
   await openEditor(page);
   await setSource(page, 'hello world');
 });
 
-test('工具栏加粗选区并可撤销、重做', async ({ page }) => {
+test('菜单加粗选区并可撤销、重做', async ({ page }) => {
   const source = page.locator('.md-source');
   await selectInSource(page, 'world');
 
-  await page.locator('button[title="加粗"]').click();
+  await clickMenubarItem(page, 'format', '加粗');
   await expect(source).toHaveValue('hello **world**');
   await expect(page.locator('.md-preview strong')).toHaveText('world');
 
-  await page.getByRole('button', { name: '撤销' }).click();
+  await clickMenubarItem(page, 'edit', '撤销');
   await expect(source).toHaveValue('hello world');
 
-  await page.getByRole('button', { name: '重做' }).click();
+  await clickMenubarItem(page, 'edit', '重做');
   await expect(source).toHaveValue('hello **world**');
 });
 
 test('快捷键在原文区触发撤销', async ({ page }) => {
   const source = page.locator('.md-source');
   await selectInSource(page, 'world');
-  await page.locator('button[title="斜体"]').click();
+  await clickMenubarItem(page, 'format', '斜体');
   await expect(source).toHaveValue('hello *world*');
 
   await source.press('ControlOrMeta+z');
@@ -34,7 +34,7 @@ test('引用与列表命令作用于整行', async ({ page }) => {
   const source = page.locator('.md-source');
   await selectInSource(page, 'hello');
 
-  await page.locator('button[title="引用"]').click();
+  await clickMenubarItem(page, 'para', '引用');
   await expect(source).toHaveValue('> hello world');
   await expect(page.locator('.md-preview blockquote')).toContainText('hello world');
 });

@@ -15,9 +15,24 @@ export class ViewMethods {
     split.classList.toggle('editor-mode-active', this.viewMode === 'editor');
     split.classList.toggle('preview-mode-active', this.viewMode === 'preview');
     const switcher = this.viewModeSwitcherRef.current;
-    if (!switcher) return;
-    switcher.querySelectorAll('[data-mode]').forEach((button) => {
-      button.setAttribute('aria-pressed', button.dataset.mode === this.viewMode ? 'true' : 'false');
+    if (switcher) {
+      switcher.querySelectorAll('[data-mode]').forEach((button) => {
+        button.setAttribute('aria-pressed', button.dataset.mode === this.viewMode ? 'true' : 'false');
+      });
+    }
+    if (typeof this._syncViewMenuChecks === 'function') this._syncViewMenuChecks();
+  }
+
+  // Typora 风格菜单勾选：视图菜单标注当前模式（CSS 勾选，不改文本）
+  _syncViewMenuChecks() {
+    if (typeof document === 'undefined') return;
+    const viewMenu = document.querySelector('[data-menubar="view"] .menubar-menu');
+    if (!viewMenu) return;
+    const map = { '编辑视图': 'editor', '分屏视图': 'split', '预览视图': 'preview' };
+    viewMenu.querySelectorAll('.header-menu-item').forEach((item) => {
+      const mode = map[(item.textContent || '').trim()];
+      item.classList.toggle('is-checked', mode === this.viewMode);
+      item.setAttribute('aria-checked', mode === this.viewMode ? 'true' : 'false');
     });
   }
 
@@ -115,27 +130,8 @@ export class ViewMethods {
     this._applyPaper();
   }
 
-  // ===== 小屏顶栏溢出菜单（⋯） =====
+  // ===== 菜单栏 & 顶栏溢出菜单（见 menubarMethods.ts） =====
 
-  toggleHeaderMenu(force) {
-    const menu = this.headerMenuRef.current;
-    const more = this.headerMoreRef.current;
-    if (!menu) return;
-    const open = typeof force === 'boolean' ? force : !menu.classList.contains('is-open');
-    menu.classList.toggle('is-open', open);
-    if (more) more.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open && !this._headerMenuDocH) {
-      this._headerMenuDocH = (e) => {
-        if (menu.contains(e.target)) return;
-        if (more && (e.target === more || more.contains(e.target))) return;
-        this.toggleHeaderMenu(false);
-      };
-      document.addEventListener('click', this._headerMenuDocH);
-    } else if (!open && this._headerMenuDocH) {
-      document.removeEventListener('click', this._headerMenuDocH);
-      this._headerMenuDocH = null;
-    }
-  }
 
 
   togglePreviewFullscreen(force) {

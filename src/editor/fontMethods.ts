@@ -23,8 +23,27 @@ const SYSTEM_FONTS = [
 export class FontMethods {
   // ===== 选择器构建 =====
 
+  // 获取或创建字体选择器（DC 模板不含 select，由 JS 注入到 fontSelectSlotRef 槽位，
+  // 规避 DC 对 menu 内 label/select 的事件绑定缺陷）
+  _ensureFontSelect() {
+    const slot = this.fontSelectSlotRef && this.fontSelectSlotRef.current;
+    if (!slot) return null;
+    let sel = slot.querySelector('select.font-select');
+    if (!sel) {
+      sel = document.createElement('select');
+      sel.className = 'font-select menubar-font';
+      sel.setAttribute('aria-label', '选择字体');
+      sel.title = '选择编辑与预览字体';
+      sel.__fontChangeBound = true;
+      sel.addEventListener('change', () => this._onFontSelectChanged());
+      slot.appendChild(sel);
+    }
+    if (this.fontSelectRef) this.fontSelectRef.current = sel;
+    return sel;
+  }
+
   _buildFontSelect() {
-    const sel = this.fontSelectRef && this.fontSelectRef.current;
+    const sel = this._ensureFontSelect();
     if (!sel) return;
     sel.innerHTML = '';
     for (const f of SYSTEM_FONTS) {
@@ -51,6 +70,11 @@ export class FontMethods {
     const known = SYSTEM_FONTS.some((f) => f.id === current)
       || (imported.some((f) => 'imported:' + f.family === current));
     sel.value = known ? current : 'default';
+    // 原生 change 监听（兼容 DC 模板对嵌套 select 的 onChange 绑定失效场景）
+    if (!sel.__fontChangeBound) {
+      sel.__fontChangeBound = true;
+      sel.addEventListener('change', () => this._onFontSelectChanged());
+    }
   }
 
 

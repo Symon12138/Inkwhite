@@ -8,6 +8,69 @@
 html:has(body.editor-active),
 body.editor-active { overflow: hidden; }
 
+/* ===== Typora 风格菜单栏 ===== */
+.menubar {
+  display: flex;
+  align-items: stretch;
+  height: 30px;
+  padding: 0 4px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  -webkit-user-select: none;
+  user-select: none;
+  flex: none;
+  position: relative;
+  z-index: 200;
+}
+.menubar-item { position: relative; }
+.menubar-trigger {
+  height: 100%;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: var(--fs-sm);
+  line-height: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.menubar-trigger:hover { background: var(--accent-soft); color: var(--accent); }
+.menubar-item.is-open .menubar-trigger { background: var(--accent-soft); color: var(--accent); }
+.menubar-item .mnemonic { font-size: 10px; color: var(--text-4); margin-left: 2px; }
+.menubar-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 200;
+  min-width: 180px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface);
+  background: var(--bg-2);
+  box-shadow: var(--shadow-md);
+}
+.menubar-item.is-open .menubar-menu { display: flex; }
+.menubar-menu .header-menu-item { padding: 8px 12px; font-size: var(--fs-sm); }
+.menubar-font-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 12px;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+.menubar-font-row select { max-width: 110px; }
+.menubar-menu .header-menu-item.is-checked::before {
+  content: '✓ ';
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .app-shell {
   height: 100vh;
   display: flex;

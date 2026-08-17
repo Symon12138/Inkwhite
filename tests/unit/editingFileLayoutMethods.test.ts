@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EditingFileLayoutMethods } from '../../src/editor/editingFileLayoutMethods.ts';
-import { ViewMethods } from '../../src/editor/viewMethods.ts';
+import { MenubarMethods } from '../../src/editor/menubarMethods.ts';
 
 function createSource(value: string, selectionStart: number, selectionEnd = selectionStart) {
   let currentValue = value;
@@ -152,7 +152,7 @@ test('⋯ 更多菜单开合同步 is-open 与 aria-expanded', () => {
   };
   try {
     const editor = createEditor(createSource('', 0));
-    Object.assign(editor, { toggleHeaderMenu: ViewMethods.prototype.toggleHeaderMenu });
+    Object.assign(editor, { toggleHeaderMenu: MenubarMethods.prototype.toggleHeaderMenu });
     const attrs = new Map<string, string>();
     const classes = new Set<string>();
     editor.headerMenuRef = {

@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // S0.3 打印样式层（WP8a）：Playwright Chromium 与 WebView2 同渲染引擎，
@@ -37,7 +37,7 @@ test('print 媒体：隐藏 app 壳层，只留 .md-preview 版心，表格恢�
   await expect(page.locator('.mermaid-rendered svg')).toBeVisible();
 
   // 打开批注面板：验证打印时即使面板开着也被隐藏（!important 压过内联 style）
-  await page.getByRole('button', { name: '批注', exact: true }).click();
+  await clickMenubarItem(page, 'view', '批注');
   await expect(page.locator('.comments-panel')).toBeVisible();
 
   await page.emulateMedia({ media: 'print' });

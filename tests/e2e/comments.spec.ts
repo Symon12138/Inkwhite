@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // 在预览里选中一段文字，浮出划词工具条。
@@ -72,7 +72,7 @@ test('想法批注可贴入自己找到的回答，刷新后仍保留', async ({
 
   await page.reload();
   await expect(page.locator('.md-source')).toBeVisible();
-  await page.getByRole('button', { name: '批注', exact: true }).click();
+  await clickMenubarItem(page, 'view', '批注');
   await expect(page.locator('.comment-reply-input')).toHaveValue('这是我从别处找到的答案');
 });
 

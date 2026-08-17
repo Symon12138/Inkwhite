@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 
 // M4 浏览器可测项：四项统计、最近文档列表、拖入 .md（浏览器路径）、跨文件搜索提示。
 // 桌面专属（搜索执行/窗口状态/关闭确认/外链）由 Rust 测试与 PLATFORM_TEST.md 覆盖。
@@ -56,7 +56,7 @@ test('浏览器端拖入 .md 打开内容（D 的浏览器路径）', async ({ p
 
 test('跨文件搜索：浏览器端给出桌面端提示（P7 接线）', async ({ page }) => {
   await openEditor(page);
-  await page.getByRole('button', { name: '文件树' }).click();
+  await clickMenubarItem(page, 'view', '文件树');
   await expect(page.locator('.save-status')).toHaveText(/桌面端环境/);
 });
 
