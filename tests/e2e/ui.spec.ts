@@ -26,7 +26,7 @@ test('菜单栏：7 项齐全；文件操作在文件菜单；字体选择器在
   expect(options.some((o) => o.includes('宋体'))).toBe(true);
 });
 
-test('标签栏品牌「飞白」用书法图片（非文字）', async ({ page }) => {
+test('标签栏品牌「飞白」用书法图片且尺寸合理（可辨认）', async ({ page }) => {
   await openEditor(page);
   const brand = page.locator('.tab-bar-brand');
   await expect(brand).toBeVisible();
@@ -35,6 +35,10 @@ test('标签栏品牌「飞白」用书法图片（非文字）', async ({ page 
   await expect(img).toHaveAttribute('alt', '飞白');
   const src = await img.getAttribute('src');
   expect(src).toContain('feibai');
+  // 狂草二字须 ≥30px 才能辨认笔画：断言渲染高度落在合理区间
+  const h = await img.evaluate((el) => el.getBoundingClientRect().height);
+  expect(h).toBeGreaterThanOrEqual(28);
+  expect(h).toBeLessThanOrEqual(38);
   // 品牌不再渲染成草书文字
   await expect(brand).not.toHaveText('飞白');
 });

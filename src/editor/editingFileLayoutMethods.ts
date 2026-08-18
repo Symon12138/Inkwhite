@@ -170,8 +170,19 @@ export class EditingFileLayoutMethods {
 
   // ===== 工具栏「更多格式」浮层与插入方法 =====
 
+  // 拿到实时存在的 .more-tools-wrap。DC 模板重渲染会生成新节点，导致
+  // moreToolsRef.current 指向已脱离文档的旧节点——此时回退到 DOM 查询，
+  // 并顺手刷新 ref，保证点击 ⋯ 总是作用于界面上那一个菜单。
+  _moreToolsWrap() {
+    const ref = this.moreToolsRef && this.moreToolsRef.current;
+    if (ref && ref.isConnected) return ref;
+    const live = (typeof document !== 'undefined') && document.querySelector('.more-tools-wrap');
+    if (live && this.moreToolsRef) this.moreToolsRef.current = live;
+    return live || null;
+  }
+
   toggleMoreTools(force) {
-    const wrap = this.moreToolsRef && this.moreToolsRef.current;
+    const wrap = this._moreToolsWrap();
     if (!wrap) return;
     const menu = wrap.querySelector('.more-tools');
     const button = wrap.querySelector('.more-tools-toggle');
@@ -181,7 +192,8 @@ export class EditingFileLayoutMethods {
     if (button) button.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (open && !this._moreToolsDocH) {
       this._moreToolsDocH = (e) => {
-        if (wrap.contains(e.target)) return;
+        const w = this._moreToolsWrap();
+        if (w && w.contains(e.target)) return;
         this._closeMoreTools();
       };
       document.addEventListener('click', this._moreToolsDocH);
@@ -193,7 +205,7 @@ export class EditingFileLayoutMethods {
 
 
   _closeMoreTools() {
-    const wrap = this.moreToolsRef && this.moreToolsRef.current;
+    const wrap = this._moreToolsWrap();
     if (wrap) {
       const menu = wrap.querySelector('.more-tools');
       const button = wrap.querySelector('.more-tools-toggle');

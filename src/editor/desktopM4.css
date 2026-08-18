@@ -153,19 +153,20 @@
   border-bottom: 1px solid var(--border);
 }
 /* 品牌并入标签栏：用「飞白」书法图作为品牌印章（替代点+草书文字）。
-   图片为浅色宣纸底，小尺寸当印章展示，暗色主题下也友好 */
+   图片为浅色宣纸底；狂草二字需 ≥30px 才能辨认笔画，取 32px（每字约 16px），
+   紧贴 34px 标签栏行高，视觉上比标签略高、作为品牌合理 */
 .tab-bar-brand {
   display: flex;
   align-items: center;
   flex: none;
-  padding: 0 12px 6px 4px;
+  padding: 0 14px 2px 4px;
   user-select: none;
 }
 .tab-bar-brand-img {
   display: block;
-  height: 18px;
+  height: 32px;
   width: auto;
-  border-radius: 3px;
+  border-radius: 4px;
   object-fit: contain;
 }
 .tab-list { display: flex; flex: 0 1 auto; gap: 4px; overflow-x: auto; min-width: 0; }

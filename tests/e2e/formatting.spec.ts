@@ -70,3 +70,16 @@ test('源码工具栏：更多格式 ⋯ → 插入表格渲染出 table', async
   await expect(source).toHaveValue(/| 列 1 \| 列 2 \| 列 3 \|/);
   await expect(page.locator('.md-preview table')).toBeVisible();
 });
+
+test('源码工具栏：输入触发重渲染后 ⋯ 更多格式仍能打开（ref 不陈旧）', async ({ page }) => {
+  const source = page.locator('.md-source');
+  // 先制造一次模板重渲染（大量输入），再点 ⋯
+  await source.fill('x'.repeat(400));
+  await page.waitForTimeout(300);
+
+  await page.locator('.source-toolbar-actions [aria-label="更多格式"]').click();
+  await expect(page.locator('.more-tools')).toHaveClass(/is-open/);
+  await expect(page.locator('.more-tools').getByRole('menuitem', { name: '插入表格' })).toBeVisible();
+  await page.locator('.more-tools').getByRole('menuitem', { name: '代码块' }).click();
+  await expect(source).toHaveValue(/```\n/);
+});
