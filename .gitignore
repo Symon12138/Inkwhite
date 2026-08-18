@@ -33,5 +33,9 @@ extension/public/fonts/
 # WorkBuddy 本地记忆（不进仓库）
 .workbuddy/
 
+# 包管理器缓存与工具临时工作区（不进仓库）
+.pnpm-store/
+.scratch-dsh-peer/
+
 # 会话记录（不进仓库）
 /现状.md
