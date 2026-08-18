@@ -1,0 +1,42 @@
+/* 字体控件（fontMethods.ts 注入的选择器 + 源码工具栏「导入」按钮）。
+   从 shell.css 拆出，避免壳层文件超 800 行门禁。 */
+
+/* 字体选择器（JS 注入到源码工具栏 fontSelectSlotRef 槽位） */
+.font-select {
+  height: 30px;
+  max-width: 148px;
+  padding: 0 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: var(--bg-3);
+  color: var(--text-2);
+  font: var(--fs-sm)/1 var(--sans);
+  cursor: pointer;
+  outline: none;
+}
+.font-select:hover { border-color: var(--accent); }
+.font-select:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
+/* 源码工具栏字体选择（统一字体：源码+预览同步；fontMethods 注入 select） */
+.source-font-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.source-font-field .font-select { max-width: 150px; }
+
+/* 工具栏里的「导入字体」小按钮（与字体选择器同组，保持字号/高度一致） */
+.source-font-import {
+  flex: none;
+  height: 26px;
+  padding: 0 8px;
+  font-size: var(--fs-xs);
+}
+.source-font-import:hover { border-color: var(--accent); color: var(--accent); }

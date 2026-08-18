@@ -1,8 +1,9 @@
 // @ts-nocheck
 
 // 字体选择与导入（ui-ux-pro-max 设计系统：类型尺度与字体选择）。
-// - 选择器控制正文阅读字体（--read 变量）：预览正文 + 标题跟随；
-//   源码编辑区保持等宽（--mono，Markdown 对齐依赖）。
+// - 选择器控制统一书写字体（--read + --source-font）：预览正文/标题与
+//   源码编辑区同时跟随；列表里的「等宽」选项可切回源码对齐排版。
+// - 未选择字体时源码回落等宽（--mono，Markdown 对齐依赖），行为与旧版一致。
 // - 导入：ttf/otf/woff/woff2 → FontFace API 注册 → IndexedDB 持久化，
 //   重启自动恢复；导出（HTML/Word/长图）仍走系统字体栈（既有决策）。
 
@@ -24,14 +25,14 @@ export class FontMethods {
   // ===== 选择器构建 =====
 
   // 获取或创建字体选择器（DC 模板不含 select，由 JS 注入到 fontSelectSlotRef 槽位，
-  // 规避 DC 对 menu 内 label/select 的事件绑定缺陷）
+  // 规避 DC 对 menu 内 label/select 的事件绑定缺陷；槽位在源码工具栏）。
   _ensureFontSelect() {
     const slot = this.fontSelectSlotRef && this.fontSelectSlotRef.current;
     if (!slot) return null;
     let sel = slot.querySelector('select.font-select');
     if (!sel) {
       sel = document.createElement('select');
-      sel.className = 'font-select menubar-font';
+      sel.className = 'font-select toolbar-font';
       sel.setAttribute('aria-label', '选择字体');
       sel.title = '选择编辑与预览字体';
       sel.__fontChangeBound = true;
@@ -97,6 +98,8 @@ export class FontMethods {
       root.removeProperty('--read');
       root.removeProperty('--paper-font-body');
       root.removeProperty('--paper-font-heading');
+      // 源码回落等宽（--mono）；未显式选字体时源码保持旧行为。
+      root.removeProperty('--source-font');
       return;
     }
     const sys = SYSTEM_FONTS.find((f) => f.id === value);
@@ -104,9 +107,12 @@ export class FontMethods {
     if (family) {
       // --paper-font-body/heading 在 :root 声明处即解析为 var(--read) 的字面量，
       // 仅改 --read 不生效；三个变量一起覆盖（标题跟随正文）。
+      // --source-font 让源码编辑区与预览共用同一字体（.md-source /
+      // .source-highlight-layer 的 font-family: var(--source-font, var(--mono))）。
       root.setProperty('--read', family);
       root.setProperty('--paper-font-body', family);
       root.setProperty('--paper-font-heading', family);
+      root.setProperty('--source-font', family);
     }
   }
 

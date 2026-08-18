@@ -25,6 +25,7 @@ import { loadSettings } from './settings';
 import { SettingsMethods } from './settingsMethods';
 import { FileTreeMethods } from './fileTreeMethods';
 import { ViewMethods } from './viewMethods';
+import { ContextMenuMethods } from './contextMenuMethods';
 
 export function createMarkdownEditorComponent(DCLogic, React) {
   const Component = class Component extends DCLogic {
@@ -215,6 +216,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this._initWindowState();
     this._initCloseGuard();
     this._keyHandler = (e) => {
+      if (this._handleMenubarAltShortcut && this._handleMenubarAltShortcut(e)) return;
       if (this._handleTabShortcut && this._handleTabShortcut(e)) return;
       if (this._handleSearchShortcut(e)) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
@@ -262,6 +264,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this._restoreLocalFileLink();
     // M5：多文档标签页（含旧数据迁移）——最后初始化，接管当前文档为首个标签。
     this._initTabs();
+    // 右键菜单：标签栏/侧边栏在 _initTabs 与模板中已就绪，最后接线。
+    this._initContextMenus();
   }
 
   componentDidUpdate() { this._applyProps(); }
@@ -428,7 +432,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       importFont: () => this._importFont(),
       menuUndo: () => this.undoEdit(),
       menuRedo: () => this.redoEdit(),
-      menuSearch: () => this.toggleSearch(),
+      // 打开搜索条是覆盖型动作：先关菜单，避免菜单浮层遮住搜索条（搜索条在源码区上方）
+      menuSearch: () => { this.toggleMenubar(''); this.toggleSearch(); },
       menuH1: () => this._linePrefix('# '),
       menuH2: () => this._linePrefix('## '),
       menuH3: () => this._linePrefix('### '),
@@ -486,7 +491,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     GlobalSearchMethods,
     FontMethods,
     TabMethods,
-    MenubarMethods
+    MenubarMethods,
+    ContextMenuMethods
   );
   return Component;
 }

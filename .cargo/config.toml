@@ -1,0 +1,8 @@
+# 让 windows-gnu 工具链的 cargo test / 构建不再把全部符号导出进 DLL：
+# PE 导出表序号是 16 位（上限 65536），cdylib（symark_lib.dll）链接时 rustc
+# 默认 --export-all-symbols 会把所有静态依赖符号一并导出，超限报
+# "export ordinal too large"。--exclude-libs,ALL 只保留 crate 自身符号；
+# 桌面端不动态加载该 DLL（main 经 rlib 静态链接），导出集缩减无副作用。
+# 仅对 gnu 目标生效，MSVC / 其他平台构建不受影响。
+[target.x86_64-pc-windows-gnu]
+rustflags = ["-C", "link-arg=-Wl,--exclude-libs,ALL"]

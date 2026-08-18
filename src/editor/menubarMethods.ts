@@ -5,6 +5,19 @@
 export class MenubarMethods {
   // ===== 小屏顶栏溢出菜单（⋯） =====
 
+  // Alt+F/E/P/O/V/T/H 打开对应菜单：把触发器上显示的 (F)/(E) 等 mnemonic
+  // 落成实际快捷键（Windows 菜单栏惯例）。返回 true 表示已消费。
+  _handleMenubarAltShortcut(e) {
+    if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return false;
+    const key = e.key.toLowerCase();
+    const map = { f: 'file', e: 'edit', p: 'para', o: 'format', v: 'view', t: 'theme', h: 'help' };
+    const target = map[key];
+    if (!target) return false;
+    e.preventDefault();
+    this.toggleMenubar(target);
+    return true;
+  }
+
   toggleHeaderMenu(force) {
     const menu = this.headerMenuRef.current;
     const more = this.headerMoreRef.current;

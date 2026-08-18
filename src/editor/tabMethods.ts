@@ -85,6 +85,15 @@ export class TabMethods {
     const bar = document.createElement('div');
     bar.className = 'tab-bar';
     bar.setAttribute('role', 'tablist');
+    // 品牌并入标签栏（原 54px header 已删除，压缩顶部垂直空间）
+    const brand = document.createElement('span');
+    brand.className = 'tab-bar-brand';
+    brand.setAttribute('aria-hidden', 'true');
+    const dot = document.createElement('span');
+    dot.className = 'brand-dot';
+    brand.appendChild(dot);
+    brand.appendChild(document.createTextNode('飞白'));
+    bar.appendChild(brand);
     const list = document.createElement('div');
     list.className = 'tab-list';
     bar.appendChild(list);

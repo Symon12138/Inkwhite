@@ -138,7 +138,7 @@ test('界面骨架不可选中，原文与预览内容可选', async ({ page }) 
     const pick = (selector: string) =>
       getComputedStyle(document.querySelector(selector)!).userSelect;
     return {
-      header: pick('.app-header'),
+      topbar: pick('.tab-bar-host'),
       footer: pick('.app-footer'),
       previewToolbar: pick('.preview-pane .pane-toolbar'),
       source: pick('.md-source'),
@@ -147,7 +147,7 @@ test('界面骨架不可选中，原文与预览内容可选', async ({ page }) 
     };
   });
 
-  expect(styles.header).toBe('none');
+  expect(styles.topbar).toBe('none');
   expect(styles.footer).toBe('none');
   expect(styles.previewToolbar).toBe('none');
   expect(styles.source).toBe('text');

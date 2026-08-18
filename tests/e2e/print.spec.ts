@@ -42,8 +42,9 @@ test('print 媒体：隐藏 app 壳层，只留 .md-preview 版心，表格恢�
 
   await page.emulateMedia({ media: 'print' });
 
-  // 壳层全部隐藏：顶栏 / 底栏 / 源码窗格 / 分隔条 / 侧栏 / 批注面板 / 工具条 / 浮层
-  await expectAllHiddenInPrint(page, '.app-header');
+  // 壳层全部隐藏：菜单栏 / 标签栏 / 底栏 / 源码窗格 / 分隔条 / 侧栏 / 批注面板 / 工具条 / 浮层
+  await expectAllHiddenInPrint(page, '.menubar');
+  await expectAllHiddenInPrint(page, '.tab-bar-host');
   await expectAllHiddenInPrint(page, '.app-footer');
   await expectAllHiddenInPrint(page, '.source-pane');
   await expectAllHiddenInPrint(page, '.editor-divider');

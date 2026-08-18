@@ -7,6 +7,10 @@ import './editor/insertPaste.css';
 import './editor/desktopM4.css';
 // 必须排在最后：长图海报抄一份预览排版规则，靠加载顺序覆盖同特异度的 .md-preview
 import './editor/longImage.css';
+// 右键菜单浮层（源码/预览/侧边栏/标签页共用）
+import './editor/contextMenu.css';
+// 字体控件（选择器 + 导入按钮，源码工具栏）
+import './editor/fontControls.css';
 
 // 编辑器是桌面端唯一页面（不再有落地页/hash 路由），激活编辑器壳层标记：
 // 1) shell.css 的 html:has(body.editor-active) / body.editor-active 锁死页面级滚动，

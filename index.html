@@ -135,11 +135,8 @@
         <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperCream }}">纸色 · 米黄</button>
         <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperSnow }}">纸色 · 清爽白</button>
         <button class="header-menu-item" role="menuitem" onClick="{{ menuPaperGreen }}">纸色 · 豆沙绿</button>
-        <button class="header-menu-item" role="menuitem" onClick="{{ importFont }}">导入字体…</button>
         <div class="header-menu-separator" role="separator"></div>
         <button class="header-menu-item" role="menuitem" onClick="{{ menuSettings }}">设置…</button>
-        <div class="header-menu-separator" role="separator"></div>
-        <div class="menubar-font-row"><span ref="{{ fontSelectSlotRef }}"></span></div>
       </div>
     </div>
     <div class="menubar-item" data-menubar="help">
@@ -150,22 +147,8 @@
     </div>
   </nav>
 
-  <!-- ===== M5 标签栏（tabMethods 注入） ===== -->
+  <!-- ===== M5 标签栏（tabMethods 注入；品牌并入此栏，压缩顶部） ===== -->
   <div ref="{{ tabBarRef }}" class="tab-bar-host"></div>
-
-  <!-- ===== HEADER（精简：品牌 + 文件名） ===== -->
-  <header class="app-header">
-    <div class="header-main">
-    <div class="header-brand">
-      <span class="brand-dot" aria-hidden="true"></span>
-      <a class="brand-title" href="#" title="飞白" aria-label="飞白">飞白</a>
-      <span class="file-meta">
-        <span ref="{{ dirtyDotRef }}" class="dirty-dot"></span>
-        <span ref="{{ fileNameRef }}" class="file-name">未命名.md</span>
-      </span>
-    </div>
-    </div>
-  </header>
 
   <!-- ===== SPLIT BODY ===== -->
   <div class="app-body">
@@ -209,6 +192,11 @@
       <div class="pane-toolbar source-toolbar">
         <div class="source-toolbar-leading">
           <span class="pane-title">Markdown 原文</span>
+          <label class="source-font-field" title="选择编辑与预览字体">
+            <span class="source-font-label">字体</span>
+            <span ref="{{ fontSelectSlotRef }}"></span>
+          </label>
+          <button class="tbtn source-font-import" type="button" onClick="{{ importFont }}" title="导入字体…" aria-label="导入字体">＋导入</button>
         </div>
       </div>
       <div ref="{{ searchBarRef }}" class="search-bar" role="search" aria-label="搜索与替换">

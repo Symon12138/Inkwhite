@@ -404,33 +404,6 @@
     html:has(body.editor-active), body.editor-active { height: 100%; height: 100dvh; overflow: hidden; }
     button, textarea, [contenteditable="true"] { -webkit-tap-highlight-color: transparent; }
     .app-shell { height: 100dvh !important; }
-    .app-header {
-      height: auto !important;
-      gap: 0 !important;
-      padding: 0 !important;
-    }
-    .header-main {
-      min-height: 56px;
-      gap: 10px !important;
-      padding: max(8px, env(safe-area-inset-top)) 12px 8px !important;
-    }
-    .brand-title { font-size: var(--fs-xl) !important; }
-    .file-meta { display: none !important; }
-    .header-actions { gap: 6px !important; }
-    .view-mode-switcher { padding: 2px; }
-    .view-mode-option { height: 30px; padding-inline: 11px; }
-    .header-actions .abtn {
-      min-width: 36px;
-      min-height: 36px;
-      padding: 0 10px !important;
-      justify-content: center;
-    }
-    .header-actions .action-label { display: none; }
-    .document-toggle { display: flex !important; }
-    /* 低频动作收进 ⋯ 溢出菜单 */
-    .collapsible-action { display: none !important; }
-    .header-more { display: flex !important; }
-    .header-menu-item.collapsible-menu-item { display: block; }
     /* 纸色点收起为当前色，点击展开整排（见 _buildPaperPicker） */
     .paper-picker .paper-dot:not(.is-active) { display: none; }
     .paper-picker.is-open .paper-dot { display: block; }
@@ -543,10 +516,6 @@
 
   @media (max-width: 400px) {
     .brand-dot { display: none; }
-    .header-brand .brand-mark { display: block; }
-    .brand-title { display: none !important; }
-    .app-header { gap: 6px !important; }
-    .header-actions .abtn { padding-inline: 8px !important; }
   }
 
   @media (max-width: 720px) {
@@ -650,9 +619,11 @@
        超出第一页的内容，打印时必须全部松开 */
     html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
 
-    /* 壳层全部隐藏。comments-panel 由 JS 用内联 style 开合，
+    /* 壳层全部隐藏（菜单栏/标签栏也隐藏，只输出 .md-preview 版心）。
+       comments-panel 由 JS 用内联 style 开合，
        !important 保证打印时即使面板开着也不出现 */
-    .app-header,
+    .menubar,
+    .tab-bar-host,
     .app-footer,
     .source-pane,
     .editor-divider,

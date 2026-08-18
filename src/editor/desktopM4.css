@@ -152,7 +152,22 @@
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
 }
-.tab-list { display: flex; flex: 1; gap: 4px; overflow-x: auto; min-width: 0; }
+/* 品牌并入标签栏（原 54px header 删除后保留下沉为行内标识） */
+.tab-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 0 12px 6px 4px;
+  color: var(--text-2);
+  font-family: var(--read);
+  font-weight: 700;
+  font-size: var(--fs-md);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  user-select: none;
+}
+.tab-list { display: flex; flex: 0 1 auto; gap: 4px; overflow-x: auto; min-width: 0; }
 .tab-item {
   display: flex;
   align-items: center;
