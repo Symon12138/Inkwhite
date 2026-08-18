@@ -47,6 +47,24 @@
   .md-preview p { margin: 0 0 28px; text-wrap: pretty; }
   .md-preview a { color: var(--paper-accent); text-decoration: none; border-bottom: 1px dashed color-mix(in srgb, var(--paper-accent) 35%, transparent); padding-bottom: 1px; }
   .md-preview a:hover { border-bottom: 1px solid var(--paper-accent); cursor: pointer; }
+  /* 外链小图标（Typora 风格）：仅 http/https 链接带外链角标；
+     SVG mask + currentColor 随链接色与主题自动变色（不引入 emoji）。
+     内部锚点（脚注/目录/标题跳转）保持干净。 */
+  .md-preview a[href^="http://"]::after,
+  .md-preview a[href^="https://"]::after {
+    content: '';
+    display: inline-block;
+    width: 0.68em;
+    height: 0.68em;
+    margin-left: 0.2em;
+    vertical-align: 0.06em;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/><polyline points='15 3 21 3 21 9'/><line x1='10' y1='14' x2='21' y2='3'/></svg>") center / contain no-repeat;
+    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/><polyline points='15 3 21 3 21 9'/><line x1='10' y1='14' x2='21' y2='3'/></svg>") center / contain no-repeat;
+    opacity: 0.6;
+  }
+  .md-preview a[href^="http://"]:hover::after,
+  .md-preview a[href^="https://"]:hover::after { opacity: 1; }
   .md-preview strong { color: var(--paper-text); font-weight: 700; }
   .md-preview em { color: var(--paper-text-2); }
   .md-preview ul, .md-preview ol { margin: 0 0 28px; padding-left: 26px; }

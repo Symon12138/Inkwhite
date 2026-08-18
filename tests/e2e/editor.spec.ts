@@ -30,6 +30,15 @@ test.beforeEach(async ({ page }) => {
   await openEditor(page);
 });
 
+test('预览外链带小图标（::after 角标），内部锚点不带', async ({ page }) => {
+  await openEditor(page);
+  await setSource(page, '# 锚点\n\n[外部](https://example.com/a)\n\n[内部](#锚点)');
+  const iconInfo = await page.locator('.md-preview a').evaluateAll((els) =>
+    els.map((el) => getComputedStyle(el, '::after').content !== 'none')
+  );
+  expect(iconInfo).toEqual([true, false]);
+});
+
 test('输入 Markdown 后预览实时渲染', async ({ page }) => {
   await setSource(page, '# 端到端标题\n\n正文**加粗**内容。\n\n- 第一项\n- 第二项');
 

@@ -152,7 +152,8 @@
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
 }
-/* 品牌并入标签栏（原 54px header 删除后保留下沉为行内标识） */
+/* 品牌并入标签栏（原 54px header 删除后保留下沉为行内标识）。
+   草书/行楷书法字：不加粗（合成加粗会破坏书法笔画），字号略大提升辨识 */
 .tab-bar-brand {
   display: flex;
   align-items: center;
@@ -160,10 +161,10 @@
   flex: none;
   padding: 0 12px 6px 4px;
   color: var(--text-2);
-  font-family: var(--read);
-  font-weight: 700;
-  font-size: var(--fs-md);
-  letter-spacing: 0.02em;
+  font-family: var(--brand-font);
+  font-weight: 400;
+  font-size: var(--fs-2xl);
+  letter-spacing: 0.01em;
   white-space: nowrap;
   user-select: none;
 }

@@ -12,6 +12,9 @@
   --read: 'Canger JinKai 04', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'Songti SC', 'Noto Serif CJK SC', serif;
   --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  /* 品牌书法字（草书/行楷风）：舒体→行楷→楷体→cursive 回退。
+     系统书法字体为专有授权，不随包分发；用户机器装有时即生效。 */
+  --brand-font: 'FZShuTi', '方正舒体', 'STXingkai', '华文行楷', 'Xingkai SC', 'Kaiti SC', '楷体', cursive;
 
   /* ----- 圆角（控件 / 面板卡片 / 胶囊）----- */
   --radius-control: 4px;
