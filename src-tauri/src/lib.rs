@@ -22,7 +22,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
 use tauri::{AppHandle, Emitter, Manager};
-use tauri::menu::{IsMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu};
 
 use commands::PickedFile;
 use grants::GrantsManager;
@@ -122,89 +121,9 @@ fn handle_external_open(app: &AppHandle, path: &str) {
 /// 抽成纯函数以便单测 debug/release 两种语义；调用点传 cfg!(debug_assertions)
 /// （编译期常量：test 构建为 true，release 构建为 false，分支被常量折叠，
 /// release 产物中不残留调试菜单代码路径）。
+#[cfg(test)]
 fn devtools_menu_enabled(debug_build: bool) -> bool {
     debug_build
-}
-
-/// 构建并设置应用菜单（文件 / 编辑 / 视图）。
-fn setup_menu(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    // 文件菜单
-    let new_item = MenuItem::with_id(app, "new", "新建", true, Some("CmdOrCtrl+N"))?;
-    let open_item = MenuItem::with_id(app, "open", "打开…", true, Some("CmdOrCtrl+O"))?;
-    let save_item = MenuItem::with_id(app, "save", "保存", true, Some("CmdOrCtrl+S"))?;
-    let save_as_item =
-        MenuItem::with_id(app, "save-as", "另存为…", true, Some("CmdOrCtrl+Shift+S"))?;
-    let file_sep = PredefinedMenuItem::separator(app)?;
-    let close_item = PredefinedMenuItem::close_window(app, None)?;
-
-    let file_menu = Submenu::with_items(
-        app,
-        "文件",
-        true,
-        &[
-            &new_item,
-            &open_item,
-            &save_item,
-            &save_as_item,
-            &file_sep,
-            &close_item,
-        ],
-    )?;
-
-    // 编辑菜单（撤销/重做由编辑器自带历史系统处理，菜单只补齐剪贴板项）
-    let cut_item = PredefinedMenuItem::cut(app, None)?;
-    let copy_item = PredefinedMenuItem::copy(app, None)?;
-    let paste_item = PredefinedMenuItem::paste(app, None)?;
-    let select_all_item = PredefinedMenuItem::select_all(app, None)?;
-
-    let edit_menu = Submenu::with_items(
-        app,
-        "编辑",
-        true,
-        &[&cut_item, &copy_item, &paste_item, &select_all_item],
-    )?;
-
-    // 视图菜单（tauri 2.11+ 移除了 reload/devtools/zoom 预定义项，改用自定义项并转发给前端）
-    // reload/devtools 仅 debug 构建创建（release 无调试入口，也不注册其快捷键）。
-    // 用 Option 承载调试项以延长其生命周期到函数作用域（Vec 只存借用）。
-    let mut reload_item: Option<MenuItem<tauri::Wry>> = None;
-    let mut devtools_item: Option<MenuItem<tauri::Wry>> = None;
-    let mut view_sep1: Option<PredefinedMenuItem<tauri::Wry>> = None;
-    if devtools_menu_enabled(cfg!(debug_assertions)) {
-        reload_item =
-            Some(MenuItem::with_id(app, "reload", "重新加载", true, Some("CmdOrCtrl+R"))?);
-        devtools_item =
-            Some(MenuItem::with_id(app, "devtools", "开发者工具", true, Some("CmdOrCtrl+Shift+I"))?);
-        view_sep1 = Some(PredefinedMenuItem::separator(app)?);
-    }
-    let reset_zoom = MenuItem::with_id(app, "reset-zoom", "重置缩放", true, Some("CmdOrCtrl+0"))?;
-    let zoom_in = MenuItem::with_id(app, "zoom-in", "放大", true, Some("CmdOrCtrl+="))?;
-    let zoom_out = MenuItem::with_id(app, "zoom-out", "缩小", true, Some("CmdOrCtrl+-"))?;
-    let view_sep2 = PredefinedMenuItem::separator(app)?;
-    let fullscreen = PredefinedMenuItem::fullscreen(app, None)?;
-
-    let mut view_items: Vec<&dyn IsMenuItem<tauri::Wry>> = Vec::new();
-    if let Some(item) = reload_item.as_ref() {
-        view_items.push(item);
-    }
-    if let Some(item) = devtools_item.as_ref() {
-        view_items.push(item);
-    }
-    if let Some(item) = view_sep1.as_ref() {
-        view_items.push(item);
-    }
-    view_items.push(&reset_zoom);
-    view_items.push(&zoom_in);
-    view_items.push(&zoom_out);
-    view_items.push(&view_sep2);
-    view_items.push(&fullscreen);
-
-    let view_menu = Submenu::with_items(app, "视图", true, &view_items)?;
-
-    let menu = Menu::with_items(app, &[&file_menu, &edit_menu, &view_menu])?;
-    app.set_menu(menu)?;
-
-    Ok(())
 }
 
 // ===== 应用入口 =====
@@ -246,26 +165,7 @@ pub fn run() {
                 handle_external_open(app.handle(), &path);
             }
 
-            // 构建菜单
-            setup_menu(app.handle())?;
-
             Ok(())
-        })
-        .on_menu_event(|app, event| {
-            // 只转发自定义菜单项（new/open/save/save-as 与视图操作项），
-            // 预定义项（cut/copy/paste 等）由 webview 原生处理。
-            // reload/devtools 仅 debug 构建转发（与 setup_menu 的创建门控一致，
-            // release 下这两个 id 不存在也不可触发）。
-            let id = event.id().as_ref();
-            match id {
-                "new" | "open" | "save" | "save-as" | "reset-zoom" | "zoom-in" | "zoom-out" => {
-                    let _ = app.emit("mojian:menu", id);
-                }
-                "reload" | "devtools" if devtools_menu_enabled(cfg!(debug_assertions)) => {
-                    let _ = app.emit("mojian:menu", id);
-                }
-                _ => {}
-            }
         })
         // 外链（B23）：前端 _openPreviewLink 对所有链接 preventDefault，
         // http/https 经本命令在系统默认浏览器打开；其余 scheme 拒绝。
