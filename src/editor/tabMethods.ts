@@ -304,6 +304,8 @@ export class TabMethods {
     } else {
       this._detachLocalFile();
     }
+    // 侧边栏「文件」页签：跟随活动标签的目录刷新
+    if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
   }
 
   // 打开文档/保存后同步活动标签（由 _openDesktopFile / onSaveAs 等接线）

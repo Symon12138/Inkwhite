@@ -266,6 +266,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this._initTabs();
     // 右键菜单：标签栏/侧边栏在 _initTabs 与模板中已就绪，最后接线。
     this._initContextMenus();
+    // 侧边栏「文件」页签：初始渲染当前文档所在目录的 .md 列表（桌面端）。
+    if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
   }
 
   componentDidUpdate() { this._applyProps(); }
@@ -360,7 +362,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       showPreviewMode: () => this.setViewMode('preview'),
       toggleDocumentSidebar: () => this.toggleDocumentSidebar(),
       closeDocumentSidebar: () => this.closeDocumentSidebar(),
-      sidebarTabFiles: () => this._setSidebarTab('files'),
+      sidebarTabFiles: () => { this._setSidebarTab('files'); this._renderCurrentDirFiles(); },
       sidebarTabOutline: () => this._setSidebarTab('outline'),
       fontInc: () => this._setFont(this.fontSize + 1),
       fontDec: () => this._setFont(this.fontSize - 1),
@@ -451,7 +453,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       menuExportPdf: () => { this.toggleMenubar(''); this.onExportPdf(); },
       menuExportWord: () => { this.toggleMenubar(''); this.onExportWord(); },
       menuInsertImage: () => { this.toggleMenubar(''); this.onInsertImage(); },
-      menuRecent: () => this.toggleRecentMenu(),
+      menuRecent: () => { this.toggleMenubar(''); this.toggleRecentMenu(); },
       menuQuickOpen: () => { this.toggleMenubar(''); this.onQuickOpen(); }
     };
   }

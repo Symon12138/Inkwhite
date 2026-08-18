@@ -598,7 +598,7 @@ textarea.md-source {
 /* ===== 状态栏 ===== */
 .app-footer {
   flex: none;
-  height: 30px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: space-between;

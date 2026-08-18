@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, clickMenubarItem } from './fixtures';
 
 // M5 多文档标签页：标签栏渲染、新建/切换/关闭（含 dirty 确认与中键）、
 // 内容隔离、重启恢复。
@@ -56,18 +56,9 @@ test('中键关闭标签', async ({ page }) => {
   await expect(page.locator('.tab-item')).toHaveCount(1);
 });
 
-test('侧边栏文件操作新建文档 = 新标签', async ({ page }) => {
+test('菜单栏文件菜单新建文档 = 新标签', async ({ page }) => {
   await openEditor(page);
-  await page.evaluate(() => {
-    const sb = document.querySelector('.document-sidebar');
-    if (sb) {
-      sb.classList.remove('is-collapsed');
-      sb.classList.add('is-mobile-open');
-    }
-    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
-    tab?.click();
-  });
-  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: '新建文档' }).click();
+  await clickMenubarItem(page, 'file', '新建文档');
   await expect(page.locator('.tab-item')).toHaveCount(2);
   await expect(page.locator('.md-source')).toHaveValue('');
 });

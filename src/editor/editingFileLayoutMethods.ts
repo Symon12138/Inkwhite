@@ -318,6 +318,8 @@ export class EditingFileLayoutMethods {
     if (typeof this._trackRecent === 'function') this._trackRecent(picked);
     // M5：同步活动标签（标题/路径/内容/dirty）
     if (typeof this._syncActiveTabFromEditor === 'function') this._syncActiveTabFromEditor();
+    // 侧边栏「文件」页签：刷新当前文件所在目录列表
+    if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
   }
 
 

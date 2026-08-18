@@ -560,6 +560,8 @@
   }
   .file-tree-item:hover { color: var(--text); background: var(--accent-soft); }
   .file-tree-file { font-family: var(--sans); }
+  /* 当前打开文件高亮（侧边栏目录浏览） */
+  .file-tree-file.is-active { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
   .file-tree-dir { color: var(--text-4); cursor: default; font-weight: 600; }
   .file-tree-dir:hover { background: transparent; color: var(--text-4); }
   .file-tree-empty { padding: 24px 14px; color: var(--text-4); font: var(--fs-sm)/1.7 var(--sans); text-align: center; }

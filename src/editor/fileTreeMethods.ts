@@ -213,4 +213,86 @@ export class FileTreeMethods {
       this.closeDocumentSidebar();
     } catch {}
   }
+
+  // ===== 侧边栏「文件」页签：当前文件所在目录的 Markdown 列表 =====
+  // 文件操作统一在菜单栏「文件」菜单；此页签只做目录浏览：点其它 .md
+  // 文件在【新标签页】打开，保留当前文档。
+
+  _dirOf(path) {
+    if (!path) return '';
+    const idx = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    if (idx <= 0) return path;
+    return path.slice(0, idx);
+  }
+
+  async _renderCurrentDirFiles() {
+    const list = this.documentListRef && this.documentListRef.current;
+    if (!list) return;
+    const token = (this._dirRenderToken || 0) + 1;
+    this._dirRenderToken = token;
+    list.innerHTML = '';
+    if (!tauriBridge) {
+      const hint = document.createElement('div');
+      hint.className = 'file-tree-empty';
+      hint.textContent = '目录浏览需要桌面端环境';
+      list.appendChild(hint);
+      return;
+    }
+    const path = this.localFilePath || '';
+    if (!path) {
+      const hint = document.createElement('div');
+      hint.className = 'file-tree-empty';
+      hint.textContent = '打开本地文档后，这里显示所在目录的 Markdown 文件';
+      list.appendChild(hint);
+      return;
+    }
+    const dir = this._dirOf(path);
+    if (!dir) return;
+    const root = document.createElement('div');
+    root.className = 'file-tree-root';
+    root.textContent = this._displayName(dir) || dir;
+    root.title = dir;
+    list.appendChild(root);
+    let entries;
+    try {
+      entries = await tauriBridge.listDirectory(dir);
+    } catch {
+      if (token !== this._dirRenderToken) return;
+      const empty = document.createElement('div');
+      empty.className = 'file-tree-empty';
+      empty.textContent = '无法读取目录';
+      list.appendChild(empty);
+      return;
+    }
+    if (token !== this._dirRenderToken) return;
+    const files = entries.filter((en) => !en.isDir && /\.(md|markdown|txt)$/i.test(en.name));
+    if (!files.length) {
+      const empty = document.createElement('div');
+      empty.className = 'file-tree-empty';
+      empty.textContent = '此目录下没有 Markdown 文件';
+      list.appendChild(empty);
+      return;
+    }
+    for (const en of files) {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'file-tree-item file-tree-file' + (en.path === path ? ' is-active' : '');
+      item.textContent = en.name;
+      item.title = en.path;
+      item.addEventListener('click', () => this._openSiblingFile(en.path, en.name));
+      list.appendChild(item);
+    }
+  }
+
+  async _openSiblingFile(path, name) {
+    if (!tauriBridge) return;
+    try {
+      const data = await tauriBridge.readFile(path);
+      if (!data) return;
+      // 新标签页打开，保留当前文档（addTab 快照当前标签后 _openDesktopFile 写入活动标签）
+      if (typeof this.addTab === 'function') this.addTab();
+      this._openDesktopFile({ path, name, content: data.content, lastModified: data.lastModified });
+      if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
+    } catch {}
+  }
 }

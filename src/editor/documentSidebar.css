@@ -288,35 +288,3 @@
     }
   }
 
-/* ===== 侧边栏「文件」页签：文件操作区 ===== */
-.sidebar-file-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px;
-  border-bottom: 1px solid var(--border-soft);
-}
-.sfa-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 10px;
-  border: none;
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--text-2);
-  font-family: var(--sans);
-  font-size: var(--fs-sm);
-  text-align: left;
-  cursor: pointer;
-  transition: background .15s, color .15s;
-}
-.sfa-btn:hover { background: var(--accent-soft); color: var(--accent); }
-.sfa-btn.sfa-primary {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-}
-.sfa-btn.sfa-primary:hover { background: var(--accent); color: var(--accent-ink); }
-.sfa-sep { height: 1px; margin: 4px 2px; background: var(--border-soft); }
-

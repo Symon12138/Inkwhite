@@ -1,4 +1,4 @@
-import { test, expect, openEditor, setSource } from './fixtures';
+import { test, expect, openEditor, setSource, openMenubar } from './fixtures';
 import { inflateRawSync } from 'zlib';
 
 // M2 导出全链路（浏览器路径）：文件菜单 → 导出 → 下载拦截 → 结构化断言。
@@ -26,17 +26,9 @@ const EXPORT_SOURCE = [
 ].join('\n');
 
 async function exportViaMenu(page: import('@playwright/test').Page, label: RegExp) {
-  await page.evaluate(() => {
-    const sb = document.querySelector('.document-sidebar');
-    if (sb) {
-      sb.classList.remove('is-collapsed');
-      sb.classList.add('is-mobile-open');
-    }
-    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
-    tab?.click();
-  });
+  await openMenubar(page, 'file');
   const downloadPromise = page.waitForEvent('download', { timeout: 30_000 });
-  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: label }).click();
+  await page.locator('[data-menubar="file"] .menubar-menu').getByRole('menuitem', { name: label }).click();
   return downloadPromise;
 }
 
@@ -86,16 +78,8 @@ test('导出为 PDF：触发系统打印（window.print 被调用）且先等预
   await setSource(page, '```mermaid\ngraph TD;\n  A-->B;\n```');
   await expect(page.locator('.mermaid-rendered svg')).toBeVisible();
 
-  await page.evaluate(() => {
-    const sb = document.querySelector('.document-sidebar');
-    if (sb) {
-      sb.classList.remove('is-collapsed');
-      sb.classList.add('is-mobile-open');
-    }
-    const tab = document.querySelector('[data-sidebar-tab="files"]') as HTMLElement | null;
-    tab?.click();
-  });
-  await page.locator('.sidebar-file-actions').getByRole('menuitem', { name: /导出 PDF/ }).click();
+  await openMenubar(page, 'file');
+  await page.locator('[data-menubar="file"] .menubar-menu').getByRole('menuitem', { name: /导出 PDF/ }).click();
 
   await expect.poll(() => page.evaluate(() => (window as any).__printCalled)).toBe(true);
   await expect(page.locator('.save-status')).toHaveText(/打印对话框/);
