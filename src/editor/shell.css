@@ -289,6 +289,8 @@ body.is-desktop-app .header-more { display: none; }
 .history-toolbar-actions,
 .source-toolbar-actions { display: flex; gap: 5px; flex-wrap: nowrap; }
 .source-toolbar-actions { min-width: 0; }
+/* 源码工具栏格式按钮分组分隔线 */
+.toolbar-sep { width: 1px; height: 16px; margin: 0 4px; background: var(--border-soft); align-self: center; }
 .tbtn.fmt { width: 30px; height: 26px; }
 .tbtn.history-action { display: inline-flex; align-items: center; justify-content: center; }
 .tbtn.history-action:not(:disabled) {

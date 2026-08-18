@@ -413,6 +413,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       fmtList: () => this._linePrefix('- '),
       fmtCode: () => this._wrapSel('`', '`', 'code'),
       fmtLink: () => this._wrapSel('[', '](https://)', '链接文字'),
+      toggleMoreTools: () => this.toggleMoreTools(),
       copyHtml: () => this.copyHtmlSelection()
     };
   }

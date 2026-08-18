@@ -179,6 +179,36 @@
         <div class="source-toolbar-leading">
           <span class="pane-title">Markdown 原文</span>
         </div>
+        <div class="source-toolbar-actions" role="group" aria-label="常用格式">
+          <button class="tbtn fmt fmt-h" onClick="{{ fmtH }}" title="标题（## ）" aria-label="标题">H</button>
+          <button class="tbtn fmt fmt-b" onClick="{{ fmtB }}" title="加粗" aria-label="加粗">B</button>
+          <button class="tbtn fmt fmt-i" onClick="{{ fmtI }}" title="斜体" aria-label="斜体">i</button>
+          <button class="tbtn fmt" onClick="{{ fmtStrike }}" title="删除线" aria-label="删除线">~~</button>
+          <button class="tbtn fmt" onClick="{{ fmtHighlight }}" title="高亮" aria-label="高亮">==</button>
+          <button class="tbtn fmt" onClick="{{ fmtUnderline }}" title="下划线" aria-label="下划线">U</button>
+          <span class="toolbar-sep" role="separator"></span>
+          <button class="tbtn fmt fmt-lg" onClick="{{ fmtQuote }}" title="引用" aria-label="引用">&rdquo;</button>
+          <button class="tbtn fmt fmt-lg" onClick="{{ fmtList }}" title="无序列表" aria-label="无序列表">&bull;</button>
+          <button class="tbtn fmt fmt-code" onClick="{{ fmtCode }}" title="行内代码" aria-label="行内代码">&lt;&gt;</button>
+          <button class="tbtn fmt" onClick="{{ fmtLink }}" title="链接" aria-label="链接">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" sc-camel-stroke-width="2" sc-camel-stroke-linecap="round" sc-camel-stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          </button>
+          <span class="toolbar-sep" role="separator"></span>
+          <span ref="{{ moreToolsRef }}" class="more-tools-wrap">
+            <button class="tbtn fmt more-tools-toggle" onClick="{{ toggleMoreTools }}" title="更多格式" aria-label="更多格式" aria-expanded="false">⋯</button>
+            <div class="more-tools" role="menu" aria-label="更多格式选项">
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtImage }}">插入图片…</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtTable }}">插入表格</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtTask }}">任务列表</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtCodeBlock }}">代码块</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtHr }}">分割线</button>
+              <div class="header-menu-separator" role="separator"></div>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtSup }}">上标</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtSub }}">下标</button>
+              <button class="header-menu-item" role="menuitem" onClick="{{ fmtFootnote }}">脚注</button>
+            </div>
+          </span>
+        </div>
       </div>
       <div ref="{{ searchBarRef }}" class="search-bar" role="search" aria-label="搜索与替换">
         <button ref="{{ searchExpandRef }}" class="search-expand-toggle" onClick="{{ toggleSearchReplaceRow }}" title="切换替换（⌘⌥F）" aria-label="展开或收起替换" aria-expanded="false"><span class="search-expand-icon">›</span></button>
