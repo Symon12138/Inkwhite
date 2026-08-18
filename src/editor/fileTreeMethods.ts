@@ -222,12 +222,24 @@ export class FileTreeMethods {
     if (!path) return '';
     const idx = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
     if (idx <= 0) return path;
-    return path.slice(0, idx);
+    let dir = path.slice(0, idx);
+    // 盘符根（C: → C:\）补分隔符，避免 read_dir("C:") 失败
+    if (/^[A-Za-z]:$/.test(dir)) dir += '\\';
+    return dir;
   }
 
   async _renderCurrentDirFiles() {
     const list = this.documentListRef && this.documentListRef.current;
     if (!list) return;
+    // 只有侧边栏「文件」页签可见时才渲染：切标签/开文档等在别的页签或折叠状态下
+    // 不再重复列目录与重建 DOM（避免切页卡顿）。切到「文件」页签时由
+    // sidebarTabFiles 触发、展开侧边栏时由 toggleDocumentSidebar 触发。
+    const sb = this.documentSidebarRef && this.documentSidebarRef.current;
+    if (sb) {
+      if (sb.classList.contains('is-collapsed')) return;
+      const filesPanel = sb.querySelector('[data-sidebar-panel="files"]');
+      if (filesPanel && !filesPanel.classList.contains('is-active')) return;
+    }
     const token = (this._dirRenderToken || 0) + 1;
     this._dirRenderToken = token;
     list.innerHTML = '';
@@ -260,19 +272,20 @@ export class FileTreeMethods {
       if (token !== this._dirRenderToken) return;
       const empty = document.createElement('div');
       empty.className = 'file-tree-empty';
-      empty.textContent = '无法读取目录';
+      empty.textContent = '无法读取所在目录 · 请通过「文件 → 打开…」重新打开该文件夹中的文档';
       list.appendChild(empty);
       return;
     }
     if (token !== this._dirRenderToken) return;
-    const files = entries.filter((en) => !en.isDir && /\.(md|markdown|txt)$/i.test(en.name));
-    if (!files.length) {
+    const allFiles = entries.filter((en) => !en.isDir && /\.(md|markdown|txt)$/i.test(en.name));
+    if (!allFiles.length) {
       const empty = document.createElement('div');
       empty.className = 'file-tree-empty';
       empty.textContent = '此目录下没有 Markdown 文件';
       list.appendChild(empty);
       return;
     }
+    const files = allFiles.slice(0, 200);
     for (const en of files) {
       const item = document.createElement('button');
       item.type = 'button';
@@ -281,6 +294,12 @@ export class FileTreeMethods {
       item.title = en.path;
       item.addEventListener('click', () => this._openSiblingFile(en.path, en.name));
       list.appendChild(item);
+    }
+    if (allFiles.length > files.length) {
+      const more = document.createElement('div');
+      more.className = 'file-tree-empty';
+      more.textContent = '… 仅显示前 200 个文件';
+      list.appendChild(more);
     }
   }
 

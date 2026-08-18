@@ -69,6 +69,20 @@ impl GrantsManager {
         self.save();
     }
 
+    /// 授权路径及**父目录**。用于打开/另存 Markdown 文件：侧边栏「文件」页签
+    /// 需要枚举文件所在目录（list_directory 走 assert_granted，父目录须在清单内）。
+    /// 父目录授权随清单持久化，重启后目录浏览仍可用。
+    pub fn grant_with_parent(&self, path: &str) {
+        self.grant(path);
+        let normalized = Self::normalize(path);
+        if let Some(parent) = Path::new(&normalized).parent() {
+            let parent_str = parent.to_string_lossy().to_string();
+            if !parent_str.is_empty() {
+                self.grant(&parent_str);
+            }
+        }
+    }
+
     /// 检查路径是否已授权。
     pub fn is_granted(&self, path: &str) -> bool {
         let normalized = Self::normalize(path);

@@ -131,6 +131,31 @@ fn symlink_escape_is_rejected_for_all_path_commands() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// 打开/另存 Markdown 文件时用 grant_with_parent：授权文件本身 + 父目录，
+/// 使侧边栏「文件」页签能枚举所在目录（list_directory 校验父目录授权）。
+#[test]
+fn grant_with_parent_allows_listing_parent_directory() {
+    let dir = temp_dir("grantpar");
+    std::fs::write(dir.join("a.md"), "a").unwrap();
+
+    let gm = GrantsManager::new(dir.join("data"));
+    let dir_str = dir.to_string_lossy().to_string();
+
+    // 仅授权文件本身：列父目录必须被拒（这正是之前"无法读取目录"的根因）
+    gm.grant(&dir.join("a.md").to_string_lossy());
+    assert!(list_directory_entries(&dir_str, &gm).is_err(), "仅授文件时列父目录应被拒");
+
+    // grant_with_parent（模拟打开文件的授权流程）：文件+父目录都授权 → 父目录可枚举
+    let gm2 = GrantsManager::new(dir.join("data2"));
+    gm2.grant_with_parent(&dir.join("a.md").to_string_lossy());
+    assert!(gm2.is_granted(&dir_str), "父目录应被授权");
+    let entries = list_directory_entries(&dir_str, &gm2).unwrap();
+    let names: Vec<&str> = entries.iter().map(|e| e.name.as_str()).collect();
+    assert!(names.contains(&"a.md"), "应枚举到父目录下文件");
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// 授权只来自用户手势：list_directory 不再自动授权。未授权路径必须报错；
 /// 已授权目录正常枚举；子目录经祖先匹配可枚举；目录之外仍被拒。
 #[test]

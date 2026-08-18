@@ -123,3 +123,36 @@ test('_resetTreeExpanded 清空展开状态，_initTreeExpanded 惰性初始化'
   tree._initTreeExpanded();
   assert.ok(tree._treeExpanded instanceof Set, '缺失时应创建展开状态集合');
 });
+
+test('_dirOf 提取父目录，盘符根补反斜杠', () => {
+  const tree = createTree();
+  assert.equal(tree._dirOf('C:\\docs\\a.md'), 'C:\\docs');
+  assert.equal(tree._dirOf('C:\\a.md'), 'C:\\', '盘符根应补反斜杠');
+  assert.equal(tree._dirOf('/home/me/a.md'), '/home/me');
+  assert.equal(tree._dirOf(''), '');
+});
+
+test('_renderCurrentDirFiles：侧边栏折叠或非文件页签时不渲染（不碰列表）', async () => {
+  const tree = createTree();
+  // 折叠态侧边栏：is-collapsed=true → 守卫应提前返回
+  const collapsed = {
+    classList: { contains: (c: string) => c === 'is-collapsed' },
+    querySelector: () => null
+  };
+  tree.documentSidebarRef = { current: collapsed };
+  tree.documentListRef = { current: { innerHTML: 'ORIGINAL' } };
+  await tree._renderCurrentDirFiles();
+  assert.equal((tree.documentListRef.current as { innerHTML: string }).innerHTML, 'ORIGINAL', '折叠时应提前返回，不清空列表');
+
+  // 非折叠但停在非文件页签（outline 激活）
+  const outlineActive = {
+    classList: { contains: () => false },
+    querySelector: (sel: string) => (sel === '[data-sidebar-panel="files"]'
+      ? { classList: { contains: (c: string) => c === 'is-active' ? false : true } }
+      : null)
+  };
+  tree.documentSidebarRef = { current: outlineActive };
+  tree.documentListRef = { current: { innerHTML: 'ORIGINAL' } };
+  await tree._renderCurrentDirFiles();
+  assert.equal((tree.documentListRef.current as { innerHTML: string }).innerHTML, 'ORIGINAL', '大纲页签时应提前返回');
+});

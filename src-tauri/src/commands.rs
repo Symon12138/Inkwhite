@@ -261,7 +261,8 @@ pub fn open_file(
         Some(fp) => {
             let path = fp.into_path().map_err(|e| e.to_string())?;
             let path_str = path.to_string_lossy().to_string();
-            grants.grant(&path_str);
+            // 打开文件即用户手势：授权文件本身 + 所在目录（侧边栏目录浏览需列父目录）
+            grants.grant_with_parent(&path_str);
             let picked = read_picked_file(&path_str)?;
             Ok(Some(picked))
         }
@@ -297,7 +298,7 @@ pub fn save_file_as(
             let path = fp.into_path().map_err(|e| e.to_string())?;
             let path_str = path.to_string_lossy().to_string();
             std::fs::write(&path, &content).map_err(|e| e.to_string())?;
-            grants.grant(&path_str);
+            grants.grant_with_parent(&path_str);
             let metadata = std::fs::metadata(&path).map_err(|e| e.to_string())?;
             let last_modified = extract_last_modified(&metadata);
             let name = path

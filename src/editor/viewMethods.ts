@@ -736,6 +736,14 @@ export class ViewMethods {
     } else {
       sidebar.classList.toggle('is-collapsed');
     }
+    // 展开侧边栏且停在「文件」页签时，渲染当前目录文件列表（折叠守卫会忽略这次调用）
+    if (!sidebar.classList.contains('is-collapsed')) {
+      const filesPanel = sidebar.querySelector('[data-sidebar-panel="files"]');
+      if (filesPanel && filesPanel.classList.contains('is-active')
+        && typeof this._renderCurrentDirFiles === 'function') {
+        this._renderCurrentDirFiles();
+      }
+    }
   }
 
 

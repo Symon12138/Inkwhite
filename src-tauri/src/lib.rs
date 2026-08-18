@@ -85,9 +85,9 @@ fn handle_external_open(app: &AppHandle, path: &str) {
         }
     };
 
-    // 授权文件路径
+    // 授权文件路径 + 所在目录（系统双击打开即用户手势；目录供侧边栏浏览）
     if let Some(grants) = app.try_state::<GrantsManager>() {
-        grants.grant(path);
+        grants.grant_with_parent(path);
     }
 
     // 开始监听文件变更
