@@ -26,15 +26,17 @@ test('菜单栏：7 项齐全；文件操作在文件菜单；字体选择器在
   expect(options.some((o) => o.includes('宋体'))).toBe(true);
 });
 
-test('标签栏品牌「飞白」使用书法字体栈（--brand-font）', async ({ page }) => {
+test('标签栏品牌「飞白」用书法图片（非文字）', async ({ page }) => {
   await openEditor(page);
   const brand = page.locator('.tab-bar-brand');
   await expect(brand).toBeVisible();
-  await expect(brand).toHaveText('飞白');
-  const fam = await brand.evaluate((el) => getComputedStyle(el).fontFamily);
-  expect(fam).toContain('FZShuTi');
-  expect(fam).toContain('STXingkai');
-  expect(fam).toContain('cursive');
+  const img = page.locator('.tab-bar-brand-img');
+  await expect(img).toBeVisible();
+  await expect(img).toHaveAttribute('alt', '飞白');
+  const src = await img.getAttribute('src');
+  expect(src).toContain('feibai');
+  // 品牌不再渲染成草书文字
+  await expect(brand).not.toHaveText('飞白');
 });
 
 test('菜单栏 mnemonics：Alt+E 打开编辑菜单、Esc 关闭', async ({ page }) => {

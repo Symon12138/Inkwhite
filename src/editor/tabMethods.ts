@@ -85,14 +85,16 @@ export class TabMethods {
     const bar = document.createElement('div');
     bar.className = 'tab-bar';
     bar.setAttribute('role', 'tablist');
-    // 品牌并入标签栏（原 54px header 已删除，压缩顶部垂直空间）
+    // 品牌并入标签栏（原 54px header 已删除，压缩顶部垂直空间）；
+    // 用「飞白」书法图片作为品牌（替代早前的点+草书文字）。
     const brand = document.createElement('span');
     brand.className = 'tab-bar-brand';
-    brand.setAttribute('aria-hidden', 'true');
-    const dot = document.createElement('span');
-    dot.className = 'brand-dot';
-    brand.appendChild(dot);
-    brand.appendChild(document.createTextNode('飞白'));
+    const brandImg = document.createElement('img');
+    brandImg.className = 'tab-bar-brand-img';
+    brandImg.src = './images/feibai_kuangcao_jianfei_s.jpg';
+    brandImg.alt = '飞白';
+    brandImg.title = '飞白 · Inkwhite';
+    brand.appendChild(brandImg);
     bar.appendChild(brand);
     const list = document.createElement('div');
     list.className = 'tab-list';

@@ -152,21 +152,21 @@
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
 }
-/* 品牌并入标签栏（原 54px header 删除后保留下沉为行内标识）。
-   草书/行楷书法字：不加粗（合成加粗会破坏书法笔画），字号略大提升辨识 */
+/* 品牌并入标签栏：用「飞白」书法图作为品牌印章（替代点+草书文字）。
+   图片为浅色宣纸底，小尺寸当印章展示，暗色主题下也友好 */
 .tab-bar-brand {
   display: flex;
   align-items: center;
-  gap: 6px;
   flex: none;
   padding: 0 12px 6px 4px;
-  color: var(--text-2);
-  font-family: var(--brand-font);
-  font-weight: 400;
-  font-size: var(--fs-2xl);
-  letter-spacing: 0.01em;
-  white-space: nowrap;
   user-select: none;
+}
+.tab-bar-brand-img {
+  display: block;
+  height: 18px;
+  width: auto;
+  border-radius: 3px;
+  object-fit: contain;
 }
 .tab-list { display: flex; flex: 0 1 auto; gap: 4px; overflow-x: auto; min-width: 0; }
 .tab-item {
