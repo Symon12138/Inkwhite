@@ -1,6 +1,6 @@
 import { test, expect, openEditor, setSource, selectInSource, clickMenubarItem } from './fixtures';
 
-test('⌘F 打开搜索条，计数、循环跳转与 Esc 关闭', async ({ page }) => {
+test('Ctrl+F 打开搜索条，计数、循环跳转与 Esc 关闭', async ({ page }) => {
   await openEditor(page);
   await setSource(page, 'alpha beta\nalpha gamma\ndelta');
   await page.locator('.md-source').click();
@@ -76,7 +76,7 @@ test('区分大小写开关影响匹配数量', async ({ page }) => {
   await expect(page.locator('.search-bar .search-count')).toHaveText('第 1 项，共 3 项');
 });
 
-test('预览模式下 ⌘F 打开预览搜索并用 Highlight API 高亮', async ({ page }) => {
+test('预览模式下 Ctrl+F 打开预览搜索并用 Highlight API 高亮', async ({ page }) => {
   await openEditor(page);
   await setSource(page, '# 搜索\n\n第一段有目标词的内容。\n\n第二段也有目标词的内容。');
   await clickMenubarItem(page, 'view', '预览视图');

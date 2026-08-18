@@ -190,7 +190,7 @@ test('关闭搜索后隐藏搜索条并把焦点还给编辑器', () => {
   assert.equal(editor.sourceRef.current.focused, true);
 });
 
-test('快捷键：⌘F 打开搜索、Ctrl+H 打开并聚焦替换、Esc 关闭', () => {
+test('快捷键：Ctrl+F 打开搜索、Ctrl+H 打开并聚焦替换、Esc 关闭', () => {
   const editor = createEditor('alpha beta');
   const event = (key: string, mods: Record<string, boolean> = {}) => ({
     key,
@@ -221,9 +221,9 @@ test('快捷键：⌘F 打开搜索、Ctrl+H 打开并聚焦替换、Esc 关闭'
   assert.equal(editor._handleSearchShortcut(event('f')), false);
 });
 
-// ===== ⌘F 按视图路由 & 源码镜像高亮层 =====
+// ===== Ctrl+F 按视图路由 & 源码镜像高亮层 =====
 
-test('预览模式与沉浸式下 ⌘F 路由到预览搜索', () => {
+test('预览模式与沉浸式下 Ctrl+F 路由到预览搜索', () => {
   const editor = Object.create(SearchReplaceMethods.prototype);
   let previewOpened = 0;
   let sourceOpened = 0;
@@ -361,12 +361,12 @@ test('正则替换支持 $1 分组引用', () => {
   assert.equal(editor.sourceRef.current.value, '宽 12rem 高 34rem');
 });
 
-test('替换行默认折叠，⌘⌥F 打开时展开，箭头可切换', () => {
+test('替换行默认折叠，Ctrl+Alt+F 打开时展开，箭头可切换', () => {
   const editor = createEditor('alpha');
   editor.searchExpandRef = createRef(createStubElement());
 
   editor.openSearch(false);
-  assert.equal(editor.searchBarRef.current.classList.contains('is-expanded'), false, '⌘F 打开保持折叠');
+  assert.equal(editor.searchBarRef.current.classList.contains('is-expanded'), false, 'Ctrl+F 打开保持折叠');
 
   editor.toggleSearchReplaceRow();
   assert.equal(editor.searchBarRef.current.classList.contains('is-expanded'), true);

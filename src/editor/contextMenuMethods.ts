@@ -171,20 +171,20 @@ export class ContextMenuMethods {
     const canRedo = !!o.canRedo;
     return [
       { group: '编辑', items: [
-        { label: '撤销', shortcut: '⌘Z', disabled: !canUndo, action: () => this.undoEdit() },
-        { label: '重做', shortcut: '⌘⇧Z', disabled: !canRedo, action: () => this.redoEdit() },
+        { label: '撤销', disabled: !canUndo, action: () => this.undoEdit() },
+        { label: '重做', disabled: !canRedo, action: () => this.redoEdit() },
         { type: 'sep' },
-        { label: '剪切', shortcut: '⌘X', disabled: !hasSel, action: () => this._cutSource() },
-        { label: '复制', shortcut: '⌘C', disabled: !hasSel, action: () => this._copySource() },
-        { label: '粘贴', shortcut: '⌘V', action: () => this._pasteSource() },
-        { label: '全选', shortcut: '⌘A', action: () => this._selectAllSource() },
+        { label: '剪切', disabled: !hasSel, action: () => this._cutSource() },
+        { label: '复制', disabled: !hasSel, action: () => this._copySource() },
+        { label: '粘贴', action: () => this._pasteSource() },
+        { label: '全选', action: () => this._selectAllSource() },
         { type: 'sep' },
-        { label: '查找替换…', shortcut: '⌘F', action: () => this.toggleSearch() }
+        { label: '查找替换…', action: () => this.toggleSearch() }
       ]},
       { group: '段落', items: [
-        { label: '标题 1', shortcut: '⌘1', action: () => this._linePrefix('# ') },
-        { label: '标题 2', shortcut: '⌘2', action: () => this._linePrefix('## ') },
-        { label: '标题 3', shortcut: '⌘3', action: () => this._linePrefix('### ') },
+        { label: '标题 1', action: () => this._linePrefix('# ') },
+        { label: '标题 2', action: () => this._linePrefix('## ') },
+        { label: '标题 3', action: () => this._linePrefix('### ') },
         { type: 'sep' },
         { label: '无序列表', action: () => this._linePrefix('- ') },
         { label: '有序列表', action: () => this._linePrefix('1. ') },
@@ -195,8 +195,8 @@ export class ContextMenuMethods {
         { label: '分割线', action: () => this._insertHr() }
       ]},
       { group: '格式', items: [
-        { label: '加粗', shortcut: '⌘B', action: () => this._wrapSel('**', '**', '粗体') },
-        { label: '斜体', shortcut: '⌘I', action: () => this._wrapSel('*', '*', '斜体') },
+        { label: '加粗', action: () => this._wrapSel('**', '**', '粗体') },
+        { label: '斜体', action: () => this._wrapSel('*', '*', '斜体') },
         { label: '删除线', action: () => this._wrapSel('~~', '~~', '删除线') },
         { label: '高亮', action: () => this._wrapSel('==', '==', '高亮') },
         { label: '下划线', action: () => this._wrapSel('<u>', '</u>', '下划线') },
@@ -351,7 +351,7 @@ export class ContextMenuMethods {
 
   _selectionMenu() {
     return [{ group: null, items: [
-      { label: '复制', shortcut: '⌘C', action: () => this.copySel() },
+      { label: '复制', action: () => this.copySel() },
       { label: '复制为 HTML', action: () => this.copyHtmlSelection() },
       { type: 'sep' },
       { label: '马克笔', action: () => this.markMarker() },
@@ -363,7 +363,7 @@ export class ContextMenuMethods {
 
   _defaultPreviewMenu() {
     return [{ group: null, items: [
-      { label: '复制', shortcut: '⌘C', disabled: true, action: () => this.copySel() },
+      { label: '复制', disabled: true, action: () => this.copySel() },
       { label: '复制为 HTML', disabled: true, action: () => this.copyHtmlSelection() },
       { type: 'sep' },
       { label: '全选', action: () => this._selectAllPreview() }
@@ -474,8 +474,8 @@ export class ContextMenuMethods {
   _buildTabMenu(tabId) {
     const tab = Array.isArray(this._tabs) ? this._tabs.find((t) => t.id === tabId) : null;
     const items = [
-      { label: '新建标签页', shortcut: '⌃T', action: () => this.addTab() },
-      { label: '关闭标签页', shortcut: '⌃W', action: () => this.closeTab(tabId) },
+      { label: '新建标签页', action: () => this.addTab() },
+      { label: '关闭标签页', action: () => this.closeTab(tabId) },
       { label: '关闭其他标签页', action: () => this._closeOtherTabs(tabId) },
       { label: '关闭右侧标签页', action: () => this._closeRightTabs(tabId) }
     ];

@@ -158,7 +158,7 @@ test('autosave=true（默认）：写穿本地文件照常执行', async () => {
   assert.equal(editor.dirty, false);
 });
 
-test('autosave=false：跳过写穿本地文件，脏标记保留（草稿由 _persist 保底，显式 ⌘S 仍可保存）', async () => {
+test('autosave=false：跳过写穿本地文件，脏标记保留（草稿由 _persist 保底，显式 Ctrl+S 仍可保存）', async () => {
   const handle = createFakeHandle('旧内容', 1000);
   const editor = createSettingsEditor(handle, '编辑后的内容', { ...DEFAULT_SETTINGS, autosave: false });
   editor.dirty = true;

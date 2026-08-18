@@ -3,7 +3,7 @@
 //   编辑器 → 本地：autosave 时把内容写穿回打开的本地文件（需要 readwrite 权限）。
 //   本地 → 编辑器：通过 Tauri notify crate 的原生文件监听（onFileChanged 事件），
 //     外部改动后自动重载；若编辑器还有未写回的改动则进入冲突状态，
-//     暂停写回，等用户 ⌘S 显式覆盖。
+//     暂停写回，等用户 Ctrl+S 显式覆盖。
 // 句柄经 IndexedDB 持久化（见 fileHandleStore），刷新页面或从最近列表重开时自动恢复关联。
 import { tauriBridge } from './tauriBridge.ts';
 import { createTauriFileHandle } from './tauriFileHandle.ts';
@@ -134,7 +134,7 @@ export class LocalFileSyncMethods {
       }
       if (this.dirty) {
         this._localFileConflict = true;
-        this._setStatus('本地文件已被其他程序修改 · ⌘S 保存将覆盖对方改动');
+        this._setStatus('本地文件已被其他程序修改 · Ctrl+S 保存将覆盖对方改动');
         return;
       }
       this._reloadFromLocalFile(text, file);
@@ -190,7 +190,7 @@ export class LocalFileSyncMethods {
       this._setStatus('已同步到本地文件 · '
         + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'));
     } catch {
-      // 写回失败不打断编辑；保留脏标记，用户仍可 ⌘S 手动保存。
+      // 写回失败不打断编辑；保留脏标记，用户仍可 Ctrl+S 手动保存。
     } finally {
       this._localWriteBusy = false;
     }

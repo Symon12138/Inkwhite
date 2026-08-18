@@ -4,7 +4,7 @@
 // 语义决策（B19 硬约束：关闭自动保存不静默丢稿）：
 //   - autosave 只控制「写穿本地文件」（localFileSyncMethods 的自动写回）；
 //   - localStorage 草稿（EDITOR_STORAGE_KEY，经 _persist 保存）始终保存，作为保底；
-//   - 显式保存（⌘S，onSave）直接写本地文件，不经 autosave 开关。
+//   - 显式保存（Ctrl+S，onSave）直接写本地文件，不经 autosave 开关。
 export const SETTINGS_KEY = 'md-editor-settings-v1';
 
 export type PrintPaper = 'follow-preview' | 'white';

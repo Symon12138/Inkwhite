@@ -384,12 +384,12 @@ export class SearchReplaceMethods {
     const mod = e.metaKey || e.ctrlKey;
     if (mod && !e.altKey && !e.shiftKey && key === 'f') {
       e.preventDefault();
-      // 预览 / 沉浸式下源码不可见，⌘F 打开预览搜索
+      // 预览 / 沉浸式下源码不可见，Ctrl+F 打开预览搜索
       if (this.previewFullscreen || this.viewMode === 'preview') this.openPreviewSearch();
       else this.openSearch(false);
       return true;
     }
-    // Mac 的 ⌘H 被系统隐藏窗口占用，替换用 ⌘⌥F；Windows/Linux 用 Ctrl+H。
+    // Windows/Linux 展开替换用 Ctrl+Alt+F 与 Ctrl+H（不保留 mac 符号表述）。
     if ((mod && e.altKey && key === 'f') || (e.ctrlKey && !e.metaKey && !e.altKey && key === 'h')) {
       e.preventDefault();
       this.openSearch(true);

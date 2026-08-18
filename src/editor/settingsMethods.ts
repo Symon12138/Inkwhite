@@ -9,7 +9,7 @@
 //                         → _maybeWriteThroughLocalFile（写穿本地文件，受开关控制）。
 //   本类以同名方法拦截 LocalFileSyncMethods 的写穿入口（SettingsMethods 在
 //   applyPrototypeMethods 中排在 LocalFileSyncMethods 之后，覆盖生效）：
-//   关闭自动保存后跳过自动写回；显式 ⌘S（onSave）直接写本地文件，不受影响。
+//   关闭自动保存后跳过自动写回；显式 Ctrl+S（onSave）直接写本地文件，不受影响。
 import { LocalFileSyncMethods } from './localFileSyncMethods.ts';
 import { loadSettings, sanitizeSettings, saveSettings } from './settings.ts';
 
@@ -51,7 +51,7 @@ export class SettingsMethods {
     if (key === 'autosave') {
       this._setStatus(this.settings.autosave
         ? '自动保存已开启'
-        : '自动保存已关闭 · 草稿仍保存在浏览器 · 显式保存（⌘S）仍写入本地文件');
+        : '自动保存已关闭 · 草稿仍保存在浏览器 · 显式保存（Ctrl+S）仍写入本地文件');
     } else if (key === 'spellcheck') {
       this._setStatus('拼写检查已' + (this.settings.spellcheck ? '开启' : '关闭'));
     }
@@ -120,7 +120,7 @@ export class SettingsMethods {
       this._buildToggleRow('spellcheck', '原生拼写检查',
         '开启后编辑区与预览使用浏览器原生拼写检查。'),
       this._buildToggleRow('autosave', '自动保存到本地文件',
-        '关闭后不再自动写回已打开的本地文件；浏览器草稿始终自动保存（不丢稿），显式保存（⌘S）仍写入本地文件。'),
+        '关闭后不再自动写回已打开的本地文件；浏览器草稿始终自动保存（不丢稿），显式保存（Ctrl+S）仍写入本地文件。'),
       this._buildTextRow('exportPageMargin', '导出/打印页边距',
         '与打印页边距一致，导出与打印共用。示例：14mm 16mm'),
       this._buildRadioRow('printPaper', '打印纸色',
