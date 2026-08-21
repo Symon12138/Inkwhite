@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Rust toolchain (gnu)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable-x86_64-pc-windows-gnu
+          targets: x86_64-pc-windows-gnu
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check code size
+        run: node scripts/check-code-size.js
+
+      - name: Check bundle size
+        run: node scripts/check-bundle-size.js
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Unit tests (frontend)
+        run: npm test
+
+      - name: Unit tests (Rust)
+        shell: pwsh
+        run: |
+          # 首次 cargo test 会在 debug 目录产出 WebView2Loader.dll，测试二进制却在
+          # src-tauri/target/release 下找它（见 docs/HANDOVER.md §4）。先试一次，
+          # 失败则把 debug 产物拷到 release 再重跑。
+          cargo test --manifest-path src-tauri/Cargo.toml
+          if ($LASTEXITCODE -ne 0) {
+            $release = "src-tauri/target/release/WebView2Loader.dll"
+            if (-not (Test-Path $release)) {
+              $candidate = Get-ChildItem -Path "src-tauri/target/debug/build" -Recurse -Filter "WebView2Loader.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
+              if ($candidate) {
+                New-Item -ItemType Directory -Force -Path "src-tauri/target/release" | Out-Null
+                Copy-Item $candidate.FullName $release
+                Write-Host "Copied WebView2Loader.dll from $($candidate.FullName) to $release, retrying cargo test..."
+                cargo test --manifest-path src-tauri/Cargo.toml
+                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+              } else {
+                Write-Host "WebView2Loader.dll not found in debug build output, failing."
+                exit 1
+              }
+            } else {
+              exit $LASTEXITCODE
+            }
+          }
+
+      - name: Build (Vite)
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7

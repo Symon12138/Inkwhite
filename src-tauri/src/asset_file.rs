@@ -143,9 +143,15 @@ pub(crate) fn save_asset_file_impl(
         .parent()
         .ok_or_else(|| "无法定位文档目录".to_string())?;
 
-    let entries = read_dir_names(canon_dir);
+    // P2：附件集中到 `assets/` 子文件夹，避免文档目录被图片污染
+    let assets_dir = canon_dir.join("assets");
+    let _ = std::fs::create_dir_all(&assets_dir);
+    // 若 assets 创建失败则回落到文档目录（兼容旧行为）
+    let use_assets = assets_dir.is_dir();
+    let target_dir = if use_assets { &assets_dir } else { canon_dir };
+    let entries = read_dir_names(target_dir);
     let target_name = dedupe_asset_name(&entries, &name);
-    let target = canon_dir.join(&target_name);
+    let target = target_dir.join(&target_name);
     if target.is_dir() {
         return Err("目标已存在同名目录".to_string());
     }
@@ -157,8 +163,14 @@ pub(crate) fn save_asset_file_impl(
     sniff_image(&ext, &bytes)?;
 
     std::fs::write(&target, &bytes).map_err(|e| format!("写入图片失败: {}", e))?;
+    // 返回给前端的 name 需包含子文件夹前缀，供 Markdown 引用（assets/a.png）
+    let ref_name = if use_assets {
+        format!("assets/{}", target_name)
+    } else {
+        target_name.clone()
+    };
     Ok(AssetSaved {
-        name: target_name,
+        name: ref_name,
         path: target.to_string_lossy().to_string(),
     })
 }
@@ -336,14 +348,15 @@ mod tests {
         grant_doc(&gm, &doc.to_string_lossy());
         let b64 = general_purpose::STANDARD.encode(png_bytes());
         let saved = save_asset_file_impl(&doc.to_string_lossy(), "a.png", &b64, &gm).unwrap();
-        assert_eq!(saved.name, "a.png");
+        assert!(saved.name.ends_with("a.png"), "expected assets/a.png, got {}", saved.name);
+        assert!(saved.path.ends_with("a.png"), "path should end with a.png");
         let on_disk = std::fs::read(&saved.path).unwrap();
         assert_eq!(on_disk, png_bytes());
 
         // 去重（保留输入大小写，-1 后缀）
         let b64_again = general_purpose::STANDARD.encode(png_bytes());
         let second = save_asset_file_impl(&doc.to_string_lossy(), "A.PNG", &b64_again, &gm).unwrap();
-        assert_eq!(second.name, "A-1.PNG");
+        assert!(second.name.ends_with("A-1.PNG"), "expected assets/A-1.PNG, got {}", second.name);
 
         // 坏 base64 → 拒
         assert!(save_asset_file_impl(&doc.to_string_lossy(), "b.png", "!!!", &gm).is_err());

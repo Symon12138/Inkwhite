@@ -523,6 +523,39 @@ pub fn read_asset(
     Ok(read_local_asset(&doc_path, &src))
 }
 
+/// 解析本地图片资产的绝对路径（供前端 convertFileSrc 使用，性能优于 data URL）。
+/// 校验与 read_local_asset 一致（路径穿越防护 + 扩展名白名单），只返回路径，不读文件内容。
+pub(crate) fn resolve_asset_path(doc_path: &str, src: &str) -> Option<String> {
+    if doc_path.is_empty() || src.is_empty() {
+        return None;
+    }
+    let relative = percent_decode(src);
+    let doc_dir = Path::new(doc_path).parent().unwrap_or(Path::new("."));
+    let target = doc_dir.join(&relative);
+    let canon_doc_dir = doc_dir.canonicalize().ok()?;
+    let canon_target = target.canonicalize().ok()?;
+    if !canon_target.starts_with(&canon_doc_dir) {
+        return None;
+    }
+    let ext = canon_target
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase())
+        .unwrap_or_default();
+    image_mime(&ext)?;
+    Some(canon_target.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn get_asset_path(
+    doc_path: String,
+    src: String,
+    grants: State<'_, GrantsManager>,
+) -> Result<Option<String>, String> {
+    grants.assert_granted(&doc_path)?;
+    Ok(resolve_asset_path(&doc_path, &src))
+}
+
 /// 开始监听一个已授权的文件。
 ///
 /// 监听的最终所有权由前端当前文档生命周期决定；重复请求同一路径是幂等的。

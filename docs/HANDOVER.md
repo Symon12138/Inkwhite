@@ -19,8 +19,8 @@
 | 右键菜单（四上下文） | 源码（编辑/段落/格式/插入）、预览（链接/图片/表格/选区）、侧边栏、标签页；视口翻转、Esc/外点/滚动关闭 | `contextMenuMethods.ts` + `contextMenu.css` |
 | 源码工具栏格式按钮 | 标题/加粗/斜体/删除线/高亮/下划线/引用/列表/行内代码/链接 + 「更多格式 ⋯」（图片/表格/任务/代码块/分割线/上下标/脚注） | `index.html`、`editingFileLayoutMethods.ts` |
 | 统一字体 | 选择字体后**源码+预览+搜索高亮层同步**（`--source-font` + `--read`）；默认源码回落等宽；支持导入字体（IndexedDB 持久化） | `fontMethods.ts`、`fontControls.css` |
-| 字体/字号控件 | 全部集中在**状态栏右下角**（字体 ▾、导入、A−/A+、字数） | `index.html` footer、`shell.css` |
-| 侧边栏「文件」页签 | **当前文档所在目录的 .md 列表**，点击在新标签打开；折叠/大纲时跳过渲染（防卡顿）；列表上限 200 | `fileTreeMethods.ts` |
+| 字体/字号控件 | 状态栏右下角“字体 ▾ + 导入 + 源码 A−/A+ + 预览 A−/A+ + 字数”（源码/预览独立，旧数据自动迁移） | `index.html` footer、`viewMethods.ts`、`types.ts` |
+| 侧边栏「文件」页签 | 工作区文件夹树（`选择文件夹…` 持久化）+ 当前文档所在目录 .md 列表；文件菜单“打开文件夹…”直达；列表上限 200 | `fileTreeMethods.ts`、`index.html` |
 | 侧边栏「大纲」页签 | 标题跳转 | `navigationMethods.ts`、`viewMethods.ts` |
 | 搜索替换 | Ctrl+F 按视图路由（源码/预览）、Ctrl+H 展开替换；大小写/全字/正则；镜像层高亮 | `searchReplaceMethods.ts`、`previewSearchMethods.ts` |
 | 划线批注 | 马克笔/波浪线/直线/想法 + 批注面板，localStorage 持久化 | `commentMethods.ts` |
@@ -66,9 +66,8 @@
 
 1. **Windows 实机手测 49 项**（`docs/PLATFORM_TEST.md` 未完成）——重点验证：右键菜单（剪贴板粘贴/复制）、
    侧边栏目录浏览、外链图片、文件关联打开。E2E 只覆盖浏览器路径，桌面路径需实机。
-2. **CI 首次实跑**——仓库内**没有** `.github/workflows/*.yml`（之前说"已就绪"但实际未落盘），需要新建
-   （前端 check + cargo test + playwright；注意 gnu 工具链与 WebView2Loader 处理）。
-3. **API key 轮换**——仓库历史曾暴露 key，安全建议尽快轮换。
+2. ✅ **CI 首次实跑**——已补齐 `.github/workflows/ci.yml`（2026-08-21，见下方 §6）：`windows-latest` 单作业串行 `check-code-size` → `tsc` → `npm test` → `cargo test`（含 WebView2Loader.dll 自动回补）→ `vite build` → `playwright chromium`，失败自动上传 `playwright-report`。
+3. ~~**API key 轮换**~~ ✅ 已确认无需处理（2026-08-21 核实：本项目不接入外部模型 API，未配置相关 key，历史记录中的 key 已失效/无关联服务，风险可关闭）。
 4. **.md 资源管理器图标**——桌面端关联文件无专属图标（当前 Tauri schema 不支持 fileAssociations 级 icon），
    需自定义 NSIS 钩子写 `DefaultIcon` 注册表。
 5. **草书品牌字体打包**——品牌目前靠系统字体栈/书法图片；如需任何机器都显示，可把可商用草书字体裁成
@@ -77,8 +76,7 @@
    MSI/EXE 下载入口或移出。
 7. **文档**——`docs/DESIGN_SPEC.md` / `DESKTOP_ROADMAP.md` 可能过时，可对照本节功能表更新；
    曾提到的 `overview.md` 当前不存在。
-8. **可选打磨**——源码/预览独立字号（用户此前未选）；顶部是否进一步精简；主题菜单纸色与预览工具栏
-   纸色点重复（可去重）。
+8. **可选打磨**——~~源码/预览独立字号（用户此前未选）~~ ✅ 已完成（2026-08-21：`types.ts`/`MarkdownEditorLogic.ts`/`viewMethods.ts`/`index.html` 独立 `previewFontSize`，状态栏“源码/预览”双控件，沉浸式工具栏跟随预览字号，旧数据自动迁移）；~~主题菜单纸色与预览工具栏纸色点重复（可去重）~~ ✅ 已完成（2026-08-21：主题菜单仅保留“切换 亮色/暗黑 + 设置…” ，纸色改由预览工具栏 `paperPicker` 圆点唯一入口）；顶部是否进一步精简（待定）。
 
 ## 6. 常用命令
 
@@ -86,11 +84,16 @@
 npm run dev              # Vite 前端 127.0.0.1:1420
 npm run tauri:dev        # 桌面开发
 npm run check            # 门禁：体积+tsc+单测+cargo+构建
+npm run check:full       # 全量门禁：check + E2E
 npm run test:e2e         # Playwright（首跑 npx playwright install chromium）
 npm run tauri:build      # 出安装包（NSIS/MSI）
 npm run release          # 发布 GitHub Release（读 tauri.conf 版本，传 exe+msi）
 ```
 
+> CI：推送到 `main`/`master` 自动触发 `.github/workflows/ci.yml`（见 §5-2），本地可用 `npm run check:full` 完整自检后推送。
+
 ---
 
-*生成：2026-08-19 · 交接时最近提交 `d71c633` · Release v1.0.0 已发布。*
+*生成：2026-08-19 · 更新：2026-08-21 补齐 CI（.github/workflows/ci.yml）· 交接时最近提交 `d71c633` · Release v1.0.0 已发布。*
+
+*更新：2026-08-21 P1 完成——独立字号（`types.ts`/`MarkdownEditorLogic.ts`/`viewMethods.ts`/`index.html`）、主题菜单去重、asset 协议（`commands.rs` `get_asset_path` + `tauriBridge.ts` + `viewMethods.ts` `convertFileSrc`）、粘贴压缩（`insertPasteMethods.ts` `canvas` 限宽 1920/webp）；P2 进行中（附件子文件夹 `assets/` + 工作区侧边栏，见 `src-tauri/src/asset_file.rs` 与 `src/editor/fileTreeMethods.ts`）。*

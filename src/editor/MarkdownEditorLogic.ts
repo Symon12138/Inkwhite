@@ -50,6 +50,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this.saveStatusRef = React.createRef();
     this.countRef = React.createRef();
     this.fontSizeRef = React.createRef();
+    this.previewFontSizeRef = React.createRef();
     this.fullscreenFontSizeRef = React.createRef();
     this.paperPickerRef = React.createRef();
     this.fontSelectRef = React.createRef();
@@ -59,6 +60,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this.headerMoreRef = React.createRef();
     this.headerMenuRef = React.createRef();
     this.fontSize = 16;
+    this.previewFontSize = 16;
     this.fontFamily = '';
     this.searchBarRef = React.createRef();
     this.searchInputRef = React.createRef();
@@ -166,6 +168,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       initial = this._cleanOpenedMarkdown(saved.content);
       if (saved.fileName) name = saved.fileName;
       if (saved.fontSize) this.fontSize = saved.fontSize;
+      if (saved.previewFontSize) this.previewFontSize = saved.previewFontSize;
+      else if (saved.fontSize) this.previewFontSize = saved.fontSize;
       if (Array.isArray(saved.comments)) this.comments = saved.comments;
       if (saved.theme) { this.theme = saved.theme; this._themeTouched = true; }
       if (saved.paperDark) this.paperDark = saved.paperDark;
@@ -323,6 +327,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       saveStatusRef: this.saveStatusRef,
       countRef: this.countRef,
       fontSizeRef: this.fontSizeRef,
+      previewFontSizeRef: this.previewFontSizeRef,
       fullscreenFontSizeRef: this.fullscreenFontSizeRef,
       paperPickerRef: this.paperPickerRef,
       fontSelectRef: this.fontSelectRef,
@@ -366,6 +371,10 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       sidebarTabOutline: () => this._setSidebarTab('outline'),
       fontInc: () => this._setFont(this.fontSize + 1),
       fontDec: () => this._setFont(this.fontSize - 1),
+      sourceFontInc: () => this._setSourceFont(this.fontSize + 1),
+      sourceFontDec: () => this._setSourceFont(this.fontSize - 1),
+      previewFontInc: () => this._setPreviewFont((this.previewFontSize ?? this.fontSize) + 1),
+      previewFontDec: () => this._setPreviewFont((this.previewFontSize ?? this.fontSize) - 1),
       toggleTheme: () => this.toggleTheme(),
       togglePreviewFullscreen: () => this.togglePreviewFullscreen(),
       toggleImmersiveWide: () => this.toggleImmersiveWide(),
@@ -448,6 +457,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       menuAbout: () => this.openSettings(),
       menuFileNew: () => { this.toggleMenubar(''); this.addTab(); },
       menuFileOpen: () => { this.toggleMenubar(''); this.onOpen(); },
+      menuOpenFolder: () => { this.toggleMenubar(''); if (typeof this._pickFolder === 'function') this._pickFolder(); else this.openFileTree(); },
       menuFileSave: () => { this.toggleMenubar(''); this.onSave(); },
       menuFileSaveAs: () => { this.toggleMenubar(''); this.onSaveAs(); },
       menuExportHtml: () => { this.toggleMenubar(''); this.onExportHtml(); },

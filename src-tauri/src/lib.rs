@@ -198,6 +198,7 @@ pub fn run() {
             commands::write_file,
             commands::stat_file,
             commands::read_asset,
+            commands::get_asset_path,
             commands::watch_file,
             commands::unwatch_file,
             commands::consume_pending_open,

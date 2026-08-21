@@ -269,16 +269,34 @@ export class ViewMethods {
     const docPath = this.localFilePath;
     root.querySelectorAll('img[src]').forEach((img) => {
       const src = img.getAttribute('src') || '';
-      if (!src || /^(https?:|data:|blob:|file:)/i.test(src)) return;
+      if (!src || /^(https?:|data:|blob:|file:|asset:|http:\/\/asset\.)/i.test(src)) return;
       const key = docPath + '::' + src;
       const cached = this._localImageCache.get(key);
       if (cached) { img.src = cached; return; }
       this._imageTracker.inc();
-      desktop.readAsset(docPath, src).then((asset) => {
-        if (asset && asset.dataUrl) {
-          this._localImageCache.set(key, asset.dataUrl);
-          img.src = asset.dataUrl;
-        }
+      // P1-3: 优先尝试 asset 协议（零拷贝，省 33% base64），失败回落到 data URL
+      const useAsset = desktop.getAssetPath
+        ? desktop.getAssetPath(docPath, src).then(async (assetPath) => {
+            if (assetPath) {
+              try {
+                const { convertFileSrc } = await import('@tauri-apps/api/core');
+                const url = convertFileSrc(assetPath);
+                this._localImageCache.set(key, url);
+                img.src = url;
+                return true;
+              } catch {}
+            }
+            return false;
+          }).catch(() => false)
+        : Promise.resolve(false);
+      useAsset.then((hit) => {
+        if (hit) return;
+        return desktop.readAsset(docPath, src).then((asset) => {
+          if (asset && asset.dataUrl) {
+            this._localImageCache.set(key, asset.dataUrl);
+            img.src = asset.dataUrl;
+          }
+        });
       }).catch(() => {}).finally(() => {
         this._imageTracker.dec();
       });
@@ -652,20 +670,42 @@ export class ViewMethods {
 
 
   _applyFont() {
-    const px = this.fontSize;
+    const sourcePx = this.fontSize;
+    const previewPx = this.previewFontSize != null ? this.previewFontSize : this.fontSize;
     const prev = this.previewRef.current, src = this.sourceRef.current;
-    if (prev) prev.style.fontSize = px + 'px';
-    if (src) src.style.fontSize = px + 'px';
-    if (this.fontSizeRef.current) this.fontSizeRef.current.textContent = px + 'px';
-    if (this.fullscreenFontSizeRef.current) this.fullscreenFontSizeRef.current.textContent = px + 'px';
+    if (prev) prev.style.fontSize = previewPx + 'px';
+    if (src) src.style.fontSize = sourcePx + 'px';
+    if (this.fontSizeRef.current) this.fontSizeRef.current.textContent = sourcePx + 'px';
+    const previewRef = this.previewFontSizeRef && this.previewFontSizeRef.current;
+    if (previewRef) previewRef.textContent = previewPx + 'px';
+    else if (this.fontSizeRef.current && previewPx !== sourcePx) {
+      // 回退：单显时显示源码字号，预览字号差异通过沉浸式控件体现
+    }
+    if (this.fullscreenFontSizeRef.current) this.fullscreenFontSizeRef.current.textContent = previewPx + 'px';
   }
 
 
   _setFont(px) {
+    const clamped = Math.max(12, Math.min(28, px));
+    this.fontSize = clamped;
+    this.previewFontSize = clamped;
+    this._applyFont();
+    this._persist();
+    this._setStatus('字号 ' + clamped + 'px');
+  }
+
+  _setSourceFont(px) {
     this.fontSize = Math.max(12, Math.min(28, px));
     this._applyFont();
     this._persist();
-    this._setStatus('字号 ' + this.fontSize + 'px');
+    this._setStatus('源码字号 ' + this.fontSize + 'px');
+  }
+
+  _setPreviewFont(px) {
+    this.previewFontSize = Math.max(12, Math.min(28, px));
+    this._applyFont();
+    this._persist();
+    this._setStatus('预览字号 ' + this.previewFontSize + 'px');
   }
 
 
@@ -687,6 +727,7 @@ export class ViewMethods {
       content: src ? src.value : '',
       fileName: this.fileName,
       fontSize: this.fontSize,
+      previewFontSize: this.previewFontSize,
       theme: this.theme,
       paperDark: this.paperDark || undefined,
       paperLight: this.paperLight || undefined,

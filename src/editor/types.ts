@@ -18,6 +18,10 @@ export interface PersistedEditorState {
   content: string;
   fileName: string;
   fontSize: number;
+  /** 预览字号（独立于源码字号）；缺省时回落到 fontSize，用于旧数据迁移 */
+  previewFontSize?: number;
+  /** 当前字体 id（含 imported: 前缀）；缺省为默认楷体 */
+  fontFamily?: string;
   theme: EditorTheme;
   /** 暗色主题下的纸色；缺省为墨黑 */
   paperDark?: PaperTheme;

@@ -67,7 +67,7 @@ export class InsertPasteMethods {
   }
 
   async _insertImageFile(file) {
-    const dataUrl = await new Promise((resolve) => {
+    let dataUrl = await new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result || ''));
       reader.onerror = () => resolve('');
@@ -77,6 +77,8 @@ export class InsertPasteMethods {
       this._setStatus('图片读取失败 · ' + file.name);
       return;
     }
+    // P1-4：大图自动压缩（>1.5MB 或边长>1920 时转 webp/限宽，失败回落原图）
+    dataUrl = await this._compressDataUrlIfNeeded(dataUrl, file.name);
     const payload = dataUrl.includes(',') ? dataUrl.slice(dataUrl.indexOf(',') + 1) : dataUrl;
     const payloadError = checkImagePayload(payload);
     if (payloadError) {
@@ -84,6 +86,39 @@ export class InsertPasteMethods {
       return;
     }
     await this._insertImagePayload(dataUrl, file.name);
+  }
+
+  async _compressDataUrlIfNeeded(dataUrl, fileName) {
+    try {
+      const payload = dataUrl.includes(',') ? dataUrl.slice(dataUrl.indexOf(',') + 1) : dataUrl;
+      const bytes = Math.floor(payload.replace(/=+$/, '').length * 3 / 4);
+      // 阈值：1.5MB 或超长边 1920px 时触发压缩（截图常见 3-5MB）
+      if (bytes < 1.5 * 1024 * 1024) return dataUrl;
+      const img = await new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('load failed'));
+        image.src = dataUrl;
+      });
+      const maxEdge = 1920;
+      const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+      if (scale >= 1 && bytes < 4 * 1024 * 1024) return dataUrl;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return dataUrl;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // 优先 webp（更小），不支持回落 jpeg
+      let out = '';
+      try { out = canvas.toDataURL('image/webp', 0.85); } catch {}
+      if (!out || out === 'data:,') out = canvas.toDataURL('image/jpeg', 0.85);
+      if (!out || out.length >= dataUrl.length) return dataUrl;
+      this._setStatus(`图片已压缩 · ${fileName} ${(bytes/1024/1024).toFixed(1)}MB → ${(out.length*3/4/1024/1024).toFixed(1)}MB`);
+      return out;
+    } catch {
+      return dataUrl;
+    }
   }
 
   // 统一入口：dataUrl + 建议名 → 策略（save/inline/prompt-save）→ 插入引用

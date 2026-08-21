@@ -100,6 +100,8 @@ export interface TauriBridgeApi {
   writeFile(path: string, content: string): Promise<FileMeta>;
   statFile(path: string): Promise<FileMeta | null>;
   readAsset(docPath: string, src: string): Promise<AssetData | null>;
+  /** 解析本地图片为 asset 协议 URL（性能优于 data URL，P1-3）；失败回落到 readAsset */
+  getAssetPath(docPath: string, src: string): Promise<string | null>;
   consumePendingOpen(): Promise<PickedFile | null>;
   listDirectory(path: string): Promise<DirEntry[]>;
   pickDirectory(): Promise<string | null>;
@@ -300,6 +302,10 @@ export const tauriBridge: TauriBridgeApi | null = isTauri()
 
       async readAsset(docPath: string, src: string): Promise<AssetData | null> {
         return invoke<AssetData | null>('read_asset', { docPath, src });
+      },
+
+      async getAssetPath(docPath: string, src: string): Promise<string | null> {
+        return invoke<string | null>('get_asset_path', { docPath, src });
       },
 
       async consumePendingOpen(): Promise<PickedFile | null> {
