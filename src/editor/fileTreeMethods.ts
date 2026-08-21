@@ -105,6 +105,22 @@ export class FileTreeMethods {
     await this._renderTreeChildren(list, this.fileTreeRoot);
   }
 
+  // P2 附件治理：检测 assets/ 中未被 Markdown 引用的孤儿图片
+  async _checkOrphanAssets() {
+    if (!tauriBridge || !this.localFilePath) { this._setStatus('需先打开本地文档'); return; }
+    const docDir = this.localFilePath.replace(/[^\/]+$/, '');
+    const assetsPath = docDir + 'assets';
+    try {
+      const entries = await tauriBridge.listDirectory(assetsPath);
+      const files = entries.filter(e => !e.isDir).map(e => e.name);
+      if (!files.length) { this._setStatus('assets/ 为空，无孤儿图片'); return; }
+      const md = this.sourceRef.current ? this.sourceRef.current.value : '';
+      const orphans = files.filter(name => !md.includes(name));
+      if (!orphans.length) this._setStatus('无孤儿图片 · assets/ 中 ' + files.length + ' 张均被引用');
+      else this._setStatus('发现 ' + orphans.length + ' 张孤儿图片：' + orphans.slice(0,5).join(', ') + (orphans.length>5 ? '…' : ''));
+    } catch { this._setStatus('无法读取 assets/ 目录'); }
+  }
+
   async _renderTreeChildren(container, dirPath) {
     let entries;
     try {
