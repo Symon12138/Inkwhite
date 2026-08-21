@@ -2,8 +2,11 @@
 
 // Markdown 原文的全文搜索与替换：浮层搜索条、匹配跳转、替换当前/全部。
 // 替换走与工具栏格式化相同的撤销历史链路（_recordEditingHistory 强制新条目）。
+const SEARCH_OPTS_KEY = 'md-editor-search-opts';
+
 export class SearchReplaceMethods {
   _initSearchBar() {
+    this._loadSearchOpts();
     const input = this.searchInputRef.current;
     const replace = this.replaceInputRef.current;
     const src = this.sourceRef.current;
@@ -84,9 +87,32 @@ export class SearchReplaceMethods {
   }
 
 
+  _saveSearchOpts() {
+    try {
+      localStorage.setItem(SEARCH_OPTS_KEY, JSON.stringify({
+        c: !!this.searchCaseSensitive, w: !!this.searchWholeWord, r: !!this.searchRegex
+      }));
+    } catch {}
+  }
+
+  _loadSearchOpts() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SEARCH_OPTS_KEY) || 'null');
+      if (raw && typeof raw === 'object') {
+        this.searchCaseSensitive = !!raw.c;
+        this.searchWholeWord = !!raw.w;
+        this.searchRegex = !!raw.r;
+        this._syncSearchOptionButton(this.searchCaseRef, this.searchCaseSensitive);
+        this._syncSearchOptionButton(this.searchWordRef, this.searchWholeWord);
+        this._syncSearchOptionButton(this.searchRegexRef, this.searchRegex);
+      }
+    } catch {}
+  }
+
   toggleSearchCase() {
     this.searchCaseSensitive = !this.searchCaseSensitive;
     this._syncSearchOptionButton(this.searchCaseRef, this.searchCaseSensitive);
+    this._saveSearchOpts();
     this._updateSearchMatches();
   }
 
@@ -94,6 +120,7 @@ export class SearchReplaceMethods {
   toggleSearchWord() {
     this.searchWholeWord = !this.searchWholeWord;
     this._syncSearchOptionButton(this.searchWordRef, this.searchWholeWord);
+    this._saveSearchOpts();
     this._updateSearchMatches();
   }
 
@@ -101,6 +128,7 @@ export class SearchReplaceMethods {
   toggleSearchRegex() {
     this.searchRegex = !this.searchRegex;
     this._syncSearchOptionButton(this.searchRegexRef, this.searchRegex);
+    this._saveSearchOpts();
     this._updateSearchMatches();
   }
 
