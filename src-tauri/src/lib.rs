@@ -11,6 +11,7 @@
 mod asset_file;
 mod commands;
 mod file_watcher;
+mod local_assets;
 mod grants;
 mod search_open;
 #[cfg(test)]
@@ -197,8 +198,8 @@ pub fn run() {
             commands::read_file,
             commands::write_file,
             commands::stat_file,
-            commands::read_asset,
-            commands::get_asset_path,
+            local_assets::read_asset,
+            local_assets::get_asset_path,
             commands::watch_file,
             commands::unwatch_file,
             commands::consume_pending_open,
