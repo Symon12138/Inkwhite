@@ -5,6 +5,23 @@ export class CommentMethods {
   _typeLabel(t) {
     return ({ marker: '马克笔', wavy: '波浪线', straight: '直线', idea: '想法' })[t] || '批注';
   }
+  _ensureCommentFilter() { if (this._commentFilter === undefined) this._commentFilter = 'all'; return this._commentFilter; }
+  _setCommentFilter(v) { this._commentFilter = v || 'all'; this._renderComments(); }
+  _renderCommentFilterBar(list) {
+    let bar = list.previousElementSibling;
+    if (!bar || !bar.classList.contains('comment-filter-bar')) {
+      bar = document.createElement('div'); bar.className = 'comment-filter-bar';
+      bar.style.cssText = 'display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--border-faint);font-size:12px;';
+      const label = document.createElement('span'); label.textContent = '筛选'; label.style.cssText = 'color:var(--text-3);';
+      const sel = document.createElement('select'); sel.className = 'comment-filter-select';
+      sel.style.cssText = 'flex:1;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);';
+      [['all','全部'],['marker','马克笔'],['wavy','波浪线'],['straight','直线'],['idea','想法']].forEach(([v,t]) => { const o=document.createElement('option'); o.value=v; o.textContent=t; sel.appendChild(o); });
+      sel.value = this._ensureCommentFilter(); sel.addEventListener('change', () => this._setCommentFilter(sel.value));
+      bar.appendChild(label); bar.appendChild(sel); list.parentNode.insertBefore(bar, list);
+    }
+    const sel = bar.querySelector('.comment-filter-select'); if (sel) sel.value = this._ensureCommentFilter();
+    return bar;
+  }
 
 
   _initComments() {
@@ -301,15 +318,25 @@ export class CommentMethods {
     if (this.commentCountRef.current) this.commentCountRef.current.textContent = this.comments.length;
     if (this.previewCommentCountRef.current) this.previewCommentCountRef.current.textContent = this.comments.length;
     if (!list) return;
+    this._renderCommentFilterBar(list);
+    const filter = this._ensureCommentFilter();
+    const filtered = filter === 'all' ? this.comments : this.comments.filter(c => c.type === filter);
     list.innerHTML = '';
-    if (!this.comments.length) {
-      const e = document.createElement('div');
-      e.style.cssText = 'padding:26px 12px; color:var(--text-4); font-size:var(--fs-sm); line-height:1.9; text-align:center; font-family:var(--sans);';
-      e.innerHTML = '在右侧预览中<span style="color:var(--text-3)">选中任意文字</span>，<br>用浮出的工具条<span style="color:var(--accent)">划线</span>或<span style="color:var(--accent)">写想法</span>，<br>都会收集到这里。';
-      list.appendChild(e);
-      return;
+    if (!filtered.length) {
+      const empty = document.createElement('div');
+      if (!this.comments.length) {
+        empty.style.cssText = 'padding:26px 12px; color:var(--text-4); font-size:var(--fs-sm); line-height:1.9; text-align:center; font-family:var(--sans);';
+        empty.innerHTML = '在右侧预览中<span style="color:var(--text-3)">选中任意文字</span>，<br>用浮出的工具条<span style="color:var(--accent)">划线</span>或<span style="color:var(--accent)">写想法</span>，<br>都会收集到这里。';
+      } else {
+        empty.style.cssText = 'padding:18px 12px; color:var(--text-4); font-size:var(--fs-sm); text-align:center;';
+        empty.textContent = '该类型暂无批注';
+      }
+      list.appendChild(empty); return;
     }
-    this.comments.forEach((c, i) => list.appendChild(this._commentCard(c, i)));
+    filtered.forEach((c) => {
+      const origIdx = this.comments.indexOf(c);
+      list.appendChild(this._commentCard(c, origIdx));
+    });
     requestAnimationFrame(() => this._resizeCommentTextareas());
   }
 
