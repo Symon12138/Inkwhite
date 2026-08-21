@@ -98,4 +98,6 @@ npm run release          # 发布 GitHub Release（读 tauri.conf 版本，传 e
 
 *生成：2026-08-19 · 更新：2026-08-21 补齐 CI（.github/workflows/ci.yml）· 交接时最近提交 `d71c633` · Release v1.0.0 已发布。*
 
+*更新：2026-08-21 加固轮——① `scripts/check-code-size.js` 门禁盲区修复：INCLUDED 纳入 `.rs`、IGNORED_DIRS 纳入 `target`（此前 commands.rs 886 行超限未被发现）；② `commands.rs` 886→548 行，资产读取拆到 `src-tauri/src/local_assets.rs`（361 行，含 9 个安全测试，58 个 Rust 测试全过）；③ 新功能补单测（独立字号 clamp/迁移、搜索开关记忆、批注筛选），前端 451 测试全过。*
+
 *更新：2026-08-21 P0-P2 完成 + 方向1-4 已提交（顶部折叠 `shell.css`、文档同步、搜索记忆）；方向5-7 已提交（代码复制 `viewMethods.ts`/`styles.css`、批注筛选 `commentMethods.ts`、孤儿检测 `fileTreeMethods.ts`）；方向8 品牌字体子集已完成（OFL 柳建毛草 → 1.2KB woff2 随包分发）；仅剩 .md 资源管理器 DefaultIcon 需 NSIS 钩子（`tauri.conf.json` fileAssociations 已就绪）。*
