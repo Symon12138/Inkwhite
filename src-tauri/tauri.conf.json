@@ -20,7 +20,8 @@
         "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "backgroundColor": "#14110d"
       }
     ],
     "security": {
@@ -43,7 +44,11 @@
     ],
     "fileAssociations": [
       {
-        "ext": ["md", "markdown", "txt"],
+        "ext": [
+          "md",
+          "markdown",
+          "txt"
+        ],
         "name": "Markdown Document",
         "role": "Editor"
       }

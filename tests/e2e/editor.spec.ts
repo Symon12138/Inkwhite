@@ -3,12 +3,16 @@ import { test, expect, openEditor, setSource, clickMenubarItem } from './fixture
 test('editor uses the complete local Canger reading font without remote fonts', async ({ page }) => {
   const remoteFontRequests: string[] = [];
   const fontRequests: string[] = [];
+  const fontResponses: import('@playwright/test').Response[] = [];
   page.on('request', (request) => {
     const url = request.url();
     if (request.resourceType() === 'font' || /cejk-subset\.woff2/.test(url)) fontRequests.push(url);
     if (/fonts\.(googleapis|gstatic)\.com/.test(url)) {
       remoteFontRequests.push(url);
     }
+  });
+  page.on('response', (response) => {
+    if (response.request().resourceType() === 'font') fontResponses.push(response);
   });
 
   // beforeEach opened the editor before the request listener existed; reload so
@@ -20,6 +24,15 @@ test('editor uses the complete local Canger reading font without remote fonts', 
 
   await expect(page.locator('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]')).toHaveCount(0);
   expect(remoteFontRequests).toEqual([]);
+  // 字体必须真实加载成功（此前子集缺失时 URL 返回 index.html，OTS 解码失败静默回退楷体）
+  const bad = fontResponses.filter((r) => !r.ok());
+  expect(bad.map((r) => r.url())).toEqual([]);
+  for (const r of fontResponses) {
+    if (r.url().includes('.woff2')) {
+      const head = (await r.body()).subarray(0, 4).toString('ascii');
+      expect(head).toBe('wOF2');
+    }
+  }
   // 本地字体共两份：仓颉阅读正文 + 「飞白」品牌子集（均不出网）
   expect(fontRequests).toHaveLength(2);
   expect(fontRequests.some((u) => u.includes('/cejk-subset.woff2'))).toBe(true);
