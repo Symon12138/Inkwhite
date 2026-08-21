@@ -12,7 +12,7 @@ body.editor-active { overflow: hidden; }
 .menubar {
   display: flex;
   align-items: stretch;
-  height: 30px;
+  height: 32px;
   padding: 0 4px;
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
@@ -31,7 +31,8 @@ body.editor-active { overflow: hidden; }
   color: var(--text-2);
   font-family: var(--sans);
   font-size: var(--fs-sm);
-  line-height: 30px;
+  font-weight: 500;
+  line-height: 32px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -606,7 +607,7 @@ textarea.md-source {
 /* ===== 状态栏 ===== */
 .app-footer {
   flex: none;
-  height: 34px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -693,3 +694,11 @@ textarea.md-source {
 }
 .glyph-line { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
 .seltool-divider { width: 1px; background: var(--tool-divider); margin: 7px 3px; }
+/* ===== UI 可读性加固：界面文字加权一档（.md-preview 阅读正文不受影响）===== */
+.menubar-trigger, .header-menu-item, .tbtn, .abtn, .seltool, .sidebar-tab,
+.outline-item, .file-tree-picker, .file-tree-root, .file-tree-empty,
+.font-controls-label, .footer-font-label, .font-size-value, .word-count,
+.pane-title, .document-sidebar-title, .panel-title, .search-opt, .search-count,
+.more-tools .header-menu-item, .tab-add, .paper-dot, .menu-shortcut {
+  font-weight: 500;
+}
