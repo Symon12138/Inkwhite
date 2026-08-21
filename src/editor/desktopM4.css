@@ -164,7 +164,7 @@
 }
 .tab-bar-brand-text {
   font-family: 'Feibai Brand', 'Kaiti SC', 'STKaiti', 'KaiTi', cursive;
-  font-size: 26px;
+  font-size: 34px;
   line-height: 1;
   color: var(--text);
   letter-spacing: 2px;
@@ -175,13 +175,13 @@
   align-items: center;
   gap: 6px;
   max-width: 200px;
-  padding: 5px 8px;
+  padding: 7px 10px;
   border: 1px solid var(--border);
   border-bottom: 0;
   border-radius: var(--radius-control) var(--radius-control) 0 0;
   background: var(--bg-3);
   color: var(--text-2);
-  font: 600 var(--fs-sm)/1.3 var(--sans);
+  font: 700 var(--fs-sm)/1.3 var(--sans);
   cursor: pointer;
   white-space: nowrap;
   user-select: none;
@@ -192,13 +192,13 @@
   border-color: var(--border-strong, var(--border));
 }
 .tab-label { overflow: hidden; text-overflow: ellipsis; }
-.tab-dirty { color: var(--accent); font-size: 11px; line-height: 1; }
+.tab-dirty { color: var(--accent); font-size: 13px; line-height: 1; }
 .tab-dirty:not(.is-dirty) { visibility: hidden; }
 .tab-close {
   border: 0;
   background: transparent;
   color: var(--text-4);
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1;
   padding: 0 2px;
   border-radius: 4px;

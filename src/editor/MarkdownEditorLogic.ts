@@ -59,8 +59,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this.immersiveWideRef = React.createRef();
     this.headerMoreRef = React.createRef();
     this.headerMenuRef = React.createRef();
-    this.fontSize = 17;
-    this.previewFontSize = 17;
+    this.fontSize = 22;
+    this.previewFontSize = 22;
     this.fontFamily = '';
     this.searchBarRef = React.createRef();
     this.searchInputRef = React.createRef();
