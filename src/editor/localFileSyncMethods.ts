@@ -21,7 +21,7 @@ export class LocalFileSyncMethods {
     }
     await this._updateLocalFileBaseline();
     this.localFilePath = await this._resolveLocalFilePath(handle);
-    if (typeof this._retryReadPosWithPath === 'function') this._retryReadPosWithPath();
+      if (typeof this._retryReadPosWithPath === 'function') this._retryReadPosWithPath();
     this._syncFileNameTooltip();
     if (this.fileName && this.fileName !== '未命名.md') saveFileHandle(this.fileName, handle);
     this._startLocalFileWatcher();
@@ -157,6 +157,8 @@ export class LocalFileSyncMethods {
     this._localFileConflict = false;
     this._resetEditingHistory();
     this._renderComments();
+    // 外部改动重载后回到上次阅读位置（否则预览模式跳回顶部，阅读链断裂）
+    if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore();
     this._renderPreview();
     this._updateCount();
     this._setDirty(false);
@@ -291,6 +293,7 @@ export class LocalFileSyncMethods {
         src.value = text;
         this._resetEditingHistory();
         this._renderComments();
+        if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore();
         this._renderPreview();
         this._updateCount();
         this._persist();

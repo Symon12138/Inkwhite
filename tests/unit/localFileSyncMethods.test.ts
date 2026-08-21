@@ -161,3 +161,17 @@ test('文件内容与编辑器一致时仅更新基线，不打扰用户', async
   assert.equal(editor._localFileConflict, false);
   assert.equal(editor.persisted, 0);
 });
+test('外部改动重载后打标恢复预览阅读位置（不跳回顶部）', () => {
+  const handle = createFakeHandle('# 外部新内容', 2000);
+  const editor = createEditor(handle, '# 旧内容');
+  const calls: string[] = [];
+  Object.assign(editor, {
+    _markReadPosRestore() { calls.push('mark'); },
+    _renderPreview() { calls.push('render'); }
+  });
+  LocalFileSyncMethods.prototype._reloadFromLocalFile.call(editor, '# 外部新内容', {
+    name: 'note.md', lastModified: 2000
+  });
+  assert.ok(calls.indexOf('mark') < calls.indexOf('render'), 'mark 必须先于 render（消费语义）');
+  assert.equal(editor.sourceRef.current.value, '# 外部新内容');
+});
