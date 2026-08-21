@@ -162,12 +162,12 @@
   padding: 0 14px 2px 4px;
   user-select: none;
 }
-.tab-bar-brand-img {
-  display: block;
-  height: 32px;
-  width: auto;
-  border-radius: 4px;
-  object-fit: contain;
+.tab-bar-brand-text {
+  font-family: 'Feibai Brand', 'Kaiti SC', 'STKaiti', 'KaiTi', cursive;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: 2px;
 }
 .tab-list { display: flex; flex: 0 1 auto; gap: 4px; overflow-x: auto; min-width: 0; }
 .tab-item {

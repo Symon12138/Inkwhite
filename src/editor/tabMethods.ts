@@ -89,12 +89,13 @@ export class TabMethods {
     // 用「飞白」书法图片作为品牌（替代早前的点+草书文字）。
     const brand = document.createElement('span');
     brand.className = 'tab-bar-brand';
-    const brandImg = document.createElement('img');
-    brandImg.className = 'tab-bar-brand-img';
-    brandImg.src = './images/feibai_kuangcao_jianfei_s.jpg';
-    brandImg.alt = '飞白';
-    brandImg.title = '飞白 · Inkwhite';
-    brand.appendChild(brandImg);
+    // 品牌字：柳建毛草 OFL 子集（public/fonts/brand/，scripts/subset-brand-font.mjs），
+    // 替代书法 JPG——矢量缩放清晰且任何机器都显示（无系统字体依赖）。
+    const brandText = document.createElement('span');
+    brandText.className = 'tab-bar-brand-text';
+    brandText.textContent = '飞白';
+    brandText.title = '飞白 · Inkwhite';
+    brand.appendChild(brandText);
     bar.appendChild(brand);
     const list = document.createElement('div');
     list.className = 'tab-list';

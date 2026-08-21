@@ -1,7 +1,18 @@
 /* ============================================================
    墨笺设计 token —— 全项目唯一来源。
    消费方：index.html（<link>）。
-   暗色为默认（:root），避免 JS 就绪前的闪白；
+   暗色为默认（/* 品牌草书字体：柳建毛草（SIL OFL 1.1，可随包分发）「飞白」二字子集，
+   由 scripts/subset-brand-font.mjs 生成（4.7MB → ~1.2KB）。任何机器无需
+   系统字体即可显示品牌字。 */
+@font-face {
+  font-family: 'Feibai Brand';
+  src: url('/fonts/brand/feibai-brand.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root），避免 JS 就绪前的闪白；
    亮色覆盖仅在编辑器激活时（body.editor-active[data-theme]）生效，
    桌面端保持「墨」暗色。
    ============================================================ */

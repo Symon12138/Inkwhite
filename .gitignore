@@ -27,8 +27,12 @@ playwright-report/
 # 字体不随仓库分发（版权归字体所有者），用 npm run font:fetch 获取
 fonts-src/**/*.woff
 fonts-src/**/*.woff2
-public/fonts/
+public/fonts/*
 extension/public/fonts/
+# 例外：品牌草书子集为 SIL OFL 授权（柳建毛草），可随仓库/安装包再分发
+!public/fonts/brand/
+# 柳建毛草 TTF 源文件同样 OFL，可入库（供 subset-brand-font.mjs 重新生成）
+!fonts-src/liujian-maocao/
 
 # WorkBuddy 本地记忆（不进仓库）
 .workbuddy/
