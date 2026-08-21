@@ -70,8 +70,10 @@
 3. ~~**API key 轮换**~~ ✅ 已确认无需处理（2026-08-21 核实：本项目不接入外部模型 API，未配置相关 key，历史记录中的 key 已失效/无关联服务，风险可关闭）。
 4. **.md 资源管理器图标**——桌面端关联文件无专属图标（当前 Tauri schema 不支持 fileAssociations 级 icon），
    需自定义 NSIS 钩子写 `DefaultIcon` 注册表。
-5. **草书品牌字体打包**——品牌目前靠系统字体栈/书法图片；如需任何机器都显示，可把可商用草书字体裁成
-   「飞白」二字子集随包分发（`scripts/subset-font.mjs` 管线现成）。
+5. ✅ **草书品牌字体打包**——已完成（2026-08-21）：下载 OFL 授权草书字体「柳建毛草」（Google Fonts，
+   `fonts-src/liujian-maocao/` 含 OFL.txt），`npm run font:brand`（`scripts/subset-brand-font.mjs`）
+   裁「飞白」二字得 1.2KB woff2（`public/fonts/brand/feibai-brand.woff2`），`tokens.css` @font-face
+   'Feibai Brand'，`tabMethods.ts` 品牌 JPG → 矢量文字（任何机器都显示），.gitignore 加 OFL 例外。
 6. **仓库体积**——exe 已入库（`release/`，历史会累积），后续建议改走 GitHub Releases 托管、仓库内只留
    MSI/EXE 下载入口或移出。
 7. **文档**——`docs/DESIGN_SPEC.md` / `DESKTOP_ROADMAP.md` 可能过时，可对照本节功能表更新；
@@ -96,4 +98,4 @@ npm run release          # 发布 GitHub Release（读 tauri.conf 版本，传 e
 
 *生成：2026-08-19 · 更新：2026-08-21 补齐 CI（.github/workflows/ci.yml）· 交接时最近提交 `d71c633` · Release v1.0.0 已发布。*
 
-*更新：2026-08-21 P0-P2 完成 + 方向1-4 已提交（顶部折叠 `shell.css`、文档同步、搜索记忆）；方向5-7 已提交（代码复制 `viewMethods.ts`/`styles.css`、批注筛选 `commentMethods.ts`、孤儿检测 `fileTreeMethods.ts`）；方向8 .md 图标与品牌字体子集为资源型任务，已具备管线（`scripts/subset-font.mjs`、`tauri.conf.json` fileAssociations），待提供可商用字体与图标源文件后执行。*
+*更新：2026-08-21 P0-P2 完成 + 方向1-4 已提交（顶部折叠 `shell.css`、文档同步、搜索记忆）；方向5-7 已提交（代码复制 `viewMethods.ts`/`styles.css`、批注筛选 `commentMethods.ts`、孤儿检测 `fileTreeMethods.ts`）；方向8 品牌字体子集已完成（OFL 柳建毛草 → 1.2KB woff2 随包分发）；仅剩 .md 资源管理器 DefaultIcon 需 NSIS 钩子（`tauri.conf.json` fileAssociations 已就绪）。*
