@@ -12,7 +12,7 @@ body.editor-active { overflow: hidden; }
 .menubar {
   display: flex;
   align-items: stretch;
-  height: 32px;
+  height: 34px;
   padding: 0 4px;
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
@@ -31,14 +31,14 @@ body.editor-active { overflow: hidden; }
   color: var(--text-2);
   font-family: var(--sans);
   font-size: var(--fs-sm);
-  font-weight: 500;
-  line-height: 32px;
+  font-weight: 600;
+  line-height: 34px;
   cursor: pointer;
   white-space: nowrap;
 }
 .menubar-trigger:hover { background: var(--accent-soft); color: var(--accent); }
 .menubar-item.is-open .menubar-trigger { background: var(--accent-soft); color: var(--accent); }
-.menubar-item .mnemonic { font-size: 10px; color: var(--text-4); margin-left: 2px; }
+.menubar-item .mnemonic { font-size: 11px; color: var(--text-4); margin-left: 2px; }
 .menubar-menu {
   display: none;
   position: absolute;
@@ -607,7 +607,7 @@ textarea.md-source {
 /* ===== 状态栏 ===== */
 .app-footer {
   flex: none;
-  height: 36px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
