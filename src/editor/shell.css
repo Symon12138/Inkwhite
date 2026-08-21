@@ -60,6 +60,12 @@ body.editor-active { overflow: hidden; }
   color: var(--accent);
   font-weight: 600;
 }
+/* 窄屏：菜单栏横向可滚动，避免 7 项挤压换行 */
+@media (max-width: 760px) {
+  .menubar { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .menubar::-webkit-scrollbar { display: none; }
+  .menubar-item { flex-shrink: 0; }
+}
 
 .app-shell {
   height: 100vh;

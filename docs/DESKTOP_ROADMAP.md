@@ -1,3 +1,5 @@
+> ⚠️ 本文为 2026-07 Electron 方案的历史路线图，当前实现已迁移至 Tauri 2（见 `docs/HANDOVER.md` §1/§3/§5 为权威现状）。以下阶段划分仍具参考价值，但具体路径（electron-builder → Tauri build、CLI Bridge 等）已过时，待按 HANDOVER §1 功能表刷新。
+
 # 桌面端公开发布路线图
 
 目标：把 `agent/desktop-electron` 分支上的桌面端，从「自己机器上能跑的构建」变成「任何人下载即用的 Windows / macOS 软件」。
