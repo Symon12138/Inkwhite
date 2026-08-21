@@ -281,6 +281,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     if (typeof this._initReadingPosition === 'function') this._initReadingPosition();
     // 侧边栏「文件」页签：初始渲染当前文档所在目录的 .md 列表（桌面端）。
     if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
+    // 桌面端：界面已就绪，显示窗口（隐藏启动防黑屏；浏览器环境 no-op）
+    if (tauriBridge) void showMainWindowWhenReady();
   }
 
   componentDidUpdate() { this._applyProps(); }

@@ -166,6 +166,20 @@ pub fn run() {
                 handle_external_open(app.handle(), &path);
             }
 
+            // 防卡死兜底：主窗口 visible:false 隐藏启动，前端就绪后由 JS show；
+            // 若前端 5s 内未显示（脚本异常/渲染崩溃），此处强制显示，
+            // 避免"永远无窗"比"黑屏一会"更糟。
+            let fallback_handle = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_millis(5000));
+                if let Some(window) = fallback_handle.get_webview_window("main") {
+                    if !window.is_visible().unwrap_or(true) {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+            });
+
             Ok(())
         })
         // 外链（B23）：前端 _openPreviewLink 对所有链接 preventDefault，

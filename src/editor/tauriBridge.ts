@@ -120,6 +120,27 @@ function isTauri(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 }
 
+/**
+ * 启动防黑屏：窗口配置为 visible:false 隐藏启动，前端完成首次渲染并等字体
+ * 就绪（或超时上限）后再显示，用户看到的第一帧就是完整界面而非黑屏/白屏。
+ * Rust 侧另有 5s 兜底强显，前端异常也不会永远无窗。
+ */
+export async function showMainWindowWhenReady(maxWaitMs = 1200): Promise<void> {
+  try {
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const win = getCurrentWindow();
+    await Promise.race([
+      document.fonts.ready,
+      new Promise((resolve) => setTimeout(resolve, maxWaitMs)),
+    ]);
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    await win.show();
+    await win.setFocus();
+  } catch {
+    // 非 Tauri 环境或 API 失败：忽略（Rust 兜底会显示窗口）
+  }
+}
+
 // ===== 事件监听管理 =====
 
 // menu / open-path 监听器（单实例，后注册替换先注册）
