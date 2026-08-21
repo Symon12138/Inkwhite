@@ -243,6 +243,7 @@ export class ViewMethods {
     prev.innerHTML = DOMPurify.sanitize(html, { ADD_TAGS: ['semantics', 'annotation'] });
     this._renderMermaidDiagrams(prev);
     this._highlightCodeBlocks(prev);
+    this._addCodeCopyButtons(prev);
     this._hydrateLocalImages(prev);
     this._applyHighlights();
     // 预览重渲染使旧 Range 失效，搜索打开时按新 DOM 重建高亮（不抢滚动）
@@ -331,6 +332,7 @@ export class ViewMethods {
       code.replaceChildren(...tokens.map((token) => this._codeTokenNode(token)));
     });
   }
+  _addCodeCopyButtons(r){r.querySelectorAll('pre').forEach(p=>{if(p.querySelector('.code-copy-btn'))return;const b=document.createElement('button');b.type='button';b.className='code-copy-btn';b.textContent='复制';b.title='复制代码';b.addEventListener('click',async()=>{try{await navigator.clipboard.writeText((p.querySelector('code')||p).textContent||'');const o=b.textContent;b.textContent='已复制';b.classList.add('is-copied');setTimeout(()=>{b.textContent=o;b.classList.remove('is-copied')},1200)}catch{}});p.style.position='relative';p.appendChild(b)})}
 
   _codeLanguage(code, text) {
     const className = code.className || '';
