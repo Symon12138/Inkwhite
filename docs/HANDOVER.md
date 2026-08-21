@@ -26,6 +26,7 @@
 | 划线批注 | 马克笔/波浪线/直线/想法 + 批注面板，localStorage 持久化 | `commentMethods.ts` |
 | 导出 | HTML / PDF（打印）/ Word（.docx）/ 长图 | `exportMethods.ts`、`wordExport.ts`、`longImageMethods.ts` |
 | 本地文件双向同步 | autosave 写穿、外部修改自动重载、冲突状态 Ctrl+S 覆盖；授权持久化（`granted-paths.json`） | `localFileSyncMethods.ts`、`src-tauri/src/{commands,grants,file_watcher}.rs` |
+| 阅读模式（查看型默认） | 启动即预览视图并**记忆上次视图模式**（editor/split/preview 持久化）；预览版心 Typora 式居中（820px，左右留白；全屏宽幅 1240px 不受限）；**阅读位置记忆**：按文件路径/草稿名存 localStorage（`md-editor-read-pos-v1`，保留最近 300 篇），打开文件/切标签自动回到上次位置 | `MarkdownEditorLogic.ts`、`readingPositionMethods.ts`、`viewMethods.ts`、`styles.css` |
 | 沉浸式阅读 | 全屏/宽屏、五档纸色（墨黑/羊皮纸/米黄/清爽白/豆沙绿） | `viewMethods.ts`、`styles.css` |
 | 外观 | 墨笺暗色主题、左上角「飞白」狂草书法印章（`images/feibai_kuangcao_jianfei_s.jpg`）、预览外链小角标（SVG mask） | `theme/tokens.css`、`desktopM4.css`、`styles.css` |
 | 外链图片 | CSP `img-src` 放行 https/http（桌面端外链图片/徽标可显示）；`connect-src` 加 https | `src-tauri/tauri.conf.json` |
@@ -99,5 +100,7 @@ npm run release          # 发布 GitHub Release（读 tauri.conf 版本，传 e
 *生成：2026-08-19 · 更新：2026-08-21 补齐 CI（.github/workflows/ci.yml）· 交接时最近提交 `d71c633` · Release v1.0.0 已发布。*
 
 *更新：2026-08-21 加固轮——① `scripts/check-code-size.js` 门禁盲区修复：INCLUDED 纳入 `.rs`、IGNORED_DIRS 纳入 `target`（此前 commands.rs 886 行超限未被发现）；② `commands.rs` 886→548 行，资产读取拆到 `src-tauri/src/local_assets.rs`（361 行，含 9 个安全测试，58 个 Rust 测试全过）；③ 新功能补单测（独立字号 clamp/迁移、搜索开关记忆、批注筛选），前端 451 测试全过。*
+
+*更新：2026-08-21 阅读模式轮——① 启动默认预览视图 + 视图模式记忆（`types.ts` PersistedEditorState.viewMode，重启回到上次 editor/split/preview）；② 阅读位置记忆 `readingPositionMethods.ts`（按文件路径/草稿名存 `md-editor-read-pos-v1`，保留 300 篇；打开文件/切标签打标，预览就绪后恢复一次）；③ 预览版心 Typora 式居中（`.md-preview > *` max-width 820px 左右留白，全屏宽幅 1240px 与打印不受限）；前端单测 451→457。
 
 *更新：2026-08-21 P0-P2 完成 + 方向1-4 已提交（顶部折叠 `shell.css`、文档同步、搜索记忆）；方向5-7 已提交（代码复制 `viewMethods.ts`/`styles.css`、批注筛选 `commentMethods.ts`、孤儿检测 `fileTreeMethods.ts`）；方向8 品牌字体子集已完成（OFL 柳建毛草 → 1.2KB woff2 随包分发）；仅剩 .md 资源管理器 DefaultIcon 需 NSIS 钩子（`tauri.conf.json` fileAssociations 已就绪）。*

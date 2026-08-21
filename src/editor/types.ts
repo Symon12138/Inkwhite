@@ -22,6 +22,8 @@ export interface PersistedEditorState {
   previewFontSize?: number;
   /** 当前字体 id（含 imported: 前缀）；缺省为默认楷体 */
   fontFamily?: string;
+  /** 上次视图模式（editor/split/preview）；缺省 preview（查看型默认） */
+  viewMode?: 'editor' | 'split' | 'preview';
   theme: EditorTheme;
   /** 暗色主题下的纸色；缺省为墨黑 */
   paperDark?: PaperTheme;

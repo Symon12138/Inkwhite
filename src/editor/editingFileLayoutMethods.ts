@@ -322,6 +322,7 @@ export class EditingFileLayoutMethods {
     this.comments = [];
     await this._attachLocalFile(createTauriFileHandle(picked.path, picked.name));
     this._renderComments();
+    if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore(); // 打开新文件：标记恢复上次阅读位置
     this._renderPreview();
     this._setDirty(false);
     this._autosave();

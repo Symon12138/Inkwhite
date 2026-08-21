@@ -262,6 +262,7 @@ export class TabMethods {
     this.localFilePath = null;
     this.dirty = false;
     this._resetEditingHistory();
+    if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore(); // 切换标签：标记恢复该文档的阅读位置
     this._renderPreview();
     this._renderComments();
     this._updateCount();
@@ -290,6 +291,7 @@ export class TabMethods {
     this._stopLocalFileWatcher();
     this._syncCurrentEditingState();
     src.value = tab.content;
+    this.localFilePath = tab.filePath || ''; // 先同步路径：阅读位置键依赖它（_attachLocalFile 稍后重挂同值）
     this.fileName = tab.fileName || '未命名.md';
     this._setFileName(this.fileName);
     this.comments = Array.isArray(tab.comments) ? tab.comments.slice() : [];

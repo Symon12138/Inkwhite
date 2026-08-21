@@ -252,9 +252,10 @@ export class ViewMethods {
     }
     this._renderOutline();
     this._updateCount();
-    // S0.3 就绪原语钩子：挂在版心元素上（不新增 window 全局），
-    // 供 E2E 与未来导出流程（M2 长图）等待"预览已就绪"。幂等挂载。
+    // S0.3 就绪原语钩子：挂版心元素（不新增 window 全局），供 E2E/导出等待就绪；幂等。
     if (!prev.__awaitPreviewReady) prev.__awaitPreviewReady = () => this._awaitPreviewReady();
+    // 阅读位置：仅打开/切标签打标后恢复一次；编辑重渲染不干预
+    if (this._readPosPending && typeof this._restoreReadPosSoon === 'function') this._restoreReadPosSoon();
   }
 
   // 桌面端：把预览里的相对路径图片换成 data URL（HTTP 页面拿不到磁盘文件）。
@@ -680,9 +681,6 @@ export class ViewMethods {
     if (this.fontSizeRef.current) this.fontSizeRef.current.textContent = sourcePx + 'px';
     const previewRef = this.previewFontSizeRef && this.previewFontSizeRef.current;
     if (previewRef) previewRef.textContent = previewPx + 'px';
-    else if (this.fontSizeRef.current && previewPx !== sourcePx) {
-      // 回退：单显时显示源码字号，预览字号差异通过沉浸式控件体现
-    }
     if (this.fullscreenFontSizeRef.current) this.fullscreenFontSizeRef.current.textContent = previewPx + 'px';
   }
 
@@ -730,6 +728,7 @@ export class ViewMethods {
       fileName: this.fileName,
       fontSize: this.fontSize,
       previewFontSize: this.previewFontSize,
+      viewMode: this.viewMode,
       theme: this.theme,
       paperDark: this.paperDark || undefined,
       paperLight: this.paperLight || undefined,

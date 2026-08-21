@@ -26,6 +26,7 @@ import { SettingsMethods } from './settingsMethods';
 import { FileTreeMethods } from './fileTreeMethods';
 import { ViewMethods } from './viewMethods';
 import { ContextMenuMethods } from './contextMenuMethods';
+import { ReadingPositionMethods } from './readingPositionMethods';
 
 export function createMarkdownEditorComponent(DCLogic, React) {
   const Component = class Component extends DCLogic {
@@ -115,7 +116,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this.panelOpen = false;
     this.previewFullscreen = false;
     this.outlineOpen = false;
-    this.viewMode = 'split';
+    this.viewMode = 'preview'; // 查看型默认：进来即阅读模式（记忆值在 _init 恢复）
     this._pending = null;
     this.fileHandle = null;
     this.dirty = false;
@@ -179,6 +180,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       if (saved.longImageMarks === false) this.longImageMarks = false;
       if (saved.typewriterActive) this.typewriterActive = true;
       if (saved.fontFamily) this.fontFamily = saved.fontFamily;
+      if (['editor', 'split', 'preview'].includes(saved.viewMode)) this.viewMode = saved.viewMode;
       if (saved.paper) {
         // 迁移旧的单份纸色记忆：墨黑归暗色，其余归亮色
         if (saved.paper === 'ink') this.paperDark = this.paperDark || saved.paper;
@@ -270,6 +272,9 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this._initTabs();
     // 右键菜单：标签栏/侧边栏在 _initTabs 与模板中已就绪，最后接线。
     this._initContextMenus();
+    // 阅读位置：绑定滚动保存；启动恢复（草稿/标签）打标
+    if (typeof this._initReadingPosition === 'function') this._initReadingPosition();
+    this._markReadPosRestore();
     // 侧边栏「文件」页签：初始渲染当前文档所在目录的 .md 列表（桌面端）。
     if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
   }
@@ -505,6 +510,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     FontMethods,
     TabMethods,
     MenubarMethods,
+    ReadingPositionMethods,
     ContextMenuMethods
   );
   return Component;
