@@ -96,4 +96,4 @@ npm run release          # 发布 GitHub Release（读 tauri.conf 版本，传 e
 
 *生成：2026-08-19 · 更新：2026-08-21 补齐 CI（.github/workflows/ci.yml）· 交接时最近提交 `d71c633` · Release v1.0.0 已发布。*
 
-*更新：2026-08-21 P1 完成——独立字号（`types.ts`/`MarkdownEditorLogic.ts`/`viewMethods.ts`/`index.html`）、主题菜单去重、asset 协议（`commands.rs` `get_asset_path` + `tauriBridge.ts` + `viewMethods.ts` `convertFileSrc`）、粘贴压缩（`insertPasteMethods.ts` `canvas` 限宽 1920/webp）；P2 进行中（附件子文件夹 `assets/` + 工作区侧边栏，见 `src-tauri/src/asset_file.rs` 与 `src/editor/fileTreeMethods.ts`）。*
+*更新：2026-08-21 P0-P2 完成 + 方向1-4 已提交（顶部折叠 `shell.css`、文档同步、搜索记忆）；方向5-7 已提交（代码复制 `viewMethods.ts`/`styles.css`、批注筛选 `commentMethods.ts`、孤儿检测 `fileTreeMethods.ts`）；方向8 .md 图标与品牌字体子集为资源型任务，已具备管线（`scripts/subset-font.mjs`、`tauri.conf.json` fileAssociations），待提供可商用字体与图标源文件后执行。*
