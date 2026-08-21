@@ -23,6 +23,8 @@ const answer: number = 42;
 test.beforeEach(async ({ page }) => {
   await openEditor(page);
   await setSource(page, ARTICLE);
+  // 等自动保存落定：否则导出期间/之后触发的「已自动保存草稿」会覆盖「已保存长图」状态断言
+  await expect(page.locator('.save-status')).toHaveText(/已自动保存/, { timeout: 10000 });
 });
 
 test('长图弹窗按预览排版渲染海报，首个标题升格为海报标题', async ({ page }) => {

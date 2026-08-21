@@ -42,6 +42,7 @@ export class ViewMethods {
     this.viewMode = mode;
     if (mode !== 'editor') this._renderPreview();
     this._syncViewMode();
+    if (typeof this._persist === 'function') this._persist(); // 模式记忆：切换即存，不依赖输入
     if (mode !== 'preview') {
       setTimeout(() => this.sourceRef.current && this.sourceRef.current.focus(), 0);
     }

@@ -19,7 +19,7 @@ test('菜单栏「文件」菜单包含新建/打开/保存/另存为与导出�
   await openMenubar(page, 'file');
   const menu = page.locator('[data-menubar="file"] .menubar-menu');
   await expect(menu.getByRole('menuitem', { name: '新建文档' })).toBeVisible();
-  await expect(menu.getByRole('menuitem', { name: /^打开/ })).toBeVisible();
+  await expect(menu.getByRole('menuitem', { name: '打开…', exact: true })).toBeVisible(); // 默认子串匹配会命中「快速打开…」
   await expect(menu.getByRole('menuitem', { name: /^保存/ })).toBeVisible();
   await expect(menu.getByRole('menuitem', { name: /另存为/ })).toBeVisible();
   await expect(menu.getByRole('menuitem', { name: /快速打开/ })).toBeVisible();
@@ -55,7 +55,8 @@ test('非桌面环境打开与另存为提示需要桌面端', async ({ page }) 
   // 消除 600ms 自动保存定时器与状态栏断言的竞态：先等自动保存落定再操作。
   await expect(page.locator('.save-status')).toHaveText(/已自动保存/);
 
-  await clickMenubarItem(page, 'file', /^打开/);
+  await openMenubar(page, 'file');
+  await page.locator('[data-menubar="file"] .menubar-menu').getByRole('menuitem', { name: '打开…', exact: true }).click();
   await expect(page.locator('.save-status')).toHaveText(/桌面端环境/);
 
   await clickMenubarItem(page, 'file', '另存为');

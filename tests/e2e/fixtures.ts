@@ -16,8 +16,10 @@ export { expect };
 // 直达编辑器并等待首屏初始化完成。
 export async function openEditor(page: Page) {
   await page.goto('/#editor');
-  await expect(page.locator('.md-source')).toBeVisible();
+  // 查看型默认：首屏即预览视图；编辑类用例统一切到分屏（走真实菜单路径）
   await expect(page.locator('.md-preview h1').first()).toBeVisible();
+  await clickMenubarItem(page, 'view', '分屏视图');
+  await expect(page.locator('.md-source')).toBeVisible();
 }
 
 export async function setSource(page: Page, markdown: string) {

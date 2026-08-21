@@ -26,21 +26,19 @@ test('菜单栏：7 项齐全；文件操作在文件菜单；字体选择器在
   expect(options.some((o) => o.includes('宋体'))).toBe(true);
 });
 
-test('标签栏品牌「飞白」用书法图片且尺寸合理（可辨认）', async ({ page }) => {
+test('标签栏品牌「飞白」用书法字体文字且尺寸合理（可辨认）', async ({ page }) => {
   await openEditor(page);
   const brand = page.locator('.tab-bar-brand');
   await expect(brand).toBeVisible();
-  const img = page.locator('.tab-bar-brand-img');
-  await expect(img).toBeVisible();
-  await expect(img).toHaveAttribute('alt', '飞白');
-  const src = await img.getAttribute('src');
-  expect(src).toContain('feibai');
-  // 狂草二字须 ≥30px 才能辨认笔画：断言渲染高度落在合理区间
-  const h = await img.evaluate((el) => el.getBoundingClientRect().height);
+  // 品牌为子集化柳建毛草文字（'Feibai Brand'），不再用书法 JPG
+  const text = page.locator('.tab-bar-brand-text');
+  await expect(text).toHaveText('飞白');
+  const family = await text.evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(family).toContain('Feibai Brand');
+  await expect(page.locator('.tab-bar-brand-img')).toHaveCount(0);
+  // 狂草二字须足够大才能辨认笔画（CSS 定 34px）
+  const h = await text.evaluate((el) => el.getBoundingClientRect().height);
   expect(h).toBeGreaterThanOrEqual(28);
-  expect(h).toBeLessThanOrEqual(38);
-  // 品牌不再渲染成草书文字
-  await expect(brand).not.toHaveText('飞白');
 });
 
 test('菜单栏 mnemonics：Alt+E 打开编辑菜单、Esc 关闭', async ({ page }) => {
