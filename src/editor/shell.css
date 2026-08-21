@@ -492,8 +492,8 @@ textarea.md-source {
 .preview-toolbar-actions > * { flex: none; }
 .paper-picker { display: flex; align-items: center; gap: 7px; margin-right: 1px; }
 .paper-dot {
-  width: 16px;
-  height: 22px;
+  width: 18px;
+  height: 18px; /* 正圆：此前 16×22 + radius 50% 呈椭圆 */
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 50%;
