@@ -21,6 +21,7 @@ export class LocalFileSyncMethods {
     }
     await this._updateLocalFileBaseline();
     this.localFilePath = await this._resolveLocalFilePath(handle);
+    if (typeof this._retryReadPosWithPath === 'function') this._retryReadPosWithPath();
     this._syncFileNameTooltip();
     if (this.fileName && this.fileName !== '未命名.md') saveFileHandle(this.fileName, handle);
     this._startLocalFileWatcher();
@@ -236,6 +237,7 @@ export class LocalFileSyncMethods {
     this.fileHandle = handle;
     this._localFileConflict = false;
     this.localFilePath = await this._resolveLocalFilePath(handle);
+    if (typeof this._retryReadPosWithPath === 'function') this._retryReadPosWithPath();
     this._syncFileNameTooltip();
     try {
       const file = await handle.getFile();
@@ -282,6 +284,7 @@ export class LocalFileSyncMethods {
       this.fileHandle = handle;
       this._localFileModifiedAt = file.lastModified;
       this.localFilePath = await this._resolveLocalFilePath(handle);
+    if (typeof this._retryReadPosWithPath === 'function') this._retryReadPosWithPath();
       this._syncFileNameTooltip();
       const src = this.sourceRef.current;
       if (src && text !== src.value) {

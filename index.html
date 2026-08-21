@@ -23,6 +23,10 @@
       var paper = (saved && (theme === 'light' ? saved.paperLight : saved.paperDark))
         || (theme === 'light' ? 'parchment' : 'ink');
       document.body.setAttribute('data-paper', paper);
+      // 视图模式同样首帧直排（boot-* 类由 _syncViewMode 接管后移除），避免"先分屏后预览"跳变
+      var mode = saved && saved.viewMode;
+      if (mode === 'editor') document.body.classList.add('boot-editor');
+      else if (mode !== 'split') document.body.classList.add('boot-preview');
     } catch (e) {}
   })();
 </script>

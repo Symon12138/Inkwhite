@@ -763,3 +763,10 @@ pre:hover .code-copy-btn{opacity:1}
     max-width: none;
   }
 }
+/* 启动防闪：JS 接管前按持久化视图模式直排首帧（boot 脚本打标，_init 内移除） */
+body.boot-preview .editor-main > .source-pane,
+body.boot-preview .editor-main > .editor-divider { display: none !important; }
+body.boot-preview .editor-main > .preview-pane { display: flex !important; }
+body.boot-editor .editor-main > .preview-pane,
+body.boot-editor .editor-main > .editor-divider { display: none !important; }
+body.boot-editor .editor-main > .source-pane { display: flex !important; }

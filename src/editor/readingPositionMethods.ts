@@ -47,6 +47,7 @@ export class ReadingPositionMethods {
   // 打开/切标签时打标；_renderPreview 完成后消费一次，避免编辑重渲染时乱跳
   _markReadPosRestore() {
     this._readPosPending = true;
+    this._readPosHit = false; // 每篇文档独立判定（供路径就绪后的补恢复判断）
   }
 
   _restoreReadPosSoon() {
@@ -56,12 +57,23 @@ export class ReadingPositionMethods {
     const go = () => {
       const entry = this._loadReadPosMap()[key];
       const prev = this.previewRef && this.previewRef.current;
-      if (entry && prev && entry.top > 0) prev.scrollTop = entry.top;
+      if (entry) {
+        this._readPosHit = true; // 命中过（含 top=0）：无需再按路径补恢复
+        if (prev && entry.top > 0) prev.scrollTop = entry.top;
+      }
     };
     // 图片水合/Mermaid 完成后再定位，避免高度不足定位不准
     const ready = typeof this._awaitPreviewReady === 'function'
       ? this._awaitPreviewReady()
       : Promise.resolve();
     ready.then(go).catch(go);
+  }
+
+  // 启动首渲时 localFilePath 往往尚未挂上（异步 attach），首渲只能按草稿键找；
+  // 路径就绪后若从未命中过，按文件路径键补一次恢复。
+  _retryReadPosWithPath() {
+    if (this._readPosHit || !this.localFilePath) return;
+    this._readPosPending = true;
+    this._restoreReadPosSoon();
   }
 }

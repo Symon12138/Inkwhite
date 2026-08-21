@@ -19,6 +19,7 @@ function makeCtx(overrides: Record<string, unknown> = {}) {
     _readPosKey: P._readPosKey,
     _loadReadPosMap: P._loadReadPosMap,
     _saveReadPos: P._saveReadPos,
+    _restoreReadPosSoon: P._restoreReadPosSoon,
     _awaitPreviewReady: () => Promise.resolve(),
     ...overrides,
   };
@@ -129,6 +130,53 @@ test('预览滚动事件经防抖写入存储', async () => {
     // 防抖到期后保存
     await new Promise((resolve) => setTimeout(resolve, 500));
     assert.equal(readMap()['debounce.md'].top, 777);
+  } finally {
+    restoreStorage();
+  }
+});
+test('启动时草稿键未命中，路径就绪后按路径键补恢复', async () => {
+  const restoreStorage = installLocalStorageStub();
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ 'C:/docs/late.md': { top: 700, ts: 1 } }));
+    const { ctx, preview } = makeCtx({ localFilePath: '' }); // 启动首渲：路径未挂上
+    P._markReadPosRestore.call(ctx);
+    P._restoreReadPosSoon.call(ctx);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(preview.scrollTop, 0); // 草稿键 miss
+
+    // 路径就绪（attach 完成）→ 补恢复命中
+    ctx.localFilePath = 'C:/docs/late.md';
+    P._retryReadPosWithPath.call(ctx);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(preview.scrollTop, 700);
+
+    // 已命中过：再次调用不重复干预
+    preview.scrollTop = 5;
+    P._retryReadPosWithPath.call(ctx);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(preview.scrollTop, 5);
+  } finally {
+    restoreStorage();
+  }
+});
+
+test('打标会重置命中标志：切到新文档后仍可补恢复', async () => {
+  const restoreStorage = installLocalStorageStub();
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ 'a.md': { top: 100, ts: 1 }, 'b.md': { top: 200, ts: 2 } }));
+    const { ctx, preview } = makeCtx({ localFilePath: 'a.md' });
+    P._markReadPosRestore.call(ctx);
+    P._restoreReadPosSoon.call(ctx);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(preview.scrollTop, 100); // a.md 命中，hit=true
+
+    // 切到 b.md：重新打标（重置 hit）+ 路径变化后补恢复
+    ctx.localFilePath = 'b.md';
+    P._markReadPosRestore.call(ctx);
+    assert.equal((ctx as Record<string, unknown>)._readPosHit, false);
+    P._restoreReadPosSoon.call(ctx);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(preview.scrollTop, 200);
   } finally {
     restoreStorage();
   }

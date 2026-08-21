@@ -195,6 +195,11 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this._buildPaperPicker();
     this._syncImmersiveWideButton();
     this._applyFont();
+    // 视图模式在首渲前生效（并摘掉 boot-* 防闪类），避免"先分屏后预览"的布局跳变
+    this._syncViewMode();
+    document.body.classList.remove('boot-preview', 'boot-editor');
+    // 阅读位置：启动恢复打标，由下面首个 _renderPreview 消费
+    if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore();
     this._renderPreview();
     this._updateCount();
     this._resetEditingHistory();
@@ -272,9 +277,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     this._initTabs();
     // 右键菜单：标签栏/侧边栏在 _initTabs 与模板中已就绪，最后接线。
     this._initContextMenus();
-    // 阅读位置：绑定滚动保存；启动恢复（草稿/标签）打标
+    // 阅读位置：绑定滚动保存（启动恢复打标已在首渲前完成）
     if (typeof this._initReadingPosition === 'function') this._initReadingPosition();
-    this._markReadPosRestore();
     // 侧边栏「文件」页签：初始渲染当前文档所在目录的 .md 列表（桌面端）。
     if (typeof this._renderCurrentDirFiles === 'function') this._renderCurrentDirFiles();
   }

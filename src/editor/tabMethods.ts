@@ -262,8 +262,10 @@ export class TabMethods {
     this.localFilePath = null;
     this.dirty = false;
     this._resetEditingHistory();
-    if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore(); // 切换标签：标记恢复该文档的阅读位置
-    this._renderPreview();
+    if (!takeoverUnchanged) {
+      if (typeof this._markReadPosRestore === 'function') this._markReadPosRestore(); // 切换标签：标记恢复该文档的阅读位置
+      this._renderPreview();
+    }
     this._renderComments();
     this._updateCount();
     this._detachLocalFile();
@@ -290,6 +292,8 @@ export class TabMethods {
     if (!src) return;
     this._stopLocalFileWatcher();
     this._syncCurrentEditingState();
+    // 启动接管：_init 刚以同一份草稿渲染过预览，内容一致则跳过重渲染（避免二次闪烁）
+    const takeoverUnchanged = src.value === tab.content && tab.fileName === this.fileName;
     src.value = tab.content;
     this.localFilePath = tab.filePath || ''; // 先同步路径：阅读位置键依赖它（_attachLocalFile 稍后重挂同值）
     this.fileName = tab.fileName || '未命名.md';

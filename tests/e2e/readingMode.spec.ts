@@ -8,6 +8,8 @@ test('启动即预览视图（查看型默认），源码隐藏', async ({ page 
   await expect(main).toHaveClass(/preview-mode-active/);
   await expect(page.locator('.md-preview h1').first()).toBeVisible();
   await expect(page.locator('.md-source')).toBeHidden();
+  // 启动防闪类已被 JS 接管移除（否则后续切换视图会被 boot 规则干扰）
+  await expect(page.locator('body')).not.toHaveClass(/boot-preview|boot-editor/);
 });
 
 test('预览版心 Typora 式居中：内容有 820px 上限', async ({ page }) => {
