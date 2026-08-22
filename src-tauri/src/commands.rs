@@ -394,11 +394,28 @@ pub(crate) fn write_granted_file(
     grants: &GrantsManager,
 ) -> Result<FileMeta, String> {
     let canonical = resolve_granted_path(path, grants)?;
+    backup_before_overwrite(Path::new(&canonical), content);
     std::fs::write(&canonical, content).map_err(|e| e.to_string())?;
     let metadata = std::fs::metadata(&canonical).map_err(|e| e.to_string())?;
     Ok(FileMeta {
         last_modified: extract_last_modified(&metadata),
     })
+}
+
+/// 数据安全环：覆盖已存在文件前，把磁盘旧内容留一份 `<file>.bak`
+/// （同目录、单份滚动覆盖——保护"这次保存改坏了"，不做多代历史）。
+/// 仅当旧内容与新内容不同才写；新建文件不产生；备份失败尽力而为，
+/// 绝不阻塞保存本身。
+fn backup_before_overwrite(canonical: &Path, new_content: &str) {
+    let Ok(old) = std::fs::read(canonical) else {
+        return; // 新文件（或已被外部删除）：无需备份
+    };
+    if old.as_slice() == new_content.as_bytes() {
+        return; // 内容未变：避免自动保存空转磨损
+    }
+    let mut bak = canonical.as_os_str().to_owned();
+    bak.push(".bak");
+    let _ = std::fs::write(Path::new(&bak), &old);
 }
 
 /// 获取已授权文件的修改时间（不读内容）。

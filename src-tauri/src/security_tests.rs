@@ -244,3 +244,41 @@ fn strip_verbatim_prefix_converts_extended_paths() {
         "\\\\srv\\share\\f.md"
     );
 }
+
+/// 数据安全环：覆盖写入前留 .bak；内容相同不写；新建文件不产生。
+#[test]
+fn bak_backup_captures_previous_content() {
+    let dir = temp_dir("bak-backup");
+    let granted = dir.join("granted");
+    std::fs::create_dir_all(&granted).unwrap();
+    let gm = GrantsManager::new(dir.join("data"));
+    // 双形式授权：原始路径 + 去 \\?\ 前缀 canonical（与既有测试同一约定）
+    gm.grant(&granted.to_string_lossy().to_string());
+    gm.grant(&strip_verbatim_prefix(&granted.canonicalize().unwrap().to_string_lossy()));
+
+    let file = granted.join("note.md");
+    // 授权写入要求目标已存在（autosave 写穿语义），先落 v1
+    std::fs::write(&file, "v1").unwrap();
+
+    // 内容不同：旧内容进 .bak
+    write_granted_file(&file.to_string_lossy(), "v2", &gm).unwrap();
+    assert_eq!(
+        std::fs::read_to_string(granted.join("note.md.bak")).unwrap(),
+        "v1",
+        ".bak 必须是覆盖前的磁盘内容"
+    );
+
+    // 再次改写：.bak 滚动为上一代
+    write_granted_file(&file.to_string_lossy(), "v3", &gm).unwrap();
+    assert_eq!(
+        std::fs::read_to_string(granted.join("note.md.bak")).unwrap(),
+        "v2"
+    );
+
+    // 内容相同（自动保存空转）：.bak 不被触碰
+    let before = std::fs::read(granted.join("note.md.bak")).unwrap();
+    write_granted_file(&file.to_string_lossy(), "v3", &gm).unwrap();
+    assert_eq!(std::fs::read(granted.join("note.md.bak")).unwrap(), before);
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
