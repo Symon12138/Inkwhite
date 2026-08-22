@@ -133,7 +133,8 @@ export async function showMainWindowWhenReady(maxWaitMs = 1200): Promise<void> {
       document.fonts.ready,
       new Promise((resolve) => setTimeout(resolve, maxWaitMs)),
     ]);
-    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    // 注意：隐藏窗口中 requestAnimationFrame 永远不会触发（Chromium 冻结不可见
+    // 页面的帧回调），此处绝不能等 rAF——否则 show() 永久挂起，只能靠 Rust 兜底。
     await win.show();
     await win.setFocus();
   } catch {
