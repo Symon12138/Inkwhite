@@ -77,7 +77,7 @@
    裁「飞白」二字得 1.2KB woff2（`public/fonts/brand/feibai-brand.woff2`），`tokens.css` @font-face
    'Feibai Brand'，`tabMethods.ts` 品牌 JPG → 矢量文字（任何机器都显示），.gitignore 加 OFL 例外。
 6. **仓库体积**——✅ 新版本起产物不再入库：v1.1.0 起安装包/便携包全部走 GitHub Releases 资产托管
-   （`release.mjs` 直取 bundle 目录，`release/*.exe` 为 v1.0.0 历史遗留，可择期清理）。
+   （`release.mjs` 直取 bundle 目录）；`release/` 目录与未引用品牌 JPG 已清理——v1.0.0 资产仍可在 GitHub Release v1.0.0 页下载。
 7. **文档**——`docs/DESIGN_SPEC.md` / `DESKTOP_ROADMAP.md` 可能过时，可对照本节功能表更新；
    曾提到的 `overview.md` 当前不存在。
 8. **可选打磨**——~~源码/预览独立字号（用户此前未选）~~ ✅ 已完成（2026-08-21：`types.ts`/`MarkdownEditorLogic.ts`/`viewMethods.ts`/`index.html` 独立 `previewFontSize`，状态栏“源码/预览”双控件，沉浸式工具栏跟随预览字号，旧数据自动迁移）；~~主题菜单纸色与预览工具栏纸色点重复（可去重）~~ ✅ 已完成（2026-08-21：主题菜单仅保留“切换 亮色/暗黑 + 设置…” ，纸色改由预览工具栏 `paperPicker` 圆点唯一入口）；顶部是否进一步精简（待定）。
