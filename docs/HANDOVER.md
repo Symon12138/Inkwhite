@@ -117,6 +117,8 @@ npm run release          # 发布 GitHub Release（中文 CHANGELOG 摘要作说
 
 *更新：2026-08-22 对抗性验证轮——主动攻击测试（tests/e2e/adversarial.spec.ts 7 例 + tests/unit/adversarial.test.ts 5 例）抓到两个真缺陷并修复：① **ReDoS**：`_cleanOpenedMarkdown` 懒惰正则 O(n²) 回溯（48 万字符冻结 UI 2.2 秒）→ `editingFileLayoutMethods.stripCommentSpansLinear` 线性扫描器；② **渲染进程崩溃**：200 层连续引用链使 Chromium 构建超深 DOM 时 abort → 新模块 `renderGuard.ts`：`defuseRenderBombs` 把 ≥32 层引用链、≥96 空格缩进降级为围栏原样展示；`RENDER_GUARD` 显式禁绝 form/base/noscript（DOMPurify 默认放行 form，对抗测试实证穿透）。防御矩阵：XSS 弹药库 / mXSS 探针 / 结构炸弹 / 1MB 单 token / 全键投毒启动 / 敌意标签标题 / 原型污染 全部存活。
 
+*更新：2026-08-22 发布 v1.1.0——版本三处连升（package.json/tauri.conf/Cargo.toml）；新增中文 CHANGELOG.md；`npm run portable` 打免安装包；GitHub Release v1.1.0 含 NSIS exe + MSI + 便携 zip 三资产（gh CLI 发布，git 推送需绕过故障代理）。*
+
 *更新：2026-08-22 「⋯ 更多格式」修复——用户实测点击无反应。根因：`.pane-toolbar { overflow:hidden }`（窄屏兜底）把下拉浮层整体裁没（菜单其实开了，8 个条目全在，只是不可见）。修复：`toggleMoreTools` 打开时改 `position:fixed` 锚定按钮正下方逃出裁剪上下文，关闭时清内联样式；新增回归用例（elementFromPoint 命中测试 + 条目点击收起），formatting.spec 8 例全过。
 
 *更新：2026-08-21 P0-P2 完成 + 方向1-4 已提交（顶部折叠 `shell.css`、文档同步、搜索记忆）；方向5-7 已提交（代码复制 `viewMethods.ts`/`styles.css`、批注筛选 `commentMethods.ts`、孤儿检测 `fileTreeMethods.ts`）；方向8 品牌字体子集已完成（OFL 柳建毛草 → 1.2KB woff2 随包分发）；仅剩 .md 资源管理器 DefaultIcon 需 NSIS 钩子（`tauri.conf.json` fileAssociations 已就绪）。*
