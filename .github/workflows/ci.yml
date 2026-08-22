@@ -21,7 +21,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 单测脚本依赖 node --experimental-strip-types（22.6+ 才有；本地开发为 24）
+          node-version: 22
           cache: npm
 
       - name: Rust toolchain (gnu)
