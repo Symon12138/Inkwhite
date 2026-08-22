@@ -68,7 +68,7 @@
 
 1. **Windows 实机手测 49 项**（`docs/PLATFORM_TEST.md` 未完成）——重点验证：右键菜单（剪贴板粘贴/复制）、
    侧边栏目录浏览、外链图片、文件关联打开。E2E 只覆盖浏览器路径，桌面路径需实机。
-2. ✅ **CI 首次实跑**——已补齐 `.github/workflows/ci.yml`（2026-08-21，见下方 §6）：`windows-latest` 单作业串行 `check-code-size` → `tsc` → `npm test` → `cargo test`（含 WebView2Loader.dll 自动回补）→ `vite build` → `playwright chromium`，失败自动上传 `playwright-report`。
+2. ✅ **CI 首次实跑**——✅ 2026-08-22 全绿（windows-latest 全链：体积门禁→tsc→字体引导→前端单测→cargo→vite build→Playwright E2E）。首跑排障修了四处：① Node 20 无 `--experimental-strip-types` → 升 Node 22；② runner TEMP 为 8.3 短名（RUNNER~1）→ 授权测试双形式授予；③ WebView2Loader.dll 手工拷贝改为正式入库资源 `src-tauri/resources/`；④ 字体引导步骤 + editor.spec 字体断言环境自适应。原描述：`windows-latest` 单作业串行 `check-code-size` → `tsc` → `npm test` → `cargo test`（含 WebView2Loader.dll 自动回补）→ `vite build` → `playwright chromium`，失败自动上传 `playwright-report`。
 3. ~~**API key 轮换**~~ ✅ 已确认无需处理（2026-08-21 核实：本项目不接入外部模型 API，未配置相关 key，历史记录中的 key 已失效/无关联服务，风险可关闭）。
 4. **.md 资源管理器图标**——桌面端关联文件无专属图标（当前 Tauri schema 不支持 fileAssociations 级 icon），
    需自定义 NSIS 钩子写 `DefaultIcon` 注册表。
