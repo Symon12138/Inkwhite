@@ -47,15 +47,15 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
-      - name: Unit tests (frontend)
+      - name: Bootstrap reading font (best-effort)
         # 阅读字体授权限制不入库：CI 尽力从源 CDN 拉取并子集化；失败仅告警，
-        # editor.spec 的字体严格断言会自动降级跳过
-        - name: Bootstrap reading font (best-effort)
-          run: |
-            npm run font:fetch || echo "::warning::font fetch failed (CDN unreachable)"
-            npm run font:subset || echo "::warning::font subset failed"
-        - name: Unit tests (node:test)
-          run: npm test
+        # editor.spec 的字体严格断言会自动降级跳过（无字体的裸环境不出网校验仍生效）
+        run: |
+          npm run font:fetch || echo "::warning::font fetch failed (CDN unreachable)"
+          npm run font:subset || echo "::warning::font subset failed"
+
+      - name: Unit tests (frontend)
+        run: npm test
 
       - name: Unit tests (Rust)
         shell: pwsh
