@@ -171,7 +171,7 @@ pub fn run() {
             // 避免"永远无窗"比"黑屏一会"更糟。
             let fallback_handle = app.handle().clone();
             std::thread::spawn(move || {
-                std::thread::sleep(std::time::Duration::from_millis(5000));
+                std::thread::sleep(std::time::Duration::from_millis(3000));
                 if let Some(window) = fallback_handle.get_webview_window("main") {
                     if !window.is_visible().unwrap_or(true) {
                         let _ = window.show();
