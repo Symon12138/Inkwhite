@@ -45,3 +45,8 @@ extension/public/fonts/
 /现状.md.ci-sim/
 现状.md
 !src-tauri/resources/WebView2Loader.dll
+
+# 本地诊断临时文件
+.b-out.txt
+.b-err.txt
+.bisect-out.txt
