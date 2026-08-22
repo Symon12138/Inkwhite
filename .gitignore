@@ -42,4 +42,4 @@ extension/public/fonts/
 .scratch-dsh-peer/
 
 # 会话记录（不进仓库）
-/现状.md
+/现状.md.ci-sim/
