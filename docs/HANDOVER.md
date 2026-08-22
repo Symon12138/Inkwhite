@@ -34,9 +34,9 @@
 
 ## 2. 测试基线（最近全绿）
 
-- 前端单测：`npm test`（node:test，`tests/unit/`，含 contextMenu/fontMethods/fileTreeMethods 等）
+- 前端单测：`npm test`（node:test，`tests/unit/`，**465 个**，含 contextMenu/fontMethods/fileTreeMethods/adversarial 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
-- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**148 个**，含右键菜单/字体同步/格式工具栏/目录守卫等）
+- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**160 个**：功能 153 + 对抗 7（XSS/mXSS/结构炸弹/投毒启动等，见 adversarial.spec），含右键菜单/字体同步/格式工具栏/阅读模式/目录守卫等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）
 
 ## 3. 架构速览
