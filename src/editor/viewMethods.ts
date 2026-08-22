@@ -1,5 +1,6 @@
 // @ts-nocheck
 import DOMPurify from 'dompurify';
+import { defuseRenderBombs, RENDER_GUARD } from './renderGuard.ts';
 import { tauriBridge } from './tauriBridge.ts';
 import { saveEditorState } from './storage.ts';
 import { createPendingTracker } from './pendingTracker.ts';
@@ -228,20 +229,15 @@ export class ViewMethods {
   _renderPreview() {
     const src = this.sourceRef.current, prev = this.previewRef.current;
     if (!src || !prev || !window.marked) return;
-    const markdown = src.value;
+    const markdown = defuseRenderBombs(src.value);
     this._syncPreviewEditable();
-    // M1 单管线：lexer → 扩展 token 变换 → parser（renderMarkdown，与旧
-    // marked.parse 逐字节等价，见 tests/unit/markdownSinglePipeline.test.ts）。
-    // tokens 缓存到 _lastTokens 供 P4/P8（表格操作等）复用——本期只缓存不消费。
+    // M1 单管线：lexer → token 变换 → parser（与旧 marked.parse 逐字节等价，
+    // 见 markdownSinglePipeline.test.ts）；tokens 缓存 _lastTokens 供表格操作复用。
     const { html, tokens } = renderMarkdown(markdown);
     this._lastTokens = tokens;
-    // 安全注入：marked 输出先经 DOMPurify 净化，杜绝 <img onerror> 等 XSS 载荷
-    // 执行脚本后经 Tauri IPC 读写任意已授权文件。默认配置保留 span/class/inline
-    // style，批注高亮（_applyHighlights 按 textContent 偏移包裹 span data-comment-id）
-    // 与长图克隆预览 innerHTML（_buildPosterNode）都依赖这些结构，不受影响。
-    // M1（WP4 决策）：ADD_TAGS 保留 KaTeX 的 <semantics>/<annotation> 语义标注
-    // （无障碍/复制粘贴），见 tests/e2e/katexDecision.spec.ts 端到端用例。
-    prev.innerHTML = DOMPurify.sanitize(html, { ADD_TAGS: ['semantics', 'annotation'] });
+    // 安全注入：先经 DOMPurify 净化（RENDER_GUARD 见 renderGuard.ts——批注高亮、
+    // 长图克隆依赖保留的结构不受影响；KaTeX semantics 见 katexDecision.spec.ts）。
+    prev.innerHTML = DOMPurify.sanitize(html, RENDER_GUARD);
     this._renderMermaidDiagrams(prev);
     this._highlightCodeBlocks(prev);
     this._addCodeCopyButtons(prev);
