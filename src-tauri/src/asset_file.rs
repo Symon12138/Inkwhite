@@ -271,6 +271,11 @@ mod tests {
 
     fn grant_doc(grants: &GrantsManager, path: &str) {
         grants.grant(path);
+        // CI runner 的 TEMP 可能是 8.3 短名（RUNNER~1）：impl 内部 canonicalize
+        // 展开为长名后再断言授权，故长名形式也须授予。
+        if let Ok(canon) = std::path::Path::new(path).canonicalize() {
+            grants.grant(&crate::commands::strip_verbatim_prefix(&canon.to_string_lossy()));
+        }
     }
 
     #[test]

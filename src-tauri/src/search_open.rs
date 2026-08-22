@@ -365,6 +365,9 @@ mod tests {
         // 未授权 → 拒
         assert!(search_markdown_impl(&dir, "hi", false, &limits, &gm).is_err());
         gm.grant(&dir.to_string_lossy());
+        // CI 短路径 TEMP：canonicalize 展开后的长名形式一并授予
+        let canon = crate::commands::strip_verbatim_prefix(&dir.canonicalize().unwrap().to_string_lossy());
+        gm.grant(&canon);
         let result = search_markdown_impl(&dir, "hi", false, &limits, &gm).unwrap();
         assert!(result.hits.len() >= 2, "a.md 与 b.md 均含 hi，实际 {}", result.hits.len());
         assert!(result.scanned_files >= 3);
