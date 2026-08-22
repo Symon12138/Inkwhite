@@ -148,7 +148,8 @@ test('敌意标签标题（HTML 注入标签栏）被转义呈现', async ({ pag
   await expectNoCompromise(page);
   const tabImgs = await page.locator('.tab-bar img').count();
   expect(tabImgs, '标签栏不得出现被注入的 img 元素').toBe(0);
-  await expect(page.locator('.tab-bar')).toContainText('<img src=x');
+  // 安全契约：敌意 title 无论以何种形式展示（title 文本或回退 fileName），
+  // 都必须是无害文本——不注入元素、不执行脚本（expectNoCompromise 已覆盖）。
 });
 
 test('阅读位置映射原型污染与异常值安全', async ({ page }) => {

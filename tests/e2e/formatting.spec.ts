@@ -83,3 +83,25 @@ test('源码工具栏：输入触发重渲染后 ⋯ 更多格式仍能打开（
   await page.locator('.more-tools').getByRole('menuitem', { name: '代码块' }).click();
   await expect(source).toHaveValue(/```\n/);
 });
+
+test('「更多格式 ⋯」下拉在工具栏 overflow 裁剪下仍可见可点', async ({ page }) => {
+  // beforeEach 已打开编辑器并灌入 hello world（无 h1，勿再调 openEditor 断言 h1）
+  await page.locator('.more-tools-toggle').click();
+  const menu = page.locator('.more-tools');
+  await expect(menu).toHaveClass(/is-open/);
+  const box = await menu.boundingBox();
+  expect(box).toBeTruthy();
+  expect(box!.height).toBeGreaterThan(100);
+  // 命中测试：菜单上半区中心点必须真的属于菜单元素（未被 overflow:hidden 裁剪）
+  const hitOk = await page.evaluate(() => {
+    const m = document.querySelector('.more-tools');
+    if (!m) return false;
+    const r = m.getBoundingClientRect();
+    const el = document.elementFromPoint(r.x + r.width / 2, r.y + 10);
+    return !!(el && m.contains(el));
+  });
+  expect(hitOk, '菜单被工具栏 overflow 裁剪时该断言失败').toBe(true);
+  // 点击条目后浮层收起
+  await menu.getByRole('menuitem', { name: /上标/ }).click();
+  await expect(menu).not.toHaveClass(/is-open/);
+});

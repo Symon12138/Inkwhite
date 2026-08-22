@@ -216,6 +216,21 @@ export class EditingFileLayoutMethods {
     const open = typeof force === 'boolean' ? force : !menu.classList.contains('is-open');
     menu.classList.toggle('is-open', open);
     if (button) button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // 工具栏有 overflow:hidden 兜底（防窄屏溢出），会把下拉整体裁没（对抗/用户实测：
+    // 点击 ⋯ 无反应）。打开时改用 fixed 定位锚定到按钮正下方，逃出裁剪上下文；
+    // 关闭时清掉内联样式还原默认。
+    if (open && button) {
+      const r = button.getBoundingClientRect();
+      menu.style.position = 'fixed';
+      menu.style.top = Math.round(r.bottom + 6) + 'px';
+      menu.style.left = 'auto';
+      menu.style.right = Math.max(8, Math.round(window.innerWidth - r.right)) + 'px';
+    } else {
+      menu.style.position = '';
+      menu.style.top = '';
+      menu.style.left = '';
+      menu.style.right = '';
+    }
     if (open && !this._moreToolsDocH) {
       this._moreToolsDocH = (e) => {
         const w = this._moreToolsWrap();
