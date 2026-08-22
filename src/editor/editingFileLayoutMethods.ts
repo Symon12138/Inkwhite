@@ -8,6 +8,32 @@ import { extractExportCss } from './exportComposer.ts';
 import { resolveCssVariables } from './exportMethods.ts';
 import { inlineFontFaces } from './shareExportUtils.ts';
 
+/**
+ * 线性扫描剥离「批注 span」（开标签含 data-comment-id，保留内部内容）。
+ * 对抗测试发现的 ReDoS 修复：懒惰正则在大量未闭合 <span> 时每个起点都
+ * 扫到串尾（O(n²)），48 万字符即可冻结 UI 秒级；本扫描器严格 O(n)。
+ * 语义与原正则一致：未闭合的候选 span 原样保留。
+ */
+function stripCommentSpansLinear(value) {
+  const OPEN = '<span';
+  const CLOSE = '</span>';
+  let out = '';
+  let i = 0;
+  for (;;) {
+    const start = value.indexOf(OPEN, i);
+    if (start === -1) { out += value.slice(i); return out; }
+    const gt = value.indexOf('>', start);
+    if (gt === -1) { out += value.slice(i); return out; }
+    const openTag = value.slice(start, gt);
+    const isCommentSpan = /^<span[\s>]/i.test(openTag) && /\bdata-comment-id=/.test(openTag);
+    if (!isCommentSpan) { i = start + OPEN.length; continue; }
+    const close = value.indexOf(CLOSE, gt);
+    if (close === -1) { out += value.slice(i); return out; } // 未闭合：原样保留（与原正则一致）
+    out += value.slice(i, start) + value.slice(gt + 1, close);
+    i = close + CLOSE.length;
+  }
+}
+
 export class EditingFileLayoutMethods {
   _captureEditingState() {
     const src = this.sourceRef.current;
@@ -282,13 +308,8 @@ export class EditingFileLayoutMethods {
     let value = String(text || '');
     // 钉钉文档等导出源把空格全写成 U+00A0（不换行空格），整段无法断行；归一化为普通空格。
     value = value.replace(/\u00A0/g, ' ');
-    value = value.replace(/<sup\b(?=[^>]*\bdata-comment-badge=)[\s\S]*?<\/sup>/gi, '');
-    let previous = '';
-    while (previous !== value) {
-      previous = value;
-      value = value.replace(/<span\b(?=[^>]*\bdata-comment-id=)[^>]*>([\s\S]*?)<\/span>/gi, '$1');
-    }
-    return value;
+    value = value.replace(/<sup\b(?=[^>]*\bdata-comment-badge=)[^>]*>[\s\S]*?<\/sup>/gi, '');
+    return stripCommentSpansLinear(value);
   }
 
 
