@@ -51,3 +51,6 @@ extension/public/fonts/
 .b-err.txt
 .bisect-out.txt
 .dots.mjs
+.release-out.txt
+.release-exit.txt
+.release-notes.txt
