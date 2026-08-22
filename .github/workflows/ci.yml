@@ -59,30 +59,7 @@ jobs:
         run: npm test
 
       - name: Unit tests (Rust)
-        shell: pwsh
-        run: |
-          # 首次 cargo test 会在 debug 目录产出 WebView2Loader.dll，测试二进制却在
-          # src-tauri/target/release 下找它（见 docs/HANDOVER.md §4）。先试一次，
-          # 失败则把 debug 产物拷到 release 再重跑。
-          cargo test --manifest-path src-tauri/Cargo.toml
-          if ($LASTEXITCODE -ne 0) {
-            $release = "src-tauri/target/release/WebView2Loader.dll"
-            if (-not (Test-Path $release)) {
-              $candidate = Get-ChildItem -Path "src-tauri/target/debug/build" -Recurse -Filter "WebView2Loader.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
-              if ($candidate) {
-                New-Item -ItemType Directory -Force -Path "src-tauri/target/release" | Out-Null
-                Copy-Item $candidate.FullName $release
-                Write-Host "Copied WebView2Loader.dll from $($candidate.FullName) to $release, retrying cargo test..."
-                cargo test --manifest-path src-tauri/Cargo.toml
-                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-              } else {
-                Write-Host "WebView2Loader.dll not found in debug build output, failing."
-                exit 1
-              }
-            } else {
-              exit $LASTEXITCODE
-            }
-          }
+        run: cargo test --manifest-path src-tauri/Cargo.toml
 
       - name: Build (Vite)
         run: npm run build
