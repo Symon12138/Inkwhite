@@ -42,7 +42,7 @@ extension/public/fonts/
 .scratch-dsh-peer/
 
 # 会话记录（不进仓库）
-/现状.md.ci-sim/
+.ci-sim/
 现状.md
 !src-tauri/resources/WebView2Loader.dll
 
