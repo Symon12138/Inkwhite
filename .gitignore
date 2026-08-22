@@ -50,3 +50,4 @@ extension/public/fonts/
 .b-out.txt
 .b-err.txt
 .bisect-out.txt
+.dots.mjs
