@@ -91,7 +91,7 @@
   /* ============ 纸面（paper）：阅读/编辑内容的独立配色 ============
      默认跟随框架主题（暗→墨、亮→羊皮纸）；用户显式选择后由
      data-paper 属性覆盖（见文件末尾 paper 主题块）。 */
-  --paper-bg: #1c1a17;
+  --paper-bg: var(--paper-swatch-ink);
   --paper-bg-soft: #211e1a;
   --paper-pre: #171512;
   --paper-code: #24211d;
@@ -161,7 +161,7 @@ body.editor-active[data-theme='light'] {
   --tool-hover: rgba(189, 122, 12, 0.1);
 
   /* 亮色框架下纸面默认：暖橙羊皮纸（参照微信读书） */
-  --paper-bg: #f9ebcc;
+  --paper-bg: var(--paper-swatch-parchment);
   --paper-bg-soft: #f3e4c0;
   --paper-pre: #f2e2bc;
   --paper-code: #efdfb8;
@@ -190,7 +190,7 @@ body.editor-active[data-theme='light'] {
 
 :root[data-paper='ink'],
 body[data-paper='ink'][data-paper] {
-  --paper-bg: #1c1a17;
+  --paper-bg: var(--paper-swatch-ink);
   --paper-bg-soft: #211e1a;
   --paper-pre: #171512;
   --paper-code: #24211d;
@@ -209,7 +209,7 @@ body[data-paper='ink'][data-paper] {
 
 :root[data-paper='parchment'],
 body[data-paper='parchment'][data-paper] {
-  --paper-bg: #f9ebcc;
+  --paper-bg: var(--paper-swatch-parchment);
   --paper-bg-soft: #f3e4c0;
   --paper-pre: #f2e2bc;
   --paper-code: #efdfb8;
@@ -228,7 +228,7 @@ body[data-paper='parchment'][data-paper] {
 
 :root[data-paper='cream'],
 body[data-paper='cream'][data-paper] {
-  --paper-bg: #f0e9d1;
+  --paper-bg: var(--paper-swatch-cream);
   --paper-bg-soft: #eae2c8;
   --paper-pre: #eae1c4;
   --paper-code: #e7dec2;
@@ -248,7 +248,7 @@ body[data-paper='cream'][data-paper] {
 /* 清爽白：纯白底 + 中性灰字（不带暖色罩），琥珀强调保持品牌一致 */
 :root[data-paper='snow'],
 body[data-paper='snow'][data-paper] {
-  --paper-bg: #ffffff;
+  --paper-bg: var(--paper-swatch-snow);
   --paper-bg-soft: #f6f7f8;
   --paper-pre: #f6f7f8;
   --paper-code: #eff1f3;
@@ -267,7 +267,7 @@ body[data-paper='snow'][data-paper] {
 
 :root[data-paper='green'],
 body[data-paper='green'][data-paper] {
-  --paper-bg: #d5e4d0;
+  --paper-bg: var(--paper-swatch-green);
   --paper-bg-soft: #cbdcc5;
   --paper-pre: #c7d8c1;
   --paper-code: #c3d4bc;
@@ -308,4 +308,12 @@ textarea.md-source:focus-visible,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+/* ===== 纸色色板单一源：工具栏色板点与纸面 token 共用以下变量，改这里全局生效 ===== */
+:root {
+  --paper-swatch-ink: #1c1a17;
+  --paper-swatch-parchment: #f9ebcc;
+  --paper-swatch-cream: #f0e9d1;
+  --paper-swatch-snow: #ffffff;
+  --paper-swatch-green: #d5e4d0;
 }
