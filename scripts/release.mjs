@@ -19,7 +19,9 @@ const notes = notesIdx >= 0 ? process.argv[notesIdx + 1] : null;
 const conf = JSON.parse(readFileSync(join(root, 'src-tauri/tauri.conf.json'), 'utf8'));
 const version = conf.version;
 const tag = 'v' + version;
-const exe = join(root, 'release', `Inkwhite_${version}_x64-setup.exe`);
+const nsisDir = join(root, 'src-tauri', 'target', 'release', 'bundle', 'nsis');
+const exe = join(nsisDir, `Inkwhite_${version}_x64-setup.exe`);
+const portable = join(root, 'src-tauri', 'target', 'release', 'bundle', 'portable', `Inkwhite_${version}_x64-portable.zip`);
 const msi = join(root, 'src-tauri', 'target', 'release', 'bundle', 'msi', `Inkwhite_${version}_x64_en-US.msi`);
 
 function run(cmd, args, opts = { stdio: 'inherit' }) {
@@ -36,6 +38,7 @@ function run(cmd, args, opts = { stdio: 'inherit' }) {
 // ---- 1) 产物检查 ----
 const missing = [];
 if (!existsSync(exe)) missing.push(exe);
+if (!existsSync(portable)) missing.push(portable);
 if (!existsSync(msi)) missing.push(msi);
 if (missing.length) {
   console.error(`缺少产物，请先 npm run tauri:build：\n  ${missing.join('\n  ')}`);
@@ -67,6 +70,6 @@ if (!exists) {
 }
 
 // ---- 5) 上传资产（--clobber 覆盖同名）----
-run('gh', ['release', 'upload', tag, '--repo', REPO, exe, msi, '--clobber']);
+run('gh', ['release', 'upload', tag, '--repo', REPO, exe, msi, portable, '--clobber']);
 
 console.log(`\n✅ Release ${tag} 就绪：https://github.com/${REPO}/releases/tag/${tag}`);

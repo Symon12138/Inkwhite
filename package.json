@@ -1,6 +1,6 @@
 {
   "name": "symark",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,7 +20,8 @@
     "font:subset": "node scripts/subset-font.mjs",
     "font:brand": "node scripts/subset-brand-font.mjs",
     "font:fetch": "node scripts/fetch-font.mjs && npm run font:subset",
-    "release": "node scripts/release.mjs"
+    "release": "node scripts/release.mjs",
+    "portable": "node scripts/portable.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",

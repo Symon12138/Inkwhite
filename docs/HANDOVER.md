@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：1.0.0 · 最近提交：`d71c633` · GitHub Release：`v1.0.0`（含 NSIS exe + MSI）
+- 版本：**1.1.0**（2026-08-22）· GitHub Release：`v1.1.0`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -76,8 +76,8 @@
    `fonts-src/liujian-maocao/` 含 OFL.txt），`npm run font:brand`（`scripts/subset-brand-font.mjs`）
    裁「飞白」二字得 1.2KB woff2（`public/fonts/brand/feibai-brand.woff2`），`tokens.css` @font-face
    'Feibai Brand'，`tabMethods.ts` 品牌 JPG → 矢量文字（任何机器都显示），.gitignore 加 OFL 例外。
-6. **仓库体积**——exe 已入库（`release/`，历史会累积），后续建议改走 GitHub Releases 托管、仓库内只留
-   MSI/EXE 下载入口或移出。
+6. **仓库体积**——✅ 新版本起产物不再入库：v1.1.0 起安装包/便携包全部走 GitHub Releases 资产托管
+   （`release.mjs` 直取 bundle 目录，`release/*.exe` 为 v1.0.0 历史遗留，可择期清理）。
 7. **文档**——`docs/DESIGN_SPEC.md` / `DESKTOP_ROADMAP.md` 可能过时，可对照本节功能表更新；
    曾提到的 `overview.md` 当前不存在。
 8. **可选打磨**——~~源码/预览独立字号（用户此前未选）~~ ✅ 已完成（2026-08-21：`types.ts`/`MarkdownEditorLogic.ts`/`viewMethods.ts`/`index.html` 独立 `previewFontSize`，状态栏“源码/预览”双控件，沉浸式工具栏跟随预览字号，旧数据自动迁移）；~~主题菜单纸色与预览工具栏纸色点重复（可去重）~~ ✅ 已完成（2026-08-21：主题菜单仅保留“切换 亮色/暗黑 + 设置…” ，纸色改由预览工具栏 `paperPicker` 圆点唯一入口）；顶部是否进一步精简（待定）。
@@ -91,7 +91,8 @@ npm run check            # 门禁：体积+tsc+单测+cargo+构建
 npm run check:full       # 全量门禁：check + E2E
 npm run test:e2e         # Playwright（首跑 npx playwright install chromium）
 npm run tauri:build      # 出安装包（NSIS/MSI）
-npm run release          # 发布 GitHub Release（读 tauri.conf 版本，传 exe+msi）
+npm run portable         # 打免安装便携 zip（先 tauri:build）
+npm run release          # 发布 GitHub Release（中文 CHANGELOG 摘要作说明，传 exe/msi/便携 zip）
 ```
 
 > CI：推送到 `main`/`master` 自动触发 `.github/workflows/ci.yml`（见 §5-2），本地可用 `npm run check:full` 完整自检后推送。
