@@ -208,6 +208,7 @@ pub fn save_file_as(
         Some(fp) => {
             let path = fp.into_path().map_err(|e| e.to_string())?;
             let path_str = path.to_string_lossy().to_string();
+            backup_before_overwrite(&path, &content); // 另存为覆盖已有文件时同样留底
             std::fs::write(&path, &content).map_err(|e| e.to_string())?;
             grants.grant_with_parent(&path_str);
             let metadata = std::fs::metadata(&path).map_err(|e| e.to_string())?;

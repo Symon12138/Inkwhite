@@ -69,11 +69,11 @@ export class ViewMethods {
 
   PAPERS() {
     return [
-      { id: 'ink', label: '墨黑', swatch: '#1c1a17' },
-      { id: 'parchment', label: '羊皮纸', swatch: '#f9ebcc' },
-      { id: 'cream', label: '米黄', swatch: '#f0e9d1' },
-      { id: 'snow', label: '清爽白', swatch: '#ffffff' },
-      { id: 'green', label: '豆沙绿', swatch: '#d5e4d0' }
+      { id: 'ink', label: '墨黑' },
+      { id: 'parchment', label: '羊皮纸' },
+      { id: 'cream', label: '米黄' },
+      { id: 'snow', label: '清爽白' },
+      { id: 'green', label: '豆沙绿' }
     ];
   }
 
@@ -115,7 +115,7 @@ export class ViewMethods {
       dot.dataset.paper = p.id;
       dot.title = '纸色：' + p.label;
       dot.setAttribute('aria-label', '纸色：' + p.label);
-      dot.style.background = p.swatch;
+      dot.style.background = 'var(--paper-swatch-' + p.id + ')'; // 色值唯一源在 tokens.css
       dot.addEventListener('click', () => {
         // 小屏下色点收起为当前色：第一次点击先展开整排
         const collapsed = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
