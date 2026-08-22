@@ -59,7 +59,17 @@ jobs:
         run: npm test
 
       - name: Unit tests (Rust)
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+        shell: pwsh
+        run: |
+          cargo test --manifest-path src-tauri/Cargo.toml 2>&1 | Tee-Object -FilePath cargo-test.log
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::cargo test failed, digest follows"
+            Get-Content cargo-test.log |
+              Where-Object { $_ -match 'panicked|assertion|FAILED|error\[|failures:|left:|right:|cannot find|linker' } |
+              Select-Object -First 10 |
+              ForEach-Object { Write-Host ("::error::" + $_.Substring(0, [Math]::Min(300, $_.Length))) }
+            exit $LASTEXITCODE
+          }
 
       - name: Build (Vite)
         run: npm run build
