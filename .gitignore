@@ -54,3 +54,4 @@ extension/public/fonts/
 .release-out.txt
 .release-exit.txt
 .release-notes.txt
+.push-log.txt
