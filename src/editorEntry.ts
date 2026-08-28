@@ -11,6 +11,7 @@ import './editor/longImage.css';
 import './editor/contextMenu.css';
 // 字体控件（选择器 + 导入按钮，源码工具栏）
 import './editor/fontControls.css';
+import './editor/syntaxCheatsheet.css';
 
 // 编辑器是桌面端唯一页面（不再有落地页/hash 路由），激活编辑器壳层标记：
 // 1) shell.css 的 html:has(body.editor-active) / body.editor-active 锁死页面级滚动，

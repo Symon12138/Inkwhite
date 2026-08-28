@@ -144,6 +144,8 @@
     <div class="menubar-item" data-menubar="help">
       <button class="menubar-trigger" data-menubar-trigger="help" aria-haspopup="menu" aria-expanded="false" onClick="{{ toggleMenubarHelp }}">帮助<span class="mnemonic">(H)</span></button>
       <div class="menubar-menu" role="menu" aria-label="帮助菜单">
+        <button class="header-menu-item" role="menuitem" onClick="{{ menuSyntaxCheatsheet }}">语法大全</button>
+        <div class="header-menu-separator" role="separator"></div>
         <button class="header-menu-item" role="menuitem" onClick="{{ menuAbout }}">关于 飞白 Inkwhite</button>
       </div>
     </div>

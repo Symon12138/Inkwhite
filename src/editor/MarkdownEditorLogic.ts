@@ -27,6 +27,7 @@ import { FileTreeMethods } from './fileTreeMethods';
 import { ViewMethods } from './viewMethods';
 import { ContextMenuMethods } from './contextMenuMethods';
 import { ReadingPositionMethods } from './readingPositionMethods';
+import { SyntaxCheatsheetMethods } from './syntaxCheatsheetMethods';
 
 export function createMarkdownEditorComponent(DCLogic, React) {
   const Component = class Component extends DCLogic {
@@ -467,6 +468,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       menuPaperSnow: () => { this.toggleMenubar(''); this.setPaper('snow'); },
       menuPaperGreen: () => { this.toggleMenubar(''); this.setPaper('green'); },
       menuAbout: () => { this.toggleMenubar(''); this.openSettings(); },
+      menuSyntaxCheatsheet: () => { this.toggleMenubar(''); this.openSyntaxCheatsheet(); },
       menuFileNew: () => { this.toggleMenubar(''); this.addTab(); },
       menuFileOpen: () => { this.toggleMenubar(''); this.onOpen(); },
       menuOpenFolder: () => { this.toggleMenubar(''); if (typeof this._pickFolder === 'function') this._pickFolder(); else this.openFileTree(); },
@@ -518,7 +520,8 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     TabMethods,
     MenubarMethods,
     ReadingPositionMethods,
-    ContextMenuMethods
+    ContextMenuMethods,
+    SyntaxCheatsheetMethods
   );
   return Component;
 }

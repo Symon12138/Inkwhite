@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：**1.1.0**（2026-08-22）· GitHub Release：`v1.1.0`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
+- 版本：**1.2.0**（2026-08-23）· GitHub Release：`v1.2.0`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -28,15 +28,16 @@
 | 本地文件双向同步 | autosave 写穿、外部修改自动重载、冲突状态 Ctrl+S 覆盖；授权持久化（`granted-paths.json`） | `localFileSyncMethods.ts`、`src-tauri/src/{commands,grants,file_watcher}.rs` |
 | 阅读模式（查看型默认） | 启动即预览视图并**记忆上次视图模式**（editor/split/preview 持久化）；预览版心 Typora 式居中（820px，左右留白；全屏宽幅 1240px 不受限）；**阅读位置记忆**：按文件路径/草稿名存 localStorage（`md-editor-read-pos-v1`，保留最近 300 篇），打开文件/切标签自动回到上次位置 | `MarkdownEditorLogic.ts`、`readingPositionMethods.ts`、`viewMethods.ts`、`styles.css` |
 | 沉浸式阅读 | 全屏/宽屏、五档纸色（墨黑/羊皮纸/米黄/清爽白/豆沙绿） | `viewMethods.ts`、`styles.css` |
+| 语法大全 | 帮助菜单一键打开，40+ 分组卡片 + 搜索/分类筛选 + 预览 + 一键插入/复制（插入后预览模式自动切分屏） | `syntaxCheatsheetData.ts`、`syntaxCheatsheetMethods.ts`、`syntaxCheatsheet.css` |
 | 外观 | 墨笺暗色主题、左上角「飞白」狂草书法印章（`images/feibai_kuangcao_jianfei_s.jpg`）、预览外链小角标（SVG mask） | `theme/tokens.css`、`desktopM4.css`、`styles.css` |
 | 外链图片 | CSP `img-src` 放行 https/http（桌面端外链图片/徽标可显示）；`connect-src` 加 https | `src-tauri/tauri.conf.json` |
 | 无 mac 符号 | 全局已清除 ⌘/⌃/⇧（菜单、上下文菜单、tooltip、示例文档、README） | 全仓 |
 
 ## 2. 测试基线（最近全绿）
 
-- 前端单测：`npm test`（node:test，`tests/unit/`，**465 个**，含 contextMenu/fontMethods/fileTreeMethods/adversarial 等）
+- 前端单测：`npm test`（node:test，`tests/unit/`，**472 个**，含 contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
-- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**160 个**：功能 153 + 对抗 7（XSS/mXSS/结构炸弹/投毒启动等，见 adversarial.spec），含右键菜单/字体同步/格式工具栏/阅读模式/目录守卫等）
+- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**167 个**：功能 153 + 对抗 7 + 语法大全 7，含右键菜单/字体同步/格式工具栏/阅读模式/目录守卫等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）
 
 ## 3. 架构速览
@@ -114,6 +115,8 @@ npm run release          # 发布 GitHub Release（中文 CHANGELOG 摘要作说
 *更新：2026-08-22 CI 首跑全绿（windows-latest 全链）。排障修复：Node 20→22（strip-types）、runner TEMP 8.3 短名 → 授权测试双形式授予、WebView2Loader.dll 入库为正式资源 `src-tauri/resources/`（废除手工拷贝）、字体引导步骤 + 字体断言环境自适应。克隆仓库需 `npm run font:fetch && npm run font:subset` 生成阅读字体（授权限制不入库）。
 
 *更新：2026-08-22 单一性审计——Save As 覆盖已有文件同样留 `.bak`；纸色色板单一源化（tokens.css `--paper-swatch-*` 五变量，色板点与纸面 token 共用，删除 viewMethods 字面量副本）。其余核查项均单一路径（渲染管线/模式类/字号权威/Rust 写入点/mixin 注册）。
+
+*更新：2026-08-23 语法大全——帮助 → 语法大全（40+ 分组卡片+搜索/分类+预览+插入/复制）；参考 cnblogs 体系并适配本项目扩展（任务/脚注/数学/Mermaid 等）；单测 472、E2E 167 全绿。
 
 *更新：2026-08-22 对抗性验证轮——主动攻击测试（tests/e2e/adversarial.spec.ts 7 例 + tests/unit/adversarial.test.ts 5 例）抓到两个真缺陷并修复：① **ReDoS**：`_cleanOpenedMarkdown` 懒惰正则 O(n²) 回溯（48 万字符冻结 UI 2.2 秒）→ `editingFileLayoutMethods.stripCommentSpansLinear` 线性扫描器；② **渲染进程崩溃**：200 层连续引用链使 Chromium 构建超深 DOM 时 abort → 新模块 `renderGuard.ts`：`defuseRenderBombs` 把 ≥32 层引用链、≥96 空格缩进降级为围栏原样展示；`RENDER_GUARD` 显式禁绝 form/base/noscript（DOMPurify 默认放行 form，对抗测试实证穿透）。防御矩阵：XSS 弹药库 / mXSS 探针 / 结构炸弹 / 1MB 单 token / 全键投毒启动 / 敌意标签标题 / 原型污染 全部存活。
 
