@@ -55,3 +55,4 @@ extension/public/fonts/
 .release-exit.txt
 .release-notes.txt
 .push-log.txt
+.verify-syntax.mjs

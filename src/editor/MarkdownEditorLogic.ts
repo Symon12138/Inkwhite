@@ -231,6 +231,11 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       if (this._handleMenubarAltShortcut && this._handleMenubarAltShortcut(e)) return;
       if (this._handleTabShortcut && this._handleTabShortcut(e)) return;
       if (this._handleSearchShortcut(e)) return;
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        if (typeof this.openSyntaxCheatsheet === 'function') this.openSyntaxCheatsheet();
+        return;
+      }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (e.shiftKey) this.onSaveAs();

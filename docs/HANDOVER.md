@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：**1.2.0**（2026-08-23）· GitHub Release：`v1.2.0`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
+- 版本：**1.2.1**（2026-08-23）· GitHub Release：`v1.2.0`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -115,6 +115,8 @@ npm run release          # 发布 GitHub Release（中文 CHANGELOG 摘要作说
 *更新：2026-08-22 CI 首跑全绿（windows-latest 全链）。排障修复：Node 20→22（strip-types）、runner TEMP 8.3 短名 → 授权测试双形式授予、WebView2Loader.dll 入库为正式资源 `src-tauri/resources/`（废除手工拷贝）、字体引导步骤 + 字体断言环境自适应。克隆仓库需 `npm run font:fetch && npm run font:subset` 生成阅读字体（授权限制不入库）。
 
 *更新：2026-08-22 单一性审计——Save As 覆盖已有文件同样留 `.bak`；纸色色板单一源化（tokens.css `--paper-swatch-*` 五变量，色板点与纸面 token 共用，删除 viewMethods 字面量副本）。其余核查项均单一路径（渲染管线/模式类/字号权威/Rust 写入点/mixin 注册）。
+
+*更新：2026-08-23 语法大全优化——常用 8 项置顶、搜索高亮、Ctrl+Shift+H 直达、快捷键提示与 Emoji 20+ 宫格。
 
 *更新：2026-08-23 语法大全——帮助 → 语法大全（40+ 分组卡片+搜索/分类+预览+插入/复制）；参考 cnblogs 体系并适配本项目扩展（任务/脚注/数学/Mermaid 等）；单测 472、E2E 167 全绿。
 

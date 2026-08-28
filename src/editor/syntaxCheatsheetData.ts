@@ -22,6 +22,7 @@ export interface SyntaxCategory {
 }
 
 export const SYNTAX_CATEGORIES: SyntaxCategory[] = [
+  { id: 'frequent', label: '常用' },
   { id: 'headers', label: '标题' },
   { id: 'text', label: '文本样式' },
   { id: 'paragraph', label: '段落与换行' },
@@ -72,7 +73,7 @@ export const SYNTAX_ENTRIES: SyntaxEntry[] = [
   { id: 'quote-nest', title: '引用内嵌套', category: 'blockquote', description: '引用中可含列表、代码等', syntax: '> 区块中使用列表\n> 1. 第一项\n> 2. 第二项', insertText: '> 引用内容\n> 1. 列表项', placeholder: '引用内容' },
 
   // ===== 代码 =====
-  { id: 'inline-code', title: '行内代码', category: 'code', description: '单反引号包裹', syntax: '`行内代码`', insertText: '`代码`', placeholder: '代码' },
+  { id: 'inline-code', title: '行内代码', category: 'code', description: '单反引号包裹', syntax: '`行内代码`', insertText: '`代码`', placeholder: '代码', tip: '快捷键: Ctrl+`' },
   { id: 'fenced-code', title: '代码块', category: 'code', description: '三反引号围栏，可指定语言', syntax: '```python\nprint("Hello")\n```', syntaxLang: 'python', insertText: '```python\n代码\n```', placeholder: '代码' },
 
   // ===== 链接 =====
@@ -103,7 +104,7 @@ export const SYNTAX_ENTRIES: SyntaxEntry[] = [
   { id: 'math-block', title: '块级公式', category: 'math', description: '双 $$ 或 \\[ \\] 独占行', syntax: '$$\nE=mc^2\n$$', insertText: '$$\n公式\n$$', placeholder: '公式' },
 
   // ===== Emoji =====
-  { id: 'emoji', title: 'Emoji 表情', category: 'emoji', description: '冒号包裹短代码（支持中文语境）', syntax: ':smile: :heart: :+1: :-1:', insertText: ':smile:', placeholder: 'smile' },
+  { id: 'emoji', title: 'Emoji 表情', category: 'emoji', description: '冒号包裹短代码，支持 20+ 常用表情', syntax: ':smile: :laughing: :heart: :+1: :-1: :tada: :fire: :star: :check: :x: :warning: :bulb: :memo: :book: :link: :gear: :hammer: :art: :rocket: :eyes:', insertText: ':smile:', placeholder: 'smile', tip: '输入 : 后有提示' },
 
   // ===== Front Matter =====
   { id: 'frontmatter', title: 'Front Matter', category: 'frontmatter', description: '文档开头 --- 包裹 YAML 元数据', syntax: '---\ntitle: 文章标题\ntags: [标签]\n---', insertText: '---\ntitle: 标题\n---\n', placeholder: '标题' },
@@ -127,7 +128,10 @@ export function getCategories(): SyntaxCategory[] {
   return SYNTAX_CATEGORIES.slice();
 }
 
+export const FREQUENT_IDS = ['bold', 'h-hash', 'ul', 'link-inline', 'image', 'fenced-code', 'table', 'quote'];
+
 export function getEntriesByCategory(categoryId: string): SyntaxEntry[] {
+  if (categoryId === 'frequent') return SYNTAX_ENTRIES.filter((e) => FREQUENT_IDS.includes(e.id));
   return SYNTAX_ENTRIES.filter((e) => e.category === categoryId);
 }
 

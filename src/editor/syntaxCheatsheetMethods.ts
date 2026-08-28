@@ -22,6 +22,18 @@ export class SyntaxCheatsheetMethods {
     if (this._syntaxEl) this._syntaxEl.style.display = 'none';
   }
 
+  _escapeHtml(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  _highlightText(text, query) {
+    const q = (query || '').trim();
+    if (!q) return this._escapeHtml(text);
+    const esc = q.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'gi');
+    return this._escapeHtml(text).replace(re, '<mark>$1</mark>');
+  }
+
   _buildSyntaxModal() {
     if (this._syntaxEl) return this._syntaxEl;
     const overlay = document.createElement('div');
@@ -159,7 +171,7 @@ export class SyntaxCheatsheetMethods {
     head.className = 'syntax-card-head';
     const title = document.createElement('strong');
     title.className = 'syntax-card-title';
-    title.textContent = entry.title;
+    title.innerHTML = this._highlightText(entry.title, this._syntaxQuery);
     const badge = document.createElement('span');
     badge.className = 'syntax-card-badge';
     const cat = SYNTAX_CATEGORIES.find((c) => c.id === entry.category);
@@ -167,13 +179,13 @@ export class SyntaxCheatsheetMethods {
     head.append(title, badge);
     const desc = document.createElement('p');
     desc.className = 'syntax-card-desc';
-    desc.textContent = entry.description;
+    desc.innerHTML = this._highlightText(entry.description, this._syntaxQuery);
     const syntaxWrap = document.createElement('div');
     syntaxWrap.className = 'syntax-card-syntax-wrap';
     const pre = document.createElement('pre');
     pre.className = 'syntax-card-syntax';
     const code = document.createElement('code');
-    code.textContent = entry.syntax;
+    code.innerHTML = this._highlightText(entry.syntax, this._syntaxQuery);
     pre.appendChild(code);
     const copyBtn = document.createElement('button');
     copyBtn.type = 'button';

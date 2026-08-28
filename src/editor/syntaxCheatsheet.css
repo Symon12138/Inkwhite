@@ -116,6 +116,7 @@
 }
 .syntax-card-insert:hover { filter: brightness(1.08); }
 .syntax-card-tip { color: var(--text-4); font-size: 11px; }
+.syntax-card mark { background: var(--accent-soft); color: var(--accent); padding: 0 2px; border-radius: 3px; }
 @media (max-width: 760px) {
   .syntax-cheatsheet-modal { width: calc(100vw - 16px); max-height: 88vh; }
   .syntax-cheatsheet-head { flex-wrap: wrap; }
