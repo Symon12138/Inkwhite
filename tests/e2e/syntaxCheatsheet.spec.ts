@@ -74,6 +74,29 @@ test('语法大全：点击卡片插入语法到编辑器', async ({ page }) => 
   await expect(page.locator('.preview-pane .md-preview strong').first()).toBeVisible();
 });
 
+test('语法大全：常用分类置顶（8 项）', async ({ page }) => {
+  await openEditor(page);
+  await page.locator('[data-menubar-trigger="help"]').click();
+  await page.getByRole('menuitem', { name: '语法大全' }).click();
+  await page.locator('.syntax-category-btn').filter({ hasText: '常用' }).click();
+  await expect(page.locator('[data-syntax-grid] .syntax-card')).toHaveCount(8);
+});
+
+test('语法大全：搜索高亮', async ({ page }) => {
+  await openEditor(page);
+  await page.locator('[data-menubar-trigger="help"]').click();
+  await page.getByRole('menuitem', { name: '语法大全' }).click();
+  await page.locator('[data-syntax-search]').fill('粗体');
+  await expect(page.locator('.syntax-card mark').first()).toBeVisible();
+  await expect(page.locator('.syntax-card mark').first()).toContainText('粗体');
+});
+
+test('语法大全：快捷键 Ctrl+Shift+H 直达', async ({ page }) => {
+  await openEditor(page);
+  await page.keyboard.press('Control+Shift+H');
+  await expect(page.locator('.syntax-cheatsheet-overlay')).toBeVisible();
+});
+
 test('语法大全：复制按钮反馈', async ({ page }) => {
   await openEditor(page);
   await page.locator('[data-menubar-trigger="help"]').click();

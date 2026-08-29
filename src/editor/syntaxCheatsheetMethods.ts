@@ -3,7 +3,7 @@
 // 展示分组的 Markdown 语法卡片，支持搜索与一键插入。
 // 构建模式仿 settingsMethods/longImageMethods：JS 构建模态，CSS 在独立文件中。
 
-import { SYNTAX_CATEGORIES, SYNTAX_ENTRIES, filterEntries } from './syntaxCheatsheetData.ts';
+import { SYNTAX_CATEGORIES, SYNTAX_ENTRIES, filterEntries, getEntriesByCategory } from './syntaxCheatsheetData.ts';
 import { renderMarkdown } from './markdownExtensions/markdownExtensionRegistry.ts';
 import DOMPurify from 'dompurify';
 import { RENDER_GUARD } from './renderGuard.ts';
@@ -103,7 +103,7 @@ export class SyntaxCheatsheetMethods {
     allBtn.setAttribute('aria-pressed', 'true');
     nav.appendChild(allBtn);
     SYNTAX_CATEGORIES.forEach((cat) => {
-      const count = SYNTAX_ENTRIES.filter((e) => e.category === cat.id).length;
+      const count = getEntriesByCategory(cat.id).length;
       if (count === 0) return;
       nav.appendChild(this._buildCategoryButton(cat.id, cat.label, count));
     });
@@ -139,7 +139,8 @@ export class SyntaxCheatsheetMethods {
   _getFilteredEntries() {
     let entries = SYNTAX_ENTRIES;
     if (this._syntaxCategory && this._syntaxCategory !== ALL_CATEGORY) {
-      entries = entries.filter((e) => e.category === this._syntaxCategory);
+      if (this._syntaxCategory === 'frequent') entries = getEntriesByCategory('frequent');
+      else entries = entries.filter((e) => e.category === this._syntaxCategory);
     }
     if (this._syntaxQuery) {
       entries = filterEntries(this._syntaxQuery, entries);

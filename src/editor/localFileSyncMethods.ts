@@ -11,6 +11,7 @@ import {
   loadFileHandle,
   saveFileHandle
 } from './fileHandleStore.ts';
+import { embedAnnotations, extractAnnotations } from './annotationFile.ts';
 
 export class LocalFileSyncMethods {
   async _attachLocalFile(handle, { requestWrite = false } = {}) {
@@ -125,7 +126,11 @@ export class LocalFileSyncMethods {
       if (handle.queryPermission && await handle.queryPermission({ mode: 'read' }) !== 'granted') return;
       const file = await handle.getFile();
       if (!(file.lastModified > (this._localFileModifiedAt || 0))) return;
-      const text = this._cleanOpenedMarkdown(await file.text());
+      const raw128 = await file.text();
+      const cleaned128 = this._cleanOpenedMarkdown(raw128);
+      const extracted128 = extractAnnotations(cleaned128);
+      const text = extracted128.content;
+      if (extracted128.annotations) this.comments = extracted128.annotations; else if (String(raw128).includes('inkwhite-annotations:')) this.comments = [];
       const src = this.sourceRef.current;
       if (!src) return;
       if (text === src.value) {
@@ -182,7 +187,7 @@ export class LocalFileSyncMethods {
         return;
       }
       this._localWriteBusy = true;
-      const content = src.value;
+      const content = embedAnnotations(src.value, this.comments);
       const writable = await handle.createWritable();
       await writable.write(content);
       await writable.close();
@@ -243,7 +248,11 @@ export class LocalFileSyncMethods {
     this._syncFileNameTooltip();
     try {
       const file = await handle.getFile();
-      const text = this._cleanOpenedMarkdown(await file.text());
+      const raw251 = await file.text();
+      const cleaned251 = this._cleanOpenedMarkdown(raw251);
+      const extracted251 = extractAnnotations(cleaned251);
+      const text = extracted251.content;
+      if (extracted251.annotations) this.comments = extracted251.annotations; else if (String(raw251).includes('inkwhite-annotations:')) this.comments = [];
       const src = this.sourceRef.current;
       this._localFileModifiedAt = file.lastModified;
       if (src && text !== src.value) {
@@ -282,7 +291,11 @@ export class LocalFileSyncMethods {
       }
       if (permission !== 'granted') return;
       const file = await handle.getFile();
-      const text = this._cleanOpenedMarkdown(await file.text());
+      const raw294 = await file.text();
+      const cleaned294 = this._cleanOpenedMarkdown(raw294);
+      const extracted294 = extractAnnotations(cleaned294);
+      const text = extracted294.content;
+      if (extracted294.annotations) this.comments = extracted294.annotations; else if (String(raw294).includes('inkwhite-annotations:')) this.comments = [];
       this.fileHandle = handle;
       this._localFileModifiedAt = file.lastModified;
       this.localFilePath = await this._resolveLocalFilePath(handle);

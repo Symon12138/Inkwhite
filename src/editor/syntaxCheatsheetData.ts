@@ -111,6 +111,7 @@ export const SYNTAX_ENTRIES: SyntaxEntry[] = [
 
   // ===== 其他 =====
   { id: 'escape', title: '转义', category: 'other', description: '反斜杠转义特殊字符', syntax: '\\* \` \\# 保持字面', insertText: '\\*', placeholder: '*' },
+  { id: 'mermaid', title: 'Mermaid 图表', category: 'other', description: '流程图、时序图等（本项目扩展）', syntax: '```mermaid\ngraph TD\n  A[开始] --> B[结束]\n```', insertText: '```mermaid\ngraph TD\n  A --> B\n```', placeholder: 'A --> B' },
 ];
 
 export function filterEntries(query: string, entries: SyntaxEntry[] = SYNTAX_ENTRIES): SyntaxEntry[] {

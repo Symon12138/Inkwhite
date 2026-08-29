@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { tauriBridge } from './tauriBridge.ts';
+import { embedAnnotations, extractAnnotations } from './annotationFile.ts';
 import { createTauriFileHandle } from './tauriFileHandle.ts';
 import { exportHtmlFromPreview } from './exportMethods.ts';
 import { flattenForWord, renderWordImages } from './flattenDocument.ts';
@@ -327,6 +328,19 @@ export class EditingFileLayoutMethods {
     return stripCommentSpansLinear(value);
   }
 
+  _prepareOpenedContent(raw) {
+    const cleaned = this._cleanOpenedMarkdown(raw);
+    const extracted = extractAnnotations(cleaned);
+    if (extracted.annotations) {
+      this.comments = extracted.annotations;
+    } else if (Array.isArray(this.comments) && this.comments.length > 0) {
+      // 文件无批注块时清空旧批注（避免前一个文件的批注残留）
+      const hasMarker = String(raw || '').includes('inkwhite-annotations:');
+      if (!hasMarker) this.comments = [];
+    }
+    return extracted.content;
+  }
+
 
   // ===== 桌面端（Tauri）文件能力：原生对话框 + 真实路径，句柄接入既有同步逻辑 =====
 
@@ -387,8 +401,9 @@ export class EditingFileLayoutMethods {
     if (!src) return;
     if (this.fileHandle && this.fileHandle.createWritable) {
       try {
+        const toSave = embedAnnotations(src.value, this.comments);
         const w = await this.fileHandle.createWritable();
-        await w.write(src.value); await w.close();
+        await w.write(toSave); await w.close();
         // 手动保存即用户显式决定以编辑器内容为准：更新基线并解除冲突状态。
         await this._updateLocalFileBaseline();
         this._localFileConflict = false;
@@ -406,7 +421,7 @@ export class EditingFileLayoutMethods {
   async onSaveAs() {
     const src = this.sourceRef.current;
     if (!src) return;
-    const content = src.value;
+    const content = embedAnnotations(src.value, this.comments);
     const suggested = this.fileName && this.fileName !== '未命名.md' ? this.fileName : 'document.md';
     if (tauriBridge) {
       const saved = await tauriBridge.saveMarkdownFileAs(suggested, content);
