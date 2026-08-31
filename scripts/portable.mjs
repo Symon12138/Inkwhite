@@ -1,4 +1,4 @@
-// 打包免安装版：symark.exe + WebView2Loader.dll → 便携 zip（解压即用）。
+// 打包免安装版：Inkwhite.exe + WebView2Loader.dll → 便携 zip（解压即用）。
 // 用法：npm run portable （需先 npm run tauri:build）
 import { execFileSync } from 'node:child_process';
 import { readFileSync, mkdirSync, copyFileSync, existsSync, writeFileSync } from 'node:fs';
@@ -9,7 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const conf = JSON.parse(readFileSync(join(root, 'src-tauri/tauri.conf.json'), 'utf8'));
 const version = conf.version;
 const outDir = join(root, 'src-tauri', 'target', 'release', 'bundle', 'portable');
-const exeSrc = join(root, 'src-tauri', 'target', 'release', 'symark.exe');
+const exeSrc = join(root, 'src-tauri', 'target', 'release', 'Inkwhite.exe');
 const dllSrc = join(root, 'src-tauri', 'resources', 'WebView2Loader.dll');
 const stage = join(outDir, 'Inkwhite_' + version + '_x64');
 const zipPath = join(outDir, 'Inkwhite_' + version + '_x64-portable.zip');

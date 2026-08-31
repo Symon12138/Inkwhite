@@ -1,12 +1,16 @@
 [package]
 name = "symark"
-version = "1.2.1"
+version = "1.2.2"
 description = "飞白 Inkwhite - 个人 Markdown 桌面工具"
 edition = "2021"
 
 [lib]
 name = "symark_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "Inkwhite"
+path = "src/main.rs"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
