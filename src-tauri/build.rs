@@ -17,7 +17,7 @@ fn main() {
     //
     // 背景：muda（tauri 菜单库）静态导入 comctl32.dll 的 TaskDialogIndirect，
     // 该导出仅存在于 comctl32 v6（需应用清单激活 side-by-side）。tauri-build
-    // 的清单只作用于主程序（rustc-link-arg-bin=symark），测试 exe（lib 单测
+    // 的清单只作用于主程序（rustc-link-arg-bin=Inkwhite），测试 exe（lib 单测
     // 二进制、bin 测试 harness）无清单 → 加载时 0xc0000139
     // STATUS_ENTRYPOINT_NOT_FOUND（gnu 与 MSVC 工具链均受影响）。
     //

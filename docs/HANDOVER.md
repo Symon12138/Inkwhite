@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：**1.2.2**（2026-08-23）· GitHub Release：`v1.2.2`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
+- 版本：**1.2.3**（2026-08-23）· GitHub Release：`v1.2.3`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 

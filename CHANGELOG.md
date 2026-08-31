@@ -2,6 +2,10 @@
 
 本文件记录飞白 Inkwhite 的版本演进。版本号遵循语义化版本。
 
+## [1.2.3] - 2026-08-23
+
+- 品牌一致性修复：可执行文件已为 Inkwhite.exe，同步重命名 favicon（symark-lightning-animated.svg → inkwhite-lightning-animated.svg）、更新 package.json 包名与构建脚本注释。
+
 ## [1.2.2] - 2026-08-23
 
 - 修复安装后显示为 symark.exe 的问题：可执行文件重命名为 Inkwhite.exe（与产品名一致）。
