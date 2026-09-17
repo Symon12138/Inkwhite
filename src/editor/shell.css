@@ -39,7 +39,7 @@ body.editor-active { overflow: hidden; }
   white-space: nowrap;
 }
 /* 菜单字号独立变量：不覆盖 --fs-*，正文、工具栏和导出保持原样。 */
-.menubar-menu { max-height: calc(100dvh - 100px); overflow-y: auto; }
+.menubar-menu { box-sizing: border-box; max-width: calc(100vw - 8px); max-height: calc(100dvh - 100px); overflow-y: auto; }
 .menubar-menu > * { flex-shrink: 0; }
 .menubar-item:nth-last-child(-n+3) .menubar-menu { left: auto; right: 0; }
 

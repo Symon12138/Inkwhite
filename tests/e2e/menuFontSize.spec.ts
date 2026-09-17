@@ -1,5 +1,39 @@
 import { test, expect, openEditor } from './fixtures';
 
+for (const size of [16, 24]) {
+  test('窄屏换行菜单保持在视口内：' + size + 'px', async ({ page }) => {
+    await openEditor(page);
+    await page.locator('[data-menubar-trigger="theme"]').click();
+    await page.getByRole('menuitem', { name: '设置…', exact: true }).click();
+    await page.getByRole('combobox', { name: '菜单字号' }).selectOption(String(size));
+    await page.keyboard.press('Escape');
+    await page.setViewportSize({ width: 480, height: 600 });
+    for (const key of ['file', 'edit', 'para', 'format', 'view', 'theme', 'help']) {
+      await page.locator('[data-menubar-trigger="' + key + '"]').click();
+      const menu = page.locator('[data-menubar="' + key + '"] .menubar-menu');
+      await expect.poll(() => menu.evaluate(el => {
+        const r = el.getBoundingClientRect();
+        return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight;
+      })).toBe(true);
+      const last = menu.getByRole('menuitem').last();
+      await last.scrollIntoViewIfNeeded();
+      expect(await last.evaluate(el => {
+        const r = el.getBoundingClientRect();
+        return el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+      })).toBe(true);
+      await page.keyboard.press('Escape');
+    }
+    await page.setViewportSize({ width: 960, height: 600 });
+    await page.locator('[data-menubar-trigger="help"]').click();
+    await page.setViewportSize({ width: 480, height: 400 });
+    const menu = page.getByRole('menu', { name: '帮助菜单' });
+    await expect.poll(() => menu.evaluate(el => {
+      const r = el.getBoundingClientRect();
+      return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+    })).toBe(true);
+  });
+}
+
 test('菜单字号即时应用、正文隔离、刷新保持与恢复默认', async ({ page }) => {
   await openEditor(page);
   const source = page.locator('.md-source');

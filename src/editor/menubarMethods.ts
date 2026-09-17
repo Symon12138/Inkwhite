@@ -40,6 +40,22 @@ export class MenubarMethods {
 
   // ===== Typora 风格菜单栏（文件/编辑/段落/格式/视图/主题/帮助）=====
 
+  // 先恢复 CSS 锚点，再按当前视口夹取，避免换行后右对齐越过左边界。
+  _positionMenubarMenu(target) {
+    const menu = target.querySelector('.menubar-menu');
+    if (!menu) return;
+    menu.style.left = '';
+    menu.style.right = '';
+    menu.style.maxHeight = '';
+    const rect = menu.getBoundingClientRect();
+    const margin = 4;
+    const left = Math.max(margin, Math.min(rect.left, window.innerWidth - rect.width - margin));
+    const parentLeft = target.getBoundingClientRect().left;
+    menu.style.left = (left - parentLeft) + 'px';
+    menu.style.right = 'auto';
+    menu.style.maxHeight = Math.max(0, window.innerHeight - rect.top - margin) + 'px';
+  }
+
   /**
    * 菜单栏通用开关：key 为空串时关闭全部菜单；否则切换该菜单并互斥关闭其他。
    */
@@ -56,7 +72,13 @@ export class MenubarMethods {
       if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
     if (willOpen) {
+      this._positionMenubarMenu(target);
       if (!this._menubarDocH) {
+        this._menubarResizeH = () => {
+          const current = document.querySelector('.menubar-item.is-open');
+          if (current) this._positionMenubarMenu(current);
+        };
+        window.addEventListener('resize', this._menubarResizeH);
         // 实时判断点击是否落在任一打开菜单内，不依赖首次打开的 target 闭包（DOM 可能被重渲染替换）
         this._menubarDocH = (e) => {
           if (e.target.closest && e.target.closest('.menubar-trigger')) return;
@@ -69,7 +91,9 @@ export class MenubarMethods {
           if (e.key === 'Escape') this.toggleMenubar('');
         });
       }
-    } else if (!key && this._menubarDocH) {
+    } else if (this._menubarDocH) {
+      window.removeEventListener('resize', this._menubarResizeH);
+      this._menubarResizeH = null;
       document.removeEventListener('click', this._menubarDocH);
       this._menubarDocH = null;
       if (this._menubarKeyH) document.removeEventListener('keydown', this._menubarKeyH);
