@@ -203,6 +203,34 @@ test('_applySettings 按设置写入 textarea 与预览的 spellcheck/lang 属�
   assert.equal(prev.getAttribute('spellcheck'), 'false');
 });
 
+test('_applySettings 同步打印纸色属性（跟随预览打属性，默认移除）', () => {
+  const restore = installLocalStorageStub();
+  try {
+    const context = { sourceRef: createRef(createStubElement()), previewRef: createRef(null) };
+    const attrs = new Map<string, string>();
+    const doc = (globalThis as unknown as { document: unknown }).document;
+    (globalThis as unknown as { document: unknown }).document = {
+      body: {
+        style: { setProperty() {}, removeProperty() {} },
+        setAttribute(name: string, value: string) { attrs.set(name, value); },
+        removeAttribute(name: string) { attrs.delete(name); }
+      }
+    };
+    try {
+      context.settings = { ...DEFAULT_SETTINGS, printPaper: 'follow-preview' };
+      SettingsMethods.prototype._applySettings.call(context);
+      assert.equal(attrs.get('data-print-paper'), 'follow-preview');
+      context.settings = { ...DEFAULT_SETTINGS, printPaper: 'white' };
+      SettingsMethods.prototype._applySettings.call(context);
+      assert.equal(attrs.has('data-print-paper'), false);
+    } finally {
+      (globalThis as unknown as { document: unknown }).document = doc;
+    }
+  } finally {
+    restore();
+  }
+});
+
 test('_applySettings 缺省 settings 时从 localStorage 读取并缓存（刷新保持）', () => {
   const restore = installLocalStorageStub({ [SETTINGS_KEY]: JSON.stringify({ spellcheck: false }) });
   try {

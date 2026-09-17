@@ -154,7 +154,26 @@ export async function exportHtmlFromPreview(
   opts: ExportHtmlOptions
 ): Promise<ExportHtmlResult> {
   const warnings: string[] = [];
-  const clone = preview.cloneNode(true) as Element;
+  const clone = preview.cloneNode(true) as HTMLElement;
+  // 样式均以 .md-preview 为作用域，不能只导出 innerHTML。
+  clone.className = 'md-preview';
+  clone.removeAttribute('contenteditable');
+  clone.querySelectorAll('.code-copy-btn, .table-edit-toolbar').forEach(el => el.remove());
+  const appearance = getComputedStyle(preview);
+  for (const prop of ['font-family', 'font-size', 'letter-spacing', 'color', 'background-color', 'padding']) {
+    clone.style.setProperty(prop, appearance.getPropertyValue(prop));
+  }
+  // 行高按比例保留：冻结成固定像素会破坏子元素按各自字号的倍数关系。
+  const lineHeight = parseFloat(appearance.lineHeight) / parseFloat(appearance.fontSize);
+  if (Number.isFinite(lineHeight) && lineHeight > 0) {
+    clone.style.lineHeight = String(Math.round(lineHeight * 1000) / 1000);
+  }
+  clone.style.height = 'auto';
+  clone.style.overflow = 'visible';
+  clone.style.flex = 'none';
+  clone.style.width = (preview.getBoundingClientRect().width || 900) + 'px';
+  clone.style.maxWidth = '100%';
+  clone.style.margin = '0 auto';
 
   // DG4：批注默认剥离（badge 移除、id span 拆开保留原文）
   stripCommentMarks(clone);
@@ -173,16 +192,22 @@ export async function exportHtmlFromPreview(
   sanitizeExportSvgs(clone);
 
   const sheets = document.styleSheets;
-  const computed = getComputedStyle(document.body);
+  const computed = getComputedStyle(preview);
   const readVar = (name: string) => computed.getPropertyValue(name).trim();
 
   // 冻结 CSS 变量：主题/纸色落定成字面值（脱离宿主主题也能正确渲染）
   const cssVariables = freezeCssVariables(sheets, readVar);
 
+  // 正文字体也随文件内联，避免离开飞白后回退为另一套字形。
+  const bodyFontsCss = await inlineFontFaces(sheets, {
+    filter: (face) => /font-family:\s*['"]?Canger JinKai/i.test(face)
+  });
+  if (computed.fontFamily.includes('Canger JinKai') && !bodyFontsCss) {
+    warnings.push('正文内置字体未能内联，将使用系统后备字体');
+  }
+
   // DG7：内联 @font-face 的 woff2 为 data URL；超阈值降级为系统字体栈 + 提示。
-  // 范围限定 KaTeX 字体（决策主题）：应用另有 1.99MB 的正文子集字体（Canger），
-  // 一并内联会让每个导出物背 2MB+ 成本，与「轻量分享物」定位相悖——正文走
-  // .md-preview 声明的回退栈（'Kaiti SC' 等，与长图取不回字体时的行为一致）。
+  // 此阈值仅用于公式字体；正文字体单独内联，优先保真。
   // POC 实测：katex 0.16.47 全量 woff2 259KB < 1MB 阈值 → 走 Path A。
   let fontsCss = await inlineFontFaces(sheets, {
     filter: (face) => /font-family:\s*['"]?KaTeX_/i.test(face)
@@ -216,10 +241,10 @@ export async function exportHtmlFromPreview(
   const cssBundle = resolveCssVariables(extractExportCss(sheets), readVar);
   const html = composeExportHtml({
     title: opts.title,
-    bodyHtml: clone.innerHTML,
+    bodyHtml: clone.outerHTML,
     cssVariables,
-    fontsCss,
-    cssBundle,
+    fontsCss: bodyFontsCss + '\n' + fontsCss,
+    cssBundle: cssBundle + '\n*{box-sizing:border-box}body{margin:0;background:' + computed.backgroundColor + '}',
     meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }]
   });
   return { html, warnings };

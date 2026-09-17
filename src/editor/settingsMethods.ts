@@ -32,6 +32,9 @@ export class SettingsMethods {
     this.settings = settings;
     if (typeof document !== 'undefined') {
       document.body.style.setProperty('--menu-font-size', settings.menuFontSizePx + 'px');
+      // 打印纸色：跟随预览时打属性，@media print 按 body[data-print-paper] 放行原纸色。
+      if (settings.printPaper === 'follow-preview') document.body.setAttribute('data-print-paper', 'follow-preview');
+      else document.body.removeAttribute('data-print-paper');
     }
     const targets = [
       this.sourceRef && this.sourceRef.current,

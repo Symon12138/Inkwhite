@@ -5,6 +5,7 @@ import { createTauriFileHandle } from './tauriFileHandle.ts';
 import { exportHtmlFromPreview } from './exportMethods.ts';
 import { flattenForWord, renderWordImages } from './flattenDocument.ts';
 import { buildDocx } from './wordExport.ts';
+import { captureWordStyles } from './wordExportStyles.ts';
 import { extractExportCss } from './exportComposer.ts';
 import { resolveCssVariables } from './exportMethods.ts';
 import { inlineFontFaces } from './shareExportUtils.ts';
@@ -594,6 +595,8 @@ export class EditingFileLayoutMethods {
     try {
       if (typeof this._awaitPreviewReady === 'function') await this._awaitPreviewReady();
       const clone = prev.cloneNode(true);
+      captureWordStyles(prev, clone);
+      clone.querySelectorAll('.code-copy-btn, .table-edit-toolbar').forEach(el => el.remove());
       const { root, images } = flattenForWord(clone);
       // KaTeX/Mermaid 光栅化需要布局样式与公式字体（与导出 CSS 同源，var() 落成字面值）。
       const sheets = document.styleSheets;

@@ -247,7 +247,7 @@ test('buildDocx document.xml 结构化断言：标题/加粗/表格/代码字体
   const buffer = await makeInput({ title: 'Word 导出测试', flattenedRoot: root as unknown as Element, images });
   const xml = new TextDecoder().decode(zipReadEntry(new Uint8Array(buffer), 'word/document.xml'));
 
-  assert.ok(xml.includes('Word 导出测试'), '文档标题');
+  assert.ok(!xml.includes('Word 导出测试'), '文件名只作元数据，不额外插入正文标题');
   assert.ok(xml.includes('标题一'), 'H1 标题');
   assert.ok(xml.includes('加粗') && /<w:b(?![a-z])/.test(xml), '加粗 run（<w:b…>，非 <w:br）');
   assert.ok(xml.includes('斜体') && xml.includes('<w:i/>'), '斜体 run');
@@ -291,6 +291,74 @@ test('buildDocx 空文档边界：仅有标题也产出合法 docx', async () =>
   assert.equal(bytes[1], 0x4b);
   assert.ok(bytes.length > 1000);
   assert.ok(entryNames(bytes).includes('word/document.xml'));
+});
+
+async function documentXml(root: MiniEl): Promise<string> {
+  const buffer = await buildDocx({ title: 't', flattenedRoot: root as unknown as Element, images: [] });
+  return new TextDecoder().decode(zipReadEntry(new Uint8Array(buffer), 'word/document.xml'));
+}
+
+function runFor(xml: string, textValue: string): string {
+  return xml.match(/<w:r[ >][\s\S]*?<\/w:r>/g)?.find((run) => run.includes('>' + textValue + '<')) || '';
+}
+
+test('Word preserves inherited preview font, size, color and block alignment', async () => {
+  const xml = await documentXml(makeEl('div', { style: 'font-family: "Noto Serif SC", serif; font-size: 20px; color: rgb(17, 34, 51)' }, [
+    makeEl('p', { style: 'text-align: center; margin-bottom: 12px; line-height: 30px' }, [text('styled')]),
+    makeEl('h2', { style: 'font-size: 30px; font-weight: 700' }, [text('heading')])
+  ]));
+  const run = runFor(xml, 'styled');
+  assert.match(run, /w:ascii="Noto Serif SC"/);
+  assert.match(run, /w:eastAsia="Noto Serif SC"/);
+  assert.match(run, /<w:sz w:val="30"/);
+  assert.match(run, /<w:color w:val="112233"/);
+  assert.match(xml, /<w:jc w:val="center"/);
+  assert.match(xml, /w:after="180"/);
+  assert.match(xml, /w:line="450"/);
+  assert.match(runFor(xml, 'heading'), /<w:sz w:val="45"/);
+});
+
+test('Word preserves underline, strike, highlight, scripts and external hyperlinks', async () => {
+  const root = makeEl('div', {}, [makeEl('p', {}, [
+    makeEl('u', {}, [text('under')]), makeEl('del', {}, [text('deleted')]),
+    makeEl('mark', {}, [text('marked')]), makeEl('sup', {}, [text('super')]),
+    makeEl('sub', {}, [text('subscript')]), makeEl('a', { href: 'https://example.com/doc?q=1' }, [text('link')])
+  ])]);
+  const buffer = new Uint8Array(await buildDocx({title: 't', flattenedRoot: root as unknown as Element, images: []}));
+  const xml = new TextDecoder().decode(zipReadEntry(buffer, 'word/document.xml'));
+  assert.match(runFor(xml, 'under'), /<w:u /);
+  assert.match(runFor(xml, 'deleted'), /<w:strike/);
+  assert.match(runFor(xml, 'marked'), /w:fill="FFFF00"/);
+  assert.match(runFor(xml, 'super'), /w:val="superscript"/);
+  assert.match(runFor(xml, 'subscript'), /w:val="subscript"/);
+  assert.match(xml, /<w:hyperlink /);
+  assert.ok(new TextDecoder().decode(zipReadEntry(buffer, 'word/_rels/document.xml.rels')).includes('https://example.com/doc?q=1'));
+});
+
+test('Word retains mixed container text, inline images and paragraph boundaries in table cells', async () => {
+  const xml = await documentXml(makeEl('div', {}, [
+    makeEl('div', {}, [text('before'), makeEl('p', {}, [text('middle')]), text('after')]),
+    makeEl('p', {}, [text('left'), makeEl('img', {src: TINY_PNG_DATA_URL}), text('right')]),
+    makeEl('table', {}, [makeEl('tr', {}, [makeEl('th', {}, [makeEl('p', {}, [text('cell-one')]), makeEl('p', {}, [text('cell-two')])])])])
+  ]));
+  assert.match(xml, /before/);
+  assert.match(xml, /after/);
+  const paragraphs = xml.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || [];
+  assert.ok(paragraphs.some(p => p.includes('left') && p.includes('w:drawing') && p.includes('right')));
+  assert.ok(paragraphs.some(p => p.includes('cell-one') && !p.includes('cell-two')));
+});
+
+test('Word preserves nested list levels and blockquote paragraph indentation', async () => {
+  const xml = await documentXml(makeEl('div', {}, [
+    makeEl('blockquote', {style: 'padding-left: 24px'}, [makeEl('p', {}, [text('quoted')])]),
+    makeEl('ul', {}, [makeEl('li', {}, [text('parent-item'), makeEl('ul', {}, [makeEl('li', {}, [text('nested-item')])])])])
+  ]));
+  const paragraphs = xml.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || [];
+  const quote = paragraphs.find(p => p.includes('quoted')) || '';
+  assert.match(quote, /<w:ind w:left="360"/);
+  const nested = paragraphs.find(p => p.includes('nested-item')) || '';
+  assert.match(nested, /<w:ilvl w:val="1"/);
+  assert.ok(!nested.includes('parent-item'));
 });
 
 test('buildDocx 块级公式占位段落居中（alignment CENTER）', async () => {

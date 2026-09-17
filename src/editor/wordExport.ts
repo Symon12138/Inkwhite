@@ -14,6 +14,7 @@ import {
   AlignmentType,
   BorderStyle,
   Document,
+  ExternalHyperlink,
   HeadingLevel,
   ImageRun,
   LevelFormat,
@@ -23,9 +24,12 @@ import {
   TableCell,
   TableRow,
   TextRun,
+  type IParagraphOptions,
+  type IRunOptions,
   type ParagraphChild
 } from 'docx';
 import type { WordImage } from './flattenDocument.ts';
+import { wordRunStyle, wordParagraphStyle } from './wordExportStyles.ts';
 
 const MONO_FONT = 'Consolas';
 const ORDERED_LIST_REFERENCE = 'export-ordered-list';
@@ -44,6 +48,8 @@ export interface BuildDocxInput {
 
 interface BuildContext {
   images: Map<string, WordImage>;
+  styles: Map<Element, IRunOptions>;
+  paragraphs: Map<Element, IParagraphOptions>;
 }
 
 const HEADING_LEVELS: Record<string, (typeof HeadingLevel)[keyof typeof HeadingLevel]> = {
@@ -64,7 +70,7 @@ const CONTAINER_TAGS = new Set([
 const BLOCK_TAGS = new Set([
   ...CONTAINER_TAGS,
   'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
-  'UL', 'OL', 'LI', 'PRE', 'TABLE', 'TR', 'TD', 'TH', 'IMG', 'HR'
+  'UL', 'OL', 'LI', 'PRE', 'TABLE', 'TR', 'TD', 'TH', 'HR'
 ]);
 
 /**
@@ -73,7 +79,9 @@ const BLOCK_TAGS = new Set([
  */
 export async function buildDocx(input: BuildDocxInput): Promise<ArrayBuffer> {
   const ctx: BuildContext = {
-    images: new Map(input.images.map((image) => [image.key, image]))
+    images: new Map(input.images.map((image) => [image.key, image])),
+    styles: collectRunStyles(input.flattenedRoot),
+    paragraphs: collectParagraphStyles(input.flattenedRoot)
   };
   const children = buildBlocks(input.flattenedRoot, ctx);
   const titleParagraph = new Paragraph({
@@ -85,15 +93,15 @@ export async function buildDocx(input: BuildDocxInput): Promise<ArrayBuffer> {
     numbering: {
       config: [{
         reference: ORDERED_LIST_REFERENCE,
-        levels: [{
-          level: 0,
+        levels: Array.from({ length: 9 }, (_, level) => ({
+          level,
           format: LevelFormat.DECIMAL,
-          text: '%1.',
+          text: '%' + (level + 1) + '.',
           alignment: AlignmentType.START
-        }]
+        }))
       }]
     },
-    sections: [{ properties: {}, children: [titleParagraph, ...children] }]
+    sections: [{ properties: {}, children: children.length ? children : [titleParagraph] }]
   });
   return Packer.toArrayBuffer(doc);
 }
@@ -103,30 +111,31 @@ export async function buildDocx(input: BuildDocxInput): Promise<ArrayBuffer> {
 // ─────────────────────────────────────────────────────────────────────────────
 function buildBlocks(root: Element, ctx: BuildContext): (Paragraph | Table)[] {
   const out: (Paragraph | Table)[] = [];
-  for (const child of Array.from(root.children)) {
+  let pending: ParagraphChild[] = [];
+  const flush = () => {
+    if (pending.length) out.push(new Paragraph({ ...ctx.paragraphs.get(root), children: pending }));
+    pending = [];
+  };
+  for (const node of Array.from(root.childNodes)) {
+    const child = node as Element;
+    const isBlock = node.nodeType === 1 && (BLOCK_TAGS.has(child.tagName.toUpperCase()) || hasBlockChildren(child)
+      || (child.getAttribute('data-word-image') && ctx.images.get(child.getAttribute('data-word-image')!)?.align !== 'inline'));
+    if (!isBlock) {
+      if (node.nodeType !== 3 || node.textContent?.trim()) walkInlineNode(node, ctx, ctx.styles.get(root) || {}, pending);
+      continue;
+    }
+    flush();
     const tag = (child.tagName || '').toUpperCase();
     if (HEADING_LEVELS[tag]) {
-      out.push(new Paragraph({ children: inlineRuns(child, ctx), heading: HEADING_LEVELS[tag] }));
+      out.push(new Paragraph({ ...ctx.paragraphs.get(child), children: inlineRuns(child, ctx), heading: HEADING_LEVELS[tag] }));
       continue;
     }
-    if (tag === 'UL') {
-      for (const li of listItems(child)) {
-        const prefix = taskItemPrefix(li);
-        out.push(new Paragraph({
-          children: prefix ? [new TextRun(prefix), ...inlineRuns(li, ctx)] : inlineRuns(li, ctx),
-          bullet: { level: 0 }
-        }));
-      }
-      continue;
-    }
-    if (tag === 'OL') {
-      for (const li of listItems(child)) {
-        out.push(new Paragraph({ children: inlineRuns(li, ctx), numbering: { reference: ORDERED_LIST_REFERENCE, level: 0 } }));
-      }
+    if (tag === 'UL' || tag === 'OL') {
+      out.push(...listParagraphs(child, ctx));
       continue;
     }
     if (tag === 'PRE') {
-      out.push(codeParagraph(child));
+      out.push(codeParagraph(child, ctx));
       continue;
     }
     if (tag === 'TABLE') {
@@ -148,6 +157,30 @@ function buildBlocks(root: Element, ctx: BuildContext): (Paragraph | Table)[] {
     }
     out.push(...paragraphsFrom(child, ctx));
   }
+  flush();
+  return out;
+}
+
+function listParagraphs(list: Element, ctx: BuildContext, depth = 0): Paragraph[] {
+  const out: Paragraph[] = [];
+  const level = Math.min(depth, 8);
+  for (const li of listItems(list)) {
+    const runs: ParagraphChild[] = [];
+    const prefix = taskItemPrefix(li);
+    if (prefix) runs.push(new TextRun({ ...ctx.styles.get(li), text: prefix }));
+    const nested: Element[] = [];
+    for (const node of Array.from(li.childNodes)) {
+      const el = node as Element;
+      if (node.nodeType === 1 && ['UL', 'OL'].includes(el.tagName.toUpperCase())) nested.push(el);
+      else walkInlineNode(node, ctx, ctx.styles.get(li) || {}, runs);
+    }
+    out.push(new Paragraph({
+      ...ctx.paragraphs.get(li), children: runs,
+      ...(list.tagName.toUpperCase() === 'OL'
+        ? { numbering: { reference: ORDERED_LIST_REFERENCE, level } } : { bullet: { level } })
+    }));
+    for (const child of nested) out.push(...listParagraphs(child, ctx, depth + 1));
+  }
   return out;
 }
 
@@ -159,7 +192,7 @@ function listItems(list: Element): Element[] {
 function paragraphsFrom(el: Element, ctx: BuildContext): (Paragraph | Table)[] {
   if (hasBlockChildren(el)) return buildBlocks(el, ctx);
   const runs = inlineRuns(el, ctx);
-  return runs.length ? [new Paragraph({ children: runs })] : [];
+  return runs.length ? [new Paragraph({ ...ctx.paragraphs.get(el), children: runs })] : [];
 }
 
 function hasBlockChildren(el: Element): boolean {
@@ -171,11 +204,12 @@ function hasBlockChildren(el: Element): boolean {
   return false;
 }
 
-function codeParagraph(pre: Element): Paragraph {
+function codeParagraph(pre: Element, ctx: BuildContext): Paragraph {
   const text = (pre.textContent || '').replace(/\n$/, '');
   const lines = text.split('\n');
-  const runs = lines.map((line, i) => new TextRun({ text: line, font: MONO_FONT, break: i > 0 ? 1 : 0 }));
-  return new Paragraph({ children: runs });
+  const style = ctx.styles.get(pre.querySelector('code') || pre);
+  const runs = lines.map((line, i) => new TextRun({ font: MONO_FONT, ...style, text: line, break: i > 0 ? 1 : 0 }));
+  return new Paragraph({ ...ctx.paragraphs.get(pre), children: runs });
 }
 
 function tableBlock(table: Element, ctx: BuildContext): Table {
@@ -186,9 +220,10 @@ function tableBlock(table: Element, ctx: BuildContext): Table {
       return tag === 'TD' || tag === 'TH';
     });
     rows.push(new TableRow({
-      children: cells.map((cell) => new TableCell({
-        children: [new Paragraph({ children: inlineRuns(cell, ctx) })]
-      }))
+      children: cells.map((cell) => {
+        const children = paragraphsFrom(cell, ctx);
+        return new TableCell({ children: children.length ? children : [new Paragraph({ children: [] })] });
+      })
     }));
   }
   return new Table({ rows });
@@ -272,76 +307,60 @@ function base64ToBytes(base64: string): Uint8Array {
 // ─────────────────────────────────────────────────────────────────────────────
 // 行内映射
 // ─────────────────────────────────────────────────────────────────────────────
+function collectParagraphStyles(root: Element): Map<Element, IParagraphOptions> {
+  const styles = new Map<Element, IParagraphOptions>();
+  const visit = (el: Element, quoteIndent: IParagraphOptions['indent']) => {
+    const style = wordParagraphStyle(el);
+    const indent = style.indent || quoteIndent;
+    styles.set(el, { ...style, indent });
+    for (const child of Array.from(el.children)) if (child.nodeType === 1) visit(child, indent);
+  };
+  visit(root, undefined);
+  return styles;
+}
+
+function collectRunStyles(root: Element): Map<Element, IRunOptions> {
+  const styles = new Map<Element, IRunOptions>();
+  const visit = (el: Element, inherited: IRunOptions) => {
+    const style = wordRunStyle(el, inherited);
+    styles.set(el, style);
+    for (const child of Array.from(el.children)) {
+      if (child.nodeType === 1) visit(child, style);
+    }
+  };
+  visit(root, {});
+  return styles;
+}
+
 function inlineRuns(el: Element, ctx: BuildContext): ParagraphChild[] {
   const runs: ParagraphChild[] = [];
-  walkInlineChildren(el, ctx, false, false, false, runs);
+  for (const child of Array.from(el.childNodes)) walkInlineNode(child, ctx, ctx.styles.get(el) || {}, runs);
   return runs;
 }
 
-// 行内节点调度：文本 → TextRun（继承 bold/italics/mono 上下文）；BR → 换行；
-// IMG / 公式图表占位 → ImageRun；strong/b、em/i、code 切换样式上下文后递归；
-// 其余标签（a/u/s/del/mark/sup/sub/span…）透传文字与子结构。
-function walkInlineNode(
-  node: Node,
-  ctx: BuildContext,
-  bold: boolean,
-  italics: boolean,
-  mono: boolean,
-  runs: ParagraphChild[]
-): void {
-  if (node.nodeType === 3 /* TEXT_NODE */) {
-    const textValue = node.textContent || '';
-    if (textValue) {
-      runs.push(new TextRun({
-        text: textValue,
-        bold: bold || undefined,
-        italics: italics || undefined,
-        font: mono ? MONO_FONT : undefined
-      }));
-    }
+function walkInlineNode(node: Node, ctx: BuildContext, style: IRunOptions, runs: ParagraphChild[]): void {
+  if (node.nodeType === 3) {
+    if (node.textContent) runs.push(new TextRun({ ...style, text: node.textContent }));
     return;
   }
+  if (node.nodeType !== 1) return;
   const element = node as Element;
   const tag = (element.tagName || '').toUpperCase();
-  if (tag === 'BR') {
-    runs.push(new TextRun({ break: 1 }));
-    return;
-  }
+  if (tag === 'BR') { runs.push(new TextRun({ ...style, break: 1 })); return; }
   if (tag === 'IMG') {
-    const run = imageRunFromImg(element);
-    if (run) runs.push(run);
+    runs.push(imageRunFromImg(element) || new TextRun({ ...style, text: FAILED_REMOTE_IMAGE_TEXT }));
     return;
   }
   if (tag === 'SPAN' && element.getAttribute('data-word-image')) {
-    const key = element.getAttribute('data-word-image') || '';
-    const run = imageRunFromEntry(ctx.images.get(key));
-    if (run) runs.push(run);
+    const entry = ctx.images.get(element.getAttribute('data-word-image')!);
+    runs.push(imageRunFromEntry(entry) || new TextRun({ ...style, text: FAILED_IMAGE_TEXT }));
     return;
   }
-  if (tag === 'STRONG' || tag === 'B') {
-    walkInlineChildren(element, ctx, true, italics, mono, runs);
-    return;
-  }
-  if (tag === 'EM' || tag === 'I') {
-    walkInlineChildren(element, ctx, bold, true, mono, runs);
-    return;
-  }
-  if (tag === 'CODE') {
-    walkInlineChildren(element, ctx, bold, italics, true, runs);
-    return;
-  }
-  walkInlineChildren(element, ctx, bold, italics, mono, runs);
-}
-
-function walkInlineChildren(
-  el: Element,
-  ctx: BuildContext,
-  bold: boolean,
-  italics: boolean,
-  mono: boolean,
-  runs: ParagraphChild[]
-): void {
-  for (const child of Array.from(el.childNodes)) {
-    walkInlineNode(child, ctx, bold, italics, mono, runs);
-  }
+  const ownStyle = ctx.styles.get(element) || wordRunStyle(element, style);
+  const children: ParagraphChild[] = [];
+  for (const child of Array.from(element.childNodes)) walkInlineNode(child, ctx, ownStyle, children);
+  const href = element.getAttribute('href') || '';
+  if (tag === 'A' && /^(https?:\/\/|mailto:)/i.test(href)) {
+    runs.push(new ExternalHyperlink({ link: href, children }));
+  } else runs.push(...children);
 }

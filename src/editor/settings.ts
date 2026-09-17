@@ -2,6 +2,8 @@
 // 面板构建与接线在 settingsMethods.ts；入口按钮由 M2-UI 统一接线。
 //
 // 语义决策（B19 硬约束：关闭自动保存不静默丢稿）：
+//   - printPaper：'white'（默认，DG1 白纸黑字）| 'follow-preview'（跟随预览纸色；
+//     打印媒体下由 body[data-print-paper] 属性放宽 --paper-* 覆盖）；
 //   - autosave 只控制「写穿本地文件」（localFileSyncMethods 的自动写回）；
 //   - localStorage 草稿（EDITOR_STORAGE_KEY，经 _persist 保存）始终保存，作为保底；
 //   - 显式保存（Ctrl+S，onSave）直接写本地文件，不经 autosave 开关。
