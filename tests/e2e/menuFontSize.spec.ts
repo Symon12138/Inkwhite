@@ -5,7 +5,7 @@ for (const size of [16, 24]) {
     await openEditor(page);
     await page.locator('[data-menubar-trigger="theme"]').click();
     await page.getByRole('menuitem', { name: '设置…', exact: true }).click();
-    await page.getByRole('combobox', { name: '菜单字号' }).selectOption(String(size));
+    await page.getByRole('combobox', { name: '界面字号' }).selectOption(String(size));
     await page.keyboard.press('Escape');
     await page.setViewportSize({ width: 480, height: 600 });
     for (const key of ['file', 'edit', 'para', 'format', 'view', 'theme', 'help']) {
@@ -34,7 +34,7 @@ for (const size of [16, 24]) {
   });
 }
 
-test('菜单字号即时应用、正文隔离、刷新保持与恢复默认', async ({ page }) => {
+test('界面字号即时应用、正文隔离、刷新保持与恢复默认', async ({ page }) => {
   await openEditor(page);
   const source = page.locator('.md-source');
   const preview = page.locator('.md-preview');
@@ -42,7 +42,7 @@ test('菜单字号即时应用、正文隔离、刷新保持与恢复默认', as
   const previewSize = await preview.evaluate(el => getComputedStyle(el).fontSize);
   await page.locator('[data-menubar-trigger="theme"]').click();
   await page.getByRole('menuitem', { name: '设置…', exact: true }).click();
-  const select = page.getByRole('combobox', { name: '菜单字号' });
+  const select = page.getByRole('combobox', { name: '界面字号' });
   await expect(select).toHaveValue('16');
   await select.selectOption('24');
   await expect(page.locator('.menubar-trigger').first()).toHaveCSS('font-size', '24px');
@@ -67,7 +67,7 @@ test('菜单字号即时应用、正文隔离、刷新保持与恢复默认', as
   await page.locator('[data-menubar-trigger="theme"]').click();
   await page.getByRole('menuitem', { name: '设置…', exact: true }).click();
   await expect(select).toHaveValue('24');
-  await page.getByRole('button', { name: '恢复默认菜单字号' }).click();
+  await page.getByRole('button', { name: '恢复默认界面字号' }).click();
   await expect(select).toHaveValue('16');
   await expect(page.locator('.menubar-trigger').first()).toHaveCSS('font-size', '16px');
 });

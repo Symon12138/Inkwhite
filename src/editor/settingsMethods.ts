@@ -144,7 +144,7 @@ export class SettingsMethods {
     const select = document.createElement('select');
     select.className = 'settings-text';
     select.dataset.settingsKey = 'menuFontSizePx';
-    select.setAttribute('aria-label', '菜单字号');
+    select.setAttribute('aria-label', '界面字号');
     for (let size = MENU_FONT_SIZE_MIN; size <= MENU_FONT_SIZE_MAX; size++) {
       const option = document.createElement('option');
       option.value = String(size);
@@ -156,11 +156,11 @@ export class SettingsMethods {
     reset.type = 'button';
     reset.className = 'tbtn';
     reset.textContent = '恢复默认';
-    reset.setAttribute('aria-label', '恢复默认菜单字号');
+    reset.setAttribute('aria-label', '恢复默认界面字号');
     reset.addEventListener('click', () => this._setSetting('menuFontSizePx', DEFAULT_SETTINGS.menuFontSizePx));
     controls.append(select, reset);
-    row.append(this._buildRowText('菜单字号',
-      '调整顶部菜单、下拉菜单和右键菜单；不影响正文、源码字号及版心宽度。'), controls);
+    row.append(this._buildRowText('界面字号',
+      '同步调整顶部菜单、右键菜单与底部状态栏；正文大小由底部统一字号控件调整。'), controls);
     return row;
   }
 

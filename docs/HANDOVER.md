@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：**1.2.4**（2026-09-17）· 菜单字号配置；安装包与发布资产按 v1.2.4 构建，更新日志见根目录 `CHANGELOG.md`（中文）
+- 版本：**1.2.5**（2026-09-17）· 上下界面字号联动、统一正文字号；安装包与发布资产按 v1.2.5 构建，更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -15,12 +15,12 @@
 | 模块 | 说明 | 关键文件 |
 |---|---|---|
 | Typora 风格菜单栏 | 文件/编辑/段落/格式/视图/主题/帮助；Alt+F/E/P/O/V/T/H 打开；**不显示快捷键** | `menubarMethods.ts`、`index.html` |
-| 菜单字号 | 主题 → 设置；12–24 px（默认 16），即时持久化、恢复默认；仅顶部/下拉/右键菜单，正文与源码不受影响 | `settings.ts`、`settingsMethods.ts`、`shell.css`、`contextMenu.css` |
+| 界面字号 | 主题 → 设置；12–24 px（默认 16），即时持久化、恢复默认；顶部/下拉/右键菜单与底部状态栏同步，正文使用独立的统一控件 | `settings.ts`、`settingsMethods.ts`、`shell.css`、`contextMenu.css` |
 | 多文档标签页 | Ctrl+T/W/Tab 新建/关闭/切换；脏标记+关闭确认；重启恢复；标签栏含「飞白」书法品牌图 | `tabMethods.ts`、`tabStore.ts`、`desktopM4.css` |
 | 右键菜单（四上下文） | 源码（编辑/段落/格式/插入）、预览（链接/图片/表格/选区）、侧边栏、标签页；视口翻转、Esc/外点/滚动关闭 | `contextMenuMethods.ts` + `contextMenu.css` |
 | 源码工具栏格式按钮 | 标题/加粗/斜体/删除线/高亮/下划线/引用/列表/行内代码/链接 + 「更多格式 ⋯」（图片/表格/任务/代码块/分割线/上下标/脚注） | `index.html`、`editingFileLayoutMethods.ts` |
-| 统一字体 | 选择字体后**源码+预览+搜索高亮层同步**（`--source-font` + `--read`）；默认源码回落等宽；支持导入字体（IndexedDB 持久化） | `fontMethods.ts`、`fontControls.css` |
-| 字体/字号控件 | 状态栏右下角“字体 ▾ + 导入 + 源码 A−/A+ + 预览 A−/A+ + 字数”（源码/预览独立，旧数据自动迁移） | `index.html` footer、`viewMethods.ts`、`types.ts` |
+| 统一字体 | 选择字体后**源码+预览+搜索高亮层同步**（`--source-font` + `--read`）；默认源码与预览共用楷体；支持导入字体（IndexedDB 持久化） | `fontMethods.ts`、`fontControls.css` |
+| 字体/字号控件 | 状态栏右下角“字体 ▾ + 导入 + 正文 A−/A+ + 字数”（源码/预览/高亮层统一；旧数据优先保留预览字号，沉浸阅读同步） | `index.html` footer、`viewMethods.ts`、`types.ts` |
 | 侧边栏「文件」页签 | 工作区文件夹树（`选择文件夹…` 持久化）+ 当前文档所在目录 .md 列表；文件菜单“打开文件夹…”直达；列表上限 200 | `fileTreeMethods.ts`、`index.html` |
 | 侧边栏「大纲」页签 | 标题跳转 | `navigationMethods.ts`、`viewMethods.ts` |
 | 搜索替换 | Ctrl+F 按视图路由（源码/预览）、Ctrl+H 展开替换；大小写/全字/正则；镜像层高亮 | `searchReplaceMethods.ts`、`previewSearchMethods.ts` |
@@ -38,7 +38,7 @@
 
 - 前端单测：`npm test`（node:test，`tests/unit/`，**481 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
-- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**173 个**，含窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
+- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**176 个**，含上下界面字号联动、统一正文/沉浸字号、旧字号迁移、窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）
 
 ## 3. 架构速览

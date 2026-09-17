@@ -45,3 +45,19 @@
   font-size: var(--fs-xs);
 }
 .footer-font-import:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 界面字号与菜单共享；不覆盖正文 --fs-*。控件随字高增长，底栏可换行。 */
+.app-footer { font-size: var(--menu-font-size, 16px); height: auto; min-height: 46px; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; gap: 8px; }
+.app-footer .footer-stats { min-width: 0; max-width: 100%; flex-wrap: wrap; gap: 8px; }
+.app-footer .footer-font-field,
+.app-footer .font-select,
+.app-footer .font-select option,
+.app-footer .tbtn { font-size: inherit; }
+.app-footer .font-select { height: auto; min-height: 30px; max-width: 170px; line-height: 1.4; }
+.app-footer .tbtn { height: auto; min-height: 32px; width: auto; padding: 2px 6px; }
+.app-footer .word-count { white-space: normal; }
+@media (max-width: 760px) {
+  .app-footer { height: auto !important; }
+  .app-footer .font-controls { display: flex !important; }
+  .app-footer .footer-stats { gap: 8px !important; }
+}

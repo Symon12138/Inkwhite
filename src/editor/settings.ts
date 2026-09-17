@@ -13,7 +13,7 @@ export const MENU_FONT_SIZE_MAX = 24;
 export type PrintPaper = 'follow-preview' | 'white';
 
 export interface EditorSettings {
-  /** 仅软件菜单字号，不改变文档字号或全局 UI scale */
+  /** 界面字号：菜单和底部状态栏共用；保留旧字段名兼容已保存设置 */
   menuFontSizePx: number;
   /** 原生拼写检查（B21）：默认开；应用为 textarea/preview 的 spellcheck 与 lang 属性 */
   spellcheck: boolean;

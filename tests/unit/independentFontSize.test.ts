@@ -11,6 +11,7 @@ function fontContext() {
   return {
     context: {
       _applyFont: ViewMethods.prototype._applyFont,
+      _setFont: ViewMethods.prototype._setFont,
       _persist() {},
       _setStatus() {},
       fontSize: 16,
@@ -26,19 +27,19 @@ function fontContext() {
   };
 }
 
-test('源码与预览字号独立：_setSourceFont 只改源码，_setPreviewFont 只改预览', () => {
+test('旧字号入口统一调整源码与预览', () => {
   const { context, preview, source } = fontContext();
 
   ViewMethods.prototype._setSourceFont.call(context, 20);
   assert.equal(context.fontSize, 20);
-  assert.equal(context.previewFontSize, 16);
+  assert.equal(context.previewFontSize, 20);
   assert.equal(source.style.fontSize, '20px');
-  assert.equal(preview.style.fontSize, '16px');
+  assert.equal(preview.style.fontSize, '20px');
 
   ViewMethods.prototype._setPreviewFont.call(context, 22);
-  assert.equal(context.fontSize, 20);
+  assert.equal(context.fontSize, 22);
   assert.equal(context.previewFontSize, 22);
-  assert.equal(source.style.fontSize, '20px');
+  assert.equal(source.style.fontSize, '22px');
   assert.equal(preview.style.fontSize, '22px');
 });
 

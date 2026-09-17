@@ -267,6 +267,7 @@
 
   /* 按钮基础样式与 hover 见 shell.css。侧面板作为拖拽把手的定位锚点 */
   .comments-panel { position: relative; }
+  .app-shell:has(.preview-pane-fullscreen) > .menubar { visibility: hidden; }
   .preview-pane-fullscreen {
     position: fixed !important;
     inset: 0;

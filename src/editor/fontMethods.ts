@@ -3,7 +3,7 @@
 // 字体选择与导入（ui-ux-pro-max 设计系统：类型尺度与字体选择）。
 // - 选择器控制统一书写字体（--read + --source-font）：预览正文/标题与
 //   源码编辑区同时跟随；列表里的「等宽」选项可切回源码对齐排版。
-// - 未选择字体时源码回落等宽（--mono，Markdown 对齐依赖），行为与旧版一致。
+// - 默认字体也统一使用阅读字体；需要等宽时在统一选择器选择「等宽」。
 // - 导入：ttf/otf/woff/woff2 → FontFace API 注册 → IndexedDB 持久化，
 //   重启自动恢复；导出（HTML/Word/长图）仍走系统字体栈（既有决策）。
 
@@ -22,6 +22,13 @@ const SYSTEM_FONTS = [
 ];
 
 export class FontMethods {
+  _restoreDocumentFontSize(saved) {
+    // 旧独立字号优先保留阅读字号，之后由 fontSize 统一驱动。
+    const px = saved.previewFontSize || saved.fontSize;
+    if (px) this.fontSize = Math.max(12, Math.min(28, px));
+    this.previewFontSize = this.fontSize;
+  }
+
   // ===== 选择器构建 =====
 
   // 获取或创建字体选择器（DC 模板不含 select，由 JS 注入到 fontSelectSlotRef 槽位，
@@ -98,8 +105,8 @@ export class FontMethods {
       root.removeProperty('--read');
       root.removeProperty('--paper-font-body');
       root.removeProperty('--paper-font-heading');
-      // 源码回落等宽（--mono）；未显式选字体时源码保持旧行为。
-      root.removeProperty('--source-font');
+      // 默认字体与预览一致，避免选择器显示同一字体但两侧实际不同。
+      root.setProperty('--source-font', 'var(--read)');
       return;
     }
     const sys = SYSTEM_FONTS.find((f) => f.id === value);

@@ -671,7 +671,10 @@ export class ViewMethods {
 
   _applyFont() {
     const sourcePx = this.fontSize;
-    const previewPx = this.previewFontSize != null ? this.previewFontSize : this.fontSize;
+    const previewPx = this.fontSize;
+    this.previewFontSize = this.fontSize; // 旧字段只作兼容镜像，不再独立控制
+    const highlight = this.sourceHighlightRef && this.sourceHighlightRef.current;
+    if (highlight) highlight.style.fontSize = sourcePx + 'px';
     const prev = this.previewRef.current, src = this.sourceRef.current;
     if (prev) prev.style.fontSize = previewPx + 'px';
     if (src) src.style.fontSize = sourcePx + 'px';
@@ -691,19 +694,9 @@ export class ViewMethods {
     this._setStatus('字号 ' + clamped + 'px');
   }
 
-  _setSourceFont(px) {
-    this.fontSize = Math.max(12, Math.min(28, px));
-    this._applyFont();
-    this._persist();
-    this._setStatus('源码字号 ' + this.fontSize + 'px');
-  }
+  _setSourceFont(px) { this._setFont(px); }
 
-  _setPreviewFont(px) {
-    this.previewFontSize = Math.max(12, Math.min(28, px));
-    this._applyFont();
-    this._persist();
-    this._setStatus('预览字号 ' + this.previewFontSize + 'px');
-  }
+  _setPreviewFont(px) { this._setFont(px); }
 
 
   _setFileName(name) {

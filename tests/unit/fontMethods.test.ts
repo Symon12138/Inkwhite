@@ -47,24 +47,24 @@ test('等宽选项：--source-font 与 --read 同为等宽栈（可切回对齐�
   assert.match(ctx._props.get('--read')!, /monospace/);
 });
 
-test('默认/清空字体：同时移除 --source-font 与 --read（源码回落等宽）', () => {
+test('默认/清空字体：源码跟随默认阅读字体', () => {
   const ctx = fontContext();
   ctx.fontFamily = '';
   withDocument(ctx, () => {
     FontMethods.prototype._applyFontFamily.call(ctx);
   });
-  assert.equal(ctx._props.has('--source-font'), false);
+  assert.equal(ctx._props.get('--source-font'), 'var(--read)');
   assert.equal(ctx._props.has('--read'), false);
   assert.equal(ctx._props.has('--paper-font-body'), false);
 });
 
-test('默认值字符串 default：同样只清空不写新值', () => {
+test('默认值字符串 default：同样统一阅读字体', () => {
   const ctx = fontContext();
   ctx.fontFamily = 'default';
   withDocument(ctx, () => {
     FontMethods.prototype._applyFontFamily.call(ctx);
   });
-  assert.equal(ctx._props.has('--source-font'), false);
+  assert.equal(ctx._props.get('--source-font'), 'var(--read)');
   assert.equal(ctx._props.has('--read'), false);
 });
 

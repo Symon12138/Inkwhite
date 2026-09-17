@@ -169,9 +169,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     if (saved && typeof saved.content === 'string') {
       initial = this._cleanOpenedMarkdown(saved.content);
       if (saved.fileName) name = saved.fileName;
-      if (saved.fontSize) this.fontSize = saved.fontSize;
-      if (saved.previewFontSize) this.previewFontSize = saved.previewFontSize;
-      else if (saved.fontSize) this.previewFontSize = saved.fontSize;
+      this._restoreDocumentFontSize(saved);
       if (Array.isArray(saved.comments)) this.comments = saved.comments;
       if (saved.theme) { this.theme = saved.theme; this._themeTouched = true; }
       if (saved.paperDark) this.paperDark = saved.paperDark;
