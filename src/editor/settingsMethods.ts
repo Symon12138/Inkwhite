@@ -11,7 +11,7 @@
 //   applyPrototypeMethods 中排在 LocalFileSyncMethods 之后，覆盖生效）：
 //   关闭自动保存后跳过自动写回；显式 Ctrl+S（onSave）直接写本地文件，不受影响。
 import { LocalFileSyncMethods } from './localFileSyncMethods.ts';
-import { loadSettings, sanitizeSettings, saveSettings } from './settings.ts';
+import { DEFAULT_SETTINGS, MENU_FONT_SIZE_MIN, MENU_FONT_SIZE_MAX, loadSettings, sanitizeSettings, saveSettings } from './settings.ts';
 
 const ORIGINAL_WRITE_THROUGH = LocalFileSyncMethods.prototype._maybeWriteThroughLocalFile;
 
@@ -30,6 +30,9 @@ export class SettingsMethods {
   _applySettings() {
     const settings = this.settings || loadSettings();
     this.settings = settings;
+    if (typeof document !== 'undefined') {
+      document.body.style.setProperty('--menu-font-size', settings.menuFontSizePx + 'px');
+    }
     const targets = [
       this.sourceRef && this.sourceRef.current,
       this.previewRef && this.previewRef.current
@@ -117,6 +120,7 @@ export class SettingsMethods {
     const body = document.createElement('div');
     body.className = 'settings-body';
     body.append(
+      this._buildMenuFontSizeRow(),
       this._buildToggleRow('spellcheck', '原生拼写检查',
         '开启后编辑区与预览使用浏览器原生拼写检查。'),
       this._buildToggleRow('autosave', '自动保存到本地文件',
@@ -130,6 +134,34 @@ export class SettingsMethods {
       ])
     );
     return body;
+  }
+
+  _buildMenuFontSizeRow() {
+    const row = document.createElement('div');
+    row.className = 'settings-row settings-menu-font-row';
+    const controls = document.createElement('div');
+    controls.className = 'settings-menu-font-controls';
+    const select = document.createElement('select');
+    select.className = 'settings-text';
+    select.dataset.settingsKey = 'menuFontSizePx';
+    select.setAttribute('aria-label', '菜单字号');
+    for (let size = MENU_FONT_SIZE_MIN; size <= MENU_FONT_SIZE_MAX; size++) {
+      const option = document.createElement('option');
+      option.value = String(size);
+      option.textContent = size + ' px' + (size === DEFAULT_SETTINGS.menuFontSizePx ? '（默认）' : '');
+      select.appendChild(option);
+    }
+    select.addEventListener('change', () => this._setSetting('menuFontSizePx', Number(select.value)));
+    const reset = document.createElement('button');
+    reset.type = 'button';
+    reset.className = 'tbtn';
+    reset.textContent = '恢复默认';
+    reset.setAttribute('aria-label', '恢复默认菜单字号');
+    reset.addEventListener('click', () => this._setSetting('menuFontSizePx', DEFAULT_SETTINGS.menuFontSizePx));
+    controls.append(select, reset);
+    row.append(this._buildRowText('菜单字号',
+      '调整顶部菜单、下拉菜单和右键菜单；不影响正文、源码字号及版心宽度。'), controls);
+    return row;
   }
 
   _buildRowText(label, hint) {

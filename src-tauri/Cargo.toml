@@ -1,6 +1,6 @@
 [package]
 name = "symark"
-version = "1.2.3"
+version = "1.2.4"
 description = "飞白 Inkwhite - 个人 Markdown 桌面工具"
 edition = "2021"
 

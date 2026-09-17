@@ -7,9 +7,14 @@
 //   - 显式保存（Ctrl+S，onSave）直接写本地文件，不经 autosave 开关。
 export const SETTINGS_KEY = 'md-editor-settings-v1';
 
+export const MENU_FONT_SIZE_MIN = 12;
+export const MENU_FONT_SIZE_MAX = 24;
+
 export type PrintPaper = 'follow-preview' | 'white';
 
 export interface EditorSettings {
+  /** 仅软件菜单字号，不改变文档字号或全局 UI scale */
+  menuFontSizePx: number;
   /** 原生拼写检查（B21）：默认开；应用为 textarea/preview 的 spellcheck 与 lang 属性 */
   spellcheck: boolean;
   /** 自动保存（B19）：只控制写穿本地文件；localStorage 草稿始终保存 */
@@ -21,6 +26,7 @@ export interface EditorSettings {
 }
 
 export const DEFAULT_SETTINGS: EditorSettings = {
+  menuFontSizePx: 16,
   spellcheck: true,
   autosave: true,
   exportPageMargin: '14mm 16mm',
@@ -55,6 +61,10 @@ export function sanitizeSettings(raw: unknown): EditorSettings {
   if (!raw || typeof raw !== 'object') return { ...DEFAULT_SETTINGS };
   const source = raw as Record<string, unknown>;
   return {
+    menuFontSizePx: typeof source.menuFontSizePx === 'number'
+      && Number.isInteger(source.menuFontSizePx)
+      && source.menuFontSizePx >= MENU_FONT_SIZE_MIN && source.menuFontSizePx <= MENU_FONT_SIZE_MAX
+      ? source.menuFontSizePx : DEFAULT_SETTINGS.menuFontSizePx,
     spellcheck: sanitizeBoolean(source.spellcheck, DEFAULT_SETTINGS.spellcheck),
     autosave: sanitizeBoolean(source.autosave, DEFAULT_SETTINGS.autosave),
     exportPageMargin: sanitizeMargin(source.exportPageMargin),

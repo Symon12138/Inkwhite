@@ -26,6 +26,7 @@ test('saveSettings → loadSettings 读写往返保持全部字段', () => {
   const restore = installLocalStorageStub();
   try {
     const settings = {
+      menuFontSizePx: 16,
       spellcheck: false,
       autosave: false,
       exportPageMargin: '18mm 22mm',
@@ -77,6 +78,7 @@ test('部分非法不影响其余合法字段', () => {
     printPaper: 'follow-preview'
   });
   assert.deepEqual(merged, {
+    menuFontSizePx: 16,
     spellcheck: false,
     autosave: true,
     exportPageMargin: '12mm',

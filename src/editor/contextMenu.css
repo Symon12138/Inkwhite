@@ -9,7 +9,7 @@
   flex-direction: column;
   gap: 2px;
   min-width: 168px;
-  max-width: 280px;
+  max-width: min(440px, calc(100vw - 16px));
   max-height: 72vh;
   overflow-y: auto;
   padding: 6px;
@@ -42,10 +42,11 @@
   background: transparent;
   color: var(--tool-text);
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--menu-font-size, var(--fs-sm));
   text-align: left;
   cursor: pointer;
-  white-space: nowrap;
+  white-space: normal;
+  flex-shrink: 0;
 }
 .context-menu-item:hover { background: var(--tool-hover); }
 .context-menu-item.is-disabled { opacity: .4; cursor: default; }

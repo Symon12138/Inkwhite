@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：**1.2.3**（2026-08-23）· GitHub Release：`v1.2.3`（NSIS 安装包 + MSI + 免安装便携 zip）；更新日志见根目录 `CHANGELOG.md`（中文）
+- 版本：**1.2.4**（2026-09-17）· 菜单字号配置；安装包与发布资产按 v1.2.4 构建，更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -15,6 +15,7 @@
 | 模块 | 说明 | 关键文件 |
 |---|---|---|
 | Typora 风格菜单栏 | 文件/编辑/段落/格式/视图/主题/帮助；Alt+F/E/P/O/V/T/H 打开；**不显示快捷键** | `menubarMethods.ts`、`index.html` |
+| 菜单字号 | 主题 → 设置；12–24 px（默认 16），即时持久化、恢复默认；仅顶部/下拉/右键菜单，正文与源码不受影响 | `settings.ts`、`settingsMethods.ts`、`shell.css`、`contextMenu.css` |
 | 多文档标签页 | Ctrl+T/W/Tab 新建/关闭/切换；脏标记+关闭确认；重启恢复；标签栏含「飞白」书法品牌图 | `tabMethods.ts`、`tabStore.ts`、`desktopM4.css` |
 | 右键菜单（四上下文） | 源码（编辑/段落/格式/插入）、预览（链接/图片/表格/选区）、侧边栏、标签页；视口翻转、Esc/外点/滚动关闭 | `contextMenuMethods.ts` + `contextMenu.css` |
 | 源码工具栏格式按钮 | 标题/加粗/斜体/删除线/高亮/下划线/引用/列表/行内代码/链接 + 「更多格式 ⋯」（图片/表格/任务/代码块/分割线/上下标/脚注） | `index.html`、`editingFileLayoutMethods.ts` |
@@ -35,9 +36,9 @@
 
 ## 2. 测试基线（最近全绿）
 
-- 前端单测：`npm test`（node:test，`tests/unit/`，**472 个**，含 contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
+- 前端单测：`npm test`（node:test，`tests/unit/`，**481 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
-- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**167 个**：功能 153 + 对抗 7 + 语法大全 7，含右键菜单/字体同步/格式工具栏/阅读模式/目录守卫等）
+- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**171 个**，含菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）
 
 ## 3. 架构速览

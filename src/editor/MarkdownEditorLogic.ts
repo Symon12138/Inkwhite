@@ -418,7 +418,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
       toggleComments: () => this._openPanel(),
       closePanel: () => this._openPanel(false),
       toggleTypewriterMode: () => this.toggleTypewriterMode(),
-      openFileTree: () => this.openFileTree(),
+      openFileTree: () => { this.toggleMenubar(''); this.openFileTree(); },
       copySel: () => this.copySel(),
       markMarker: () => this.markMarker(),
       markWavy: () => this.markWavy(),

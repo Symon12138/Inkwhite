@@ -87,6 +87,7 @@ test('收起按钮关闭侧边栏', async ({ page }) => {
   await clickMenubarItem(page, 'view', '文件树');
   await expect(page.locator('.document-sidebar')).not.toHaveClass(/is-collapsed/);
 
+  await expect(page.getByRole('menu', { name: '视图菜单' })).toBeHidden();
   await page.getByRole('button', { name: '收起侧边栏' }).click();
   await expect(page.locator('.document-sidebar')).toHaveClass(/is-collapsed/);
 });
