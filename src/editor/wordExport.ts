@@ -23,6 +23,7 @@ import {
   Table,
   TableCell,
   TableRow,
+  WidthType,
   TextRun,
   type IParagraphOptions,
   type IRunOptions,
@@ -209,7 +210,7 @@ function codeParagraph(pre: Element, ctx: BuildContext): Paragraph {
   const lines = text.split('\n');
   const style = ctx.styles.get(pre.querySelector('code') || pre);
   const runs = lines.map((line, i) => new TextRun({ font: MONO_FONT, ...style, text: line, break: i > 0 ? 1 : 0 }));
-  return new Paragraph({ ...ctx.paragraphs.get(pre), children: runs });
+  return new Paragraph({ ...ctx.paragraphs.get(pre), shading: ctx.styles.get(pre)?.shading, indent: { left: 160, right: 160 }, children: runs });
 }
 
 function tableBlock(table: Element, ctx: BuildContext): Table {
@@ -226,7 +227,7 @@ function tableBlock(table: Element, ctx: BuildContext): Table {
       })
     }));
   }
-  return new Table({ rows });
+  return new Table({ rows, width: { size: 100, type: WidthType.PERCENTAGE }, margins: { top: 100, bottom: 100, left: 120, right: 120 } });
 }
 
 function tableRows(table: Element): Element[] {

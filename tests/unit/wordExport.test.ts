@@ -302,6 +302,16 @@ function runFor(xml: string, textValue: string): string {
   return xml.match(/<w:r[ >][\s\S]*?<\/w:r>/g)?.find((run) => run.includes('>' + textValue + '<')) || '';
 }
 
+test('Word gives tables explicit page width and code full paragraph shading', async () => {
+  const xml = await documentXml(makeEl('div', {}, [
+    makeEl('table', {}, [makeEl('tr', {}, [makeEl('td', {}, [text('a')]), makeEl('td', {}, [text('b')])])]),
+    makeEl('pre', {style: 'background-color: rgb(240, 240, 240)'}, [makeEl('code', {}, [text('const a = 1')])])
+  ]));
+  assert.ok(xml.includes('w:type="pct" w:w="100%"'), 'table must span page text width: ' + xml.match(/<w:tblW[^>]+>/)?.[0]);
+  assert.ok(xml.includes('<w:tblCellMar>'), 'table cells need padding');
+  assert.match(xml, /<w:pPr>[^]*?<w:shd[^]*?w:fill="F0F0F0"/, 'code background covers paragraph');
+});
+
 test('Word preserves inherited preview font, size, color and block alignment', async () => {
   const xml = await documentXml(makeEl('div', { style: 'font-family: "Noto Serif SC", serif; font-size: 20px; color: rgb(17, 34, 51)' }, [
     makeEl('p', { style: 'text-align: center; margin-bottom: 12px; line-height: 30px' }, [text('styled')]),

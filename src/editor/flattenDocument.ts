@@ -43,6 +43,25 @@ export interface WordImage {
  * 两段式 collect 阶段：把 KaTeX/Mermaid 节点标记替换为占位节点并登记图片条目。
  * 纯 DOM 变换（node 单测直接覆盖）；不碰布局/光栅化。
  */
+export function captureWordImageGeometry(source: Element, clone: Element): void {
+  const selector = '.mermaid-rendered svg';
+  const originals = Array.from(source.querySelectorAll(selector));
+  const copies = Array.from(clone.querySelectorAll(selector));
+  originals.forEach((node, index) => {
+    const target = copies[index] as SVGSVGElement;
+    if (!target) return;
+    const rect = node.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return;
+    // Mermaid 按无字距量标签；正文继承字距会让末字换行并被固定高度裁掉。
+    target.querySelectorAll('foreignObject p').forEach(label => {
+      (label as HTMLElement).style.setProperty('letter-spacing', '0', 'important');
+    });
+    target.setAttribute('width', String(rect.width));
+    target.setAttribute('height', String(rect.height));
+    target.style.cssText += ';width:' + rect.width + 'px!important;height:' + rect.height + 'px!important;min-width:0!important;max-width:none!important';
+  });
+}
+
 export function collectWordImages(root: Element): WordImage[] {
   const images: WordImage[] = [];
   const candidates = Array.from(root.querySelectorAll('.katex-display, .katex, .mermaid-rendered'));
@@ -132,6 +151,9 @@ export async function renderWordImages(
   style.textContent = [opts.fontsCss, opts.css].filter(Boolean).join('\n');
   const wrapper = doc.createElement('div');
   wrapper.className = 'md-preview';
+  // 图片视口不能继承阅读区的内边距、居中或 flex 布局，否则公式被裁掉。
+  const imageLayout = 'padding:0!important;margin:0!important;display:block!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;overflow:visible!important;box-sizing:border-box;text-align:left;';
+  wrapper.style.cssText = imageLayout;
   if (opts.fontSizePx) wrapper.style.fontSize = opts.fontSizePx + 'px';
   host.appendChild(style);
   host.appendChild(wrapper);
@@ -142,22 +164,28 @@ export async function renderWordImages(
   const scale = opts.scale ?? 2;
   for (const entry of images) {
     if (!entry.node) continue;
-    wrapper.appendChild(entry.node);
-    const box = measureWordNode(entry.node);
-    wrapper.removeChild(entry.node);
+    // 公式用同一收缩行框测量与光栅化，不能量 inline span 再按另一个容器的基线绘制。
+    const rasterNode = doc.createElement('div');
+    rasterNode.style.cssText = 'display:inline-block;vertical-align:top;line-height:normal;white-space:nowrap;padding:2px;';
+    const isMath = entry.node.matches('.katex, .katex-display');
+    const paintedNode = isMath ? rasterNode : entry.node;
+    if (isMath) rasterNode.appendChild(entry.node);
+    wrapper.appendChild(paintedNode);
+    const box = measureWordNode(paintedNode);
+    wrapper.removeChild(paintedNode);
     if (!(box.width > 0) || !(box.height > 0)) {
       entry.failed = true;
       continue;
     }
     try {
-      const canvas = await rasterizeNode(entry.node, {
+      const canvas = await rasterizeNode(paintedNode, {
         width: box.width,
         height: box.height,
         scale,
         css: opts.css,
         fontsCss: opts.fontsCss,
         wrapperClass: 'md-preview',
-        wrapperStyle: opts.fontSizePx ? 'font-size:' + opts.fontSizePx + 'px' : undefined,
+        wrapperStyle: imageLayout + (opts.fontSizePx ? 'font-size:' + opts.fontSizePx + 'px;' : ''),
         paperColor: '#ffffff'
       });
       const dataUrl = await canvasToPngDataUrl(canvas);
@@ -193,12 +221,17 @@ function createMeasureHost(doc: Document): HTMLElement {
 // 用 width/height 属性，width 缺失或百分比时按 viewBox 纵横比从另一维推算。
 function measureWordNode(node: Element): { width: number; height: number } {
   const el = node as HTMLElement;
-  let width = el.offsetWidth || 0;
-  let height = el.offsetHeight || 0;
+  const rect = el.getBoundingClientRect();
+  let width = rect.width || el.offsetWidth || 0;
+  let height = rect.height || el.offsetHeight || 0;
   const svg = node.tagName === 'svg' ? node : node.querySelector('svg');
   if (svg) {
-    const attrW = parseFloat(svg.getAttribute('width') || '');
-    const attrH = parseFloat(svg.getAttribute('height') || '');
+    const literalDimension = (name: string) => {
+      const value = svg.getAttribute(name) || '';
+      return value.includes('%') ? 0 : parseFloat(value);
+    };
+    const attrW = literalDimension('width');
+    const attrH = literalDimension('height');
     if (!width && attrW > 0) width = attrW;
     if (!height && attrH > 0) height = attrH;
     const viewBox = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);

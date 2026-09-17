@@ -15,6 +15,8 @@ export function captureWordStyles(source: Element, clone: Element): void {
   const originals = [source, ...Array.from(source.querySelectorAll('*'))];
   const copies = [clone, ...Array.from(clone.querySelectorAll('*'))];
   originals.forEach((original, index) => {
+    // 公式和 SVG 自带布局；将缩放后的计算字号写回其内部会二次缩放或裁字。
+    if (original.closest('.katex, .katex-display, .mermaid-rendered')) return;
     const target = copies[index] as HTMLElement | undefined;
     if (!target?.style) return;
     const computed = view.getComputedStyle(original);

@@ -38,9 +38,9 @@
 
 ## 2. 测试基线（最近全绿）
 
-- 前端单测：`npm test`（node:test，`tests/unit/`，**486 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
+- 前端单测：`npm test`（node:test，`tests/unit/`，**487 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
-- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**180 个**，含上下界面字号联动、统一正文/沉浸字号、旧字号迁移、窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
+- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**181 个**，含上下界面字号联动、统一正文/沉浸字号、旧字号迁移、窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）
 
 ## 3. 架构速览
