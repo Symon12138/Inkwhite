@@ -376,6 +376,23 @@ textarea.md-source {
 .source-highlight-layer mark.is-current {
   background: color-mix(in srgb, var(--accent) 55%, transparent);
 }
+/* 宽屏：源码栏与预览同一版心（--read-column，见 tokens.css）。
+   必须写在基础规则之后：基础层的 inset:0 同特异度，写在前面会被它盖掉。
+   textarea 与高亮层各占同宽居中的盒子，两者仍逐像素对齐。 */
+@media (min-width: 761px) {
+  textarea.md-source {
+    max-width: var(--read-column);
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .source-highlight-layer {
+    left: 50%;
+    right: auto;
+    width: var(--read-column);
+    max-width: calc(100% - 64px);
+    transform: translateX(-50%);
+  }
+}
 
 /* ===== 原文搜索替换浮层 ===== */
 .source-pane { position: relative; }
