@@ -25,7 +25,7 @@
 | 侧边栏「大纲」页签 | 标题跳转 | `navigationMethods.ts`、`viewMethods.ts` |
 | 搜索替换 | Ctrl+F 按视图路由（源码/预览）、Ctrl+H 展开替换；大小写/全字/正则；镜像层高亮 | `searchReplaceMethods.ts`、`previewSearchMethods.ts` |
 | 划线批注 | 马克笔/波浪线/直线/想法 + 批注面板，localStorage 持久化 | `commentMethods.ts` |
-| 导出 | HTML 保留预览容器、字号/纸色及内置正文字体；Word 捕获可映射字体/字号/段落/文本样式；PDF「跟随预览」保留纸色（默认仍白纸）；复杂 Word 布局、分页、字体嵌入尚不保真 | `exportMethods.ts`、`wordExport.ts`、`wordExportStyles.ts`、`longImageMethods.ts` |
+| 导出 | HTML 保留预览容器、字号/纸色及内置正文字体；Word 捕获可映射字体/字号/段落/文本样式；PDF 直接生成文件（A4 分页、复用预览渲染、不经打印对话框，正文为位图）；复杂 Word 布局、分页、字体嵌入尚不保真 | `exportMethods.ts`、`wordExport.ts`、`wordExportStyles.ts`、`pdfComposer.ts`、`pdfMethods.ts`、`longImageMethods.ts` |
 | 本地文件双向同步 | autosave 写穿、外部修改自动重载、冲突状态 Ctrl+S 覆盖；授权持久化（`granted-paths.json`） | `localFileSyncMethods.ts`、`src-tauri/src/{commands,grants,file_watcher}.rs` |
 | 阅读模式（查看型默认） | 启动即预览视图并**记忆上次视图模式**（editor/split/preview 持久化）；预览版心 Typora 式居中（820px，左右留白；全屏宽幅 1240px 不受限）；**阅读位置记忆**：按文件路径/草稿名存 localStorage（`md-editor-read-pos-v1`，保留最近 300 篇），打开文件/切标签自动回到上次位置 | `MarkdownEditorLogic.ts`、`readingPositionMethods.ts`、`viewMethods.ts`、`styles.css` |
 | 沉浸式阅读 | 全屏/宽屏、五档纸色（墨黑/羊皮纸/米黄/清爽白/豆沙绿） | `viewMethods.ts`、`styles.css` |
@@ -34,7 +34,7 @@
 | 外链图片 | CSP `img-src` 放行 https/http（桌面端外链图片/徽标可显示）；`connect-src` 加 https | `src-tauri/tauri.conf.json` |
 | 无 mac 符号 | 全局已清除 ⌘/⌃/⇧（菜单、上下文菜单、tooltip、示例文档、README） | 全仓 |
 
-导出保真修复暂列 CHANGELOG「未发布」，不包含在现有 1.2.5 安装包内。Word 未做 Word/WPS 实机视觉验收；PDF 需打印背景图形才能保留纸色，分页会改变换行布局。
+导出保真修复暂列 CHANGELOG「未发布」，不包含在现有 1.2.5 安装包内。Word 未做 Word/WPS 实机视觉验收。PDF 导出已改为直接生成文件（`pdfComposer.ts` 纯逻辑 + `pdfMethods.ts` 光栅化分页），不再经过系统打印对话框；正文以位图嵌入，排版与预览一致，代价是文字不可选中/搜索、体积更大。系统打印（Ctrl+P）仍走 `@media print` 白纸黑字，与导出 PDF 相互独立。
 
 ## 2. 测试基线（最近全绿）
 

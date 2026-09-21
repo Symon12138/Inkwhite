@@ -9,6 +9,7 @@ import { DiagramMethods } from './diagramMethods';
 import { EditingFileLayoutMethods } from './editingFileLayoutMethods';
 import { DEFAULT_LONG_IMAGE_PRESET } from './longImageComposer';
 import { LongImageMethods } from './longImageMethods';
+import { PdfMethods } from './pdfMethods';
 import { LocalFileSyncMethods } from './localFileSyncMethods';
 import { InsertPasteMethods } from './insertPasteMethods';
 import { DesktopM4Methods } from './desktopM4Methods';
@@ -514,6 +515,7 @@ export function createMarkdownEditorComponent(DCLogic, React) {
     TypewriterMethods,
     FileTreeMethods,
     EditingFileLayoutMethods,
+    PdfMethods,
     LocalFileSyncMethods,
     InsertPasteMethods,
     SettingsMethods,

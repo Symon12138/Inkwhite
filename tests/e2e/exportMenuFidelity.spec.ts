@@ -52,11 +52,11 @@ test('实际菜单导出 HTML、Word、PDF 样例并校验内容和样式', asyn
     }, bytes.toString('base64'));
     expect(ink, '实际 docx 包内图片不可空白').toBeGreaterThan(100);
   }
-  await clickMenubarItem(page, 'theme', '设置');
-  await page.getByRole('radio', { name: '跟随预览' }).check();
-  await page.keyboard.press('Escape');
-  await page.evaluate(() => { window.print = () => { document.body.dataset.printInvoked = 'true'; }; });
+  await page.evaluate(() => { (window as any).__printCalled = false; window.print = () => { (window as any).__printCalled = true; }; });
+  const pdfDownload = page.waitForEvent('download');
   await clickMenubarItem(page, 'file', '导出 PDF');
-  await expect(page.locator('body')).toHaveAttribute('data-print-invoked', 'true');
-  await page.pdf({ path: info.outputPath('飞白导出样例.pdf'), format: 'A4', printBackground: true });
+  const pdfPath = info.outputPath('飞白导出样例.pdf');
+  await (await pdfDownload).saveAs(pdfPath);
+  expect(readFileSync(pdfPath).subarray(0, 5).toString('latin1')).toBe('%PDF-');
+  expect(await page.evaluate(() => (window as any).__printCalled), '导出 PDF 不应再走打印对话框').toBe(false);
 });

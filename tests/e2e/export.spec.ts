@@ -67,22 +67,25 @@ test('导出为 HTML：自包含结构断言（无脚本/无批注/变量冻结/
   expect(html).not.toContain('class="longimg-');
 });
 
-test('导出为 PDF：触发系统打印（window.print 被调用）且先等预览就绪', async ({ page }) => {
+test('导出为 PDF：直接生成文件，不再调用打印对话框', async ({ page }) => {
   await openEditor(page);
-  await page.addInitScript(() => {
+  await page.evaluate(() => {
     (window as any).__printCalled = false;
     window.print = () => { (window as any).__printCalled = true; };
   });
-  await page.reload();
-  await openEditor(page);
-  await setSource(page, '```mermaid\ngraph TD;\n  A-->B;\n```');
+  await setSource(page, "```mermaid\ngraph TD;\n  A-->B;\n```");
   await expect(page.locator('.mermaid-rendered svg')).toBeVisible();
 
-  await openMenubar(page, 'file');
-  await page.locator('[data-menubar="file"] .menubar-menu').getByRole('menuitem', { name: /导出 PDF/ }).click();
-
-  await expect.poll(() => page.evaluate(() => (window as any).__printCalled)).toBe(true);
-  await expect(page.locator('.save-status')).toHaveText(/打印对话框/);
+  const download = await exportViaMenu(page, /导出 PDF/);
+  expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  const stream = await download.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) chunks.push(Buffer.from(chunk as Buffer));
+  const buffer = Buffer.concat(chunks);
+  expect(buffer.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+  expect(buffer.length).toBeGreaterThan(2000);
+  expect(await page.evaluate(() => (window as any).__printCalled)).toBe(false);
+  await expect(page.locator('.save-status')).toHaveText(/已导出 PDF/);
 });
 
 test('导出为 Word：docx ZIP 结构断言（PK 头 + 关键条目 + 公式图片）', async ({ page }) => {

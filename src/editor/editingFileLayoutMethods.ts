@@ -574,20 +574,6 @@ export class EditingFileLayoutMethods {
     }
   }
 
-  async onExportPdf() {
-    const prev = this.previewRef.current;
-    if (!prev) return;
-    this._setStatus('正在准备打印…');
-    try {
-      if (typeof this._awaitPreviewReady === 'function') await this._awaitPreviewReady();
-      // 系统打印对话框路径（用户已确认）：打印样式层由 styles.css 的 @media print 提供。
-      window.print();
-      this._setStatus('已打开打印对话框 · 选择「Microsoft Print to PDF」可保存为 PDF');
-    } catch (error) {
-      this._setStatus('打印失败 · ' + ((error && error.message) || error));
-    }
-  }
-
   async onExportWord() {
     const prev = this.previewRef.current;
     if (!prev) return;
