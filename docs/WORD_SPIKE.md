@@ -33,7 +33,7 @@
 | 样式语义 | 只转基本标签，页面 CSS 概念（变量、主题纸色）天然丢失 | 样式需编程式映射，但可控性强、可精确对应「扁平化中间格式」 |
 | 体积 | ESM 构建 ~720KB；传递依赖重（jszip/xmlbuilder2/html-to-vdom/virtual-dom/lodash/image-size/image-to-base64 等） | `dist/index.mjs` ~1.08MB 单文件；依赖轻（jszip/hash.js/nanoid/xml） |
 
-两个包均已按 `--save-exact` 锁入 `dependencies`（`html-to-docx: 1.8.0`、`docx: 9.7.1`），npm 实测合计新增 91 个包（含传递依赖，安装体积约 9MB）。**对应用产物体积的影响**：两者均未被 `src/` 静态引用，`vite build` 产物不含它们；M2 若在浏览器侧按需 `import('docx')`，会新增约 1.08MB（min）的动态 chunk，建议届时用 `import()` 拆分 + 体积监控复核（`scripts/check-bundle-size.js`）。
+两个包当时均按 `--save-exact` 锁入 `dependencies`（`html-to-docx: 1.8.0`、`docx: 9.7.1`），npm 实测合计新增 91 个包（含传递依赖，安装体积约 9MB）。**后续（1.2.5）已移除 `html-to-docx`**：它只作为被否决方案的对照存在，生产代码零引用、不进构建产物，却带入大量传递依赖；其结论已固化在本文件，故不再保留依赖与对应 spike 测试。`docx@9.7.1` 保留。**对应用产物体积的影响**：两者均未被 `src/` 静态引用，`vite build` 产物不含它们；M2 若在浏览器侧按需 `import('docx')`，会新增约 1.08MB（min）的动态 chunk，建议届时用 `import()` 拆分 + 体积监控复核（`scripts/check-bundle-size.js`）。
 
 ## 对 M2 的建议
 
