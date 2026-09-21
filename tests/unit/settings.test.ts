@@ -29,8 +29,7 @@ test('saveSettings → loadSettings 读写往返保持全部字段', () => {
       menuFontSizePx: 16,
       spellcheck: false,
       autosave: false,
-      exportPageMargin: '18mm 22mm',
-      printPaper: 'follow-preview' as const
+      exportPageMargin: '18mm 22mm'
     };
     saveSettings(settings);
     assert.deepEqual(loadSettings(), settings);
@@ -57,15 +56,13 @@ test('mergeSettings 与默认合并：只覆盖提供的字段，其余保持默
   assert.equal(merged.autosave, false);
   assert.equal(merged.spellcheck, DEFAULT_SETTINGS.spellcheck);
   assert.equal(merged.exportPageMargin, DEFAULT_SETTINGS.exportPageMargin);
-  assert.equal(merged.printPaper, DEFAULT_SETTINGS.printPaper);
 });
 
-test('非法值回退：布尔非布尔、printPaper 枚举外、页边距无数字 → 各自回默认', () => {
+test('非法值回退：布尔非布尔、页边距无数字 → 各自回默认', () => {
   const merged = mergeSettings({
     spellcheck: 'yes',
     autosave: 1,
-    exportPageMargin: 'abc',
-    printPaper: 'pink'
+    exportPageMargin: 'abc'
   });
   assert.deepEqual(merged, DEFAULT_SETTINGS);
 });
@@ -74,15 +71,13 @@ test('部分非法不影响其余合法字段', () => {
   const merged = mergeSettings({
     spellcheck: false,
     autosave: 'nope',
-    exportPageMargin: '12mm',
-    printPaper: 'follow-preview'
+    exportPageMargin: '12mm'
   });
   assert.deepEqual(merged, {
     menuFontSizePx: 16,
     spellcheck: false,
     autosave: true,
-    exportPageMargin: '12mm',
-    printPaper: 'follow-preview'
+    exportPageMargin: '12mm'
   });
 });
 
@@ -203,7 +198,7 @@ test('_applySettings 按设置写入 textarea 与预览的 spellcheck/lang 属�
   assert.equal(prev.getAttribute('spellcheck'), 'false');
 });
 
-test('_applySettings 同步打印纸色属性（跟随预览打属性，默认移除）', () => {
+test('_applySettings 不写入已移除的打印纸色属性（设置项已删除）', () => {
   const restore = installLocalStorageStub();
   try {
     const context = { sourceRef: createRef(createStubElement()), previewRef: createRef(null) };
@@ -217,10 +212,7 @@ test('_applySettings 同步打印纸色属性（跟随预览打属性，默认�
       }
     };
     try {
-      context.settings = { ...DEFAULT_SETTINGS, printPaper: 'follow-preview' };
-      SettingsMethods.prototype._applySettings.call(context);
-      assert.equal(attrs.get('data-print-paper'), 'follow-preview');
-      context.settings = { ...DEFAULT_SETTINGS, printPaper: 'white' };
+      context.settings = { ...DEFAULT_SETTINGS };
       SettingsMethods.prototype._applySettings.call(context);
       assert.equal(attrs.has('data-print-paper'), false);
     } finally {
@@ -277,11 +269,11 @@ test('_setSetting 变更即写 localStorage 并应用，非法值不落库', () 
     assert.equal(JSON.parse(localStorage.getItem(SETTINGS_KEY)!).spellcheck, false);
 
     // 非法值经消毒回退默认且不写入，同时保留其他已改字段
-    SettingsMethods.prototype._setSetting.call(context, 'printPaper', 'pink');
-    assert.equal(context.settings.printPaper, 'white');
+    SettingsMethods.prototype._setSetting.call(context, 'exportPageMargin', 'abc');
+    assert.equal(context.settings.exportPageMargin, DEFAULT_SETTINGS.exportPageMargin);
     assert.equal(context.settings.autosave, false);
     assert.equal(context.settings.spellcheck, false);
-    assert.equal(JSON.parse(localStorage.getItem(SETTINGS_KEY)!).printPaper, 'white');
+    assert.equal(JSON.parse(localStorage.getItem(SETTINGS_KEY)!).exportPageMargin, DEFAULT_SETTINGS.exportPageMargin);
   } finally {
     restore();
   }

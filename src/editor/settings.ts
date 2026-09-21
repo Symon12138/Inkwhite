@@ -2,8 +2,6 @@
 // 面板构建与接线在 settingsMethods.ts；入口按钮由 M2-UI 统一接线。
 //
 // 语义决策（B19 硬约束：关闭自动保存不静默丢稿）：
-//   - printPaper：'white'（默认，DG1 白纸黑字）| 'follow-preview'（跟随预览纸色；
-//     打印媒体下由 body[data-print-paper] 属性放宽 --paper-* 覆盖）；
 //   - autosave 只控制「写穿本地文件」（localFileSyncMethods 的自动写回）；
 //   - localStorage 草稿（EDITOR_STORAGE_KEY，经 _persist 保存）始终保存，作为保底；
 //   - 显式保存（Ctrl+S，onSave）直接写本地文件，不经 autosave 开关。
@@ -12,8 +10,6 @@ export const SETTINGS_KEY = 'md-editor-settings-v1';
 export const MENU_FONT_SIZE_MIN = 12;
 export const MENU_FONT_SIZE_MAX = 24;
 
-export type PrintPaper = 'follow-preview' | 'white';
-
 export interface EditorSettings {
   /** 界面字号：菜单和底部状态栏共用；保留旧字段名兼容已保存设置 */
   menuFontSizePx: number;
@@ -21,33 +17,23 @@ export interface EditorSettings {
   spellcheck: boolean;
   /** 自动保存（B19）：只控制写穿本地文件；localStorage 草稿始终保存 */
   autosave: boolean;
-  /** 导出/打印页边距，与 print CSS 的 @page margin 一致（默认 14mm 16mm） */
+  /** PDF 导出的页边距（默认 14mm 16mm）；系统打印的 @page 固定 14mm 16mm，不受此设置影响 */
   exportPageMargin: string;
-  /** 打印纸色：'white'（默认，DG1：打印白纸黑字）| 'follow-preview'（跟随预览纸色） */
-  printPaper: PrintPaper;
 }
 
 export const DEFAULT_SETTINGS: EditorSettings = {
   menuFontSizePx: 16,
   spellcheck: true,
   autosave: true,
-  exportPageMargin: '14mm 16mm',
-  printPaper: 'white'
+  exportPageMargin: '14mm 16mm'
 };
 
-const PRINT_PAPERS: readonly PrintPaper[] = ['follow-preview', 'white'];
 const MARGIN_MAX_LENGTH = 40;
 // 页边距宽松校验：须包含数字或百分号（拒绝空串、纯字母等明显非法值）。
 const MARGIN_HAS_NUMBER = /[\d%]/;
 
 function sanitizeBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback;
-}
-
-function sanitizePrintPaper(value: unknown): PrintPaper {
-  return PRINT_PAPERS.includes(value as PrintPaper)
-    ? (value as PrintPaper)
-    : DEFAULT_SETTINGS.printPaper;
 }
 
 function sanitizeMargin(value: unknown): string {
@@ -69,8 +55,7 @@ export function sanitizeSettings(raw: unknown): EditorSettings {
       ? source.menuFontSizePx : DEFAULT_SETTINGS.menuFontSizePx,
     spellcheck: sanitizeBoolean(source.spellcheck, DEFAULT_SETTINGS.spellcheck),
     autosave: sanitizeBoolean(source.autosave, DEFAULT_SETTINGS.autosave),
-    exportPageMargin: sanitizeMargin(source.exportPageMargin),
-    printPaper: sanitizePrintPaper(source.printPaper)
+    exportPageMargin: sanitizeMargin(source.exportPageMargin)
   };
 }
 

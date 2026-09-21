@@ -102,23 +102,6 @@ test('DG1：暗纸预览下打印强制白底黑字，Mermaid 暗色图反色', 
   expect(filter).toContain('invert');
 });
 
-test('打印纸色=跟随预览：PDF 保留预览纸色与 Mermaid 原色', async ({ page }) => {
-  await openEditor(page);
-  await setSource(page, '# 跟随纸色\n\n```mermaid\ngraph TD;\n  A-->B;\n```\n');
-  await page.locator('.paper-picker .paper-dot[data-paper="ink"]').click();
-  await page.locator('[data-menubar-trigger="theme"]').click();
-  await page.getByRole('menuitem', { name: '设置…', exact: true }).click();
-  await page.getByRole('radio', { name: '跟随预览' }).check();
-  await page.keyboard.press('Escape');
-  await page.locator('.md-preview').evaluate((el) => el.__awaitPreviewReady());
-  const appearance = await page.locator('.md-preview').evaluate(el => { const c = getComputedStyle(el); return [c.backgroundColor, c.color]; });
-  await page.emulateMedia({ media: 'print' });
-  const printed = await page.locator('.md-preview').evaluate(el => { const c = getComputedStyle(el); return [c.backgroundColor, c.color]; });
-  expect(printed).toEqual(appearance);
-  const filter = await page.locator('.mermaid-rendered svg').evaluate((el) => getComputedStyle(el).filter);
-  expect(filter).not.toContain('invert');
-});
-
 test('page.pdf()：非空、%PDF- 头、至少 1 页（Chromium 同引擎代理 WebView2 打印 CSS）', async ({ page }) => {
   await openEditor(page);
   await setSource(page, '# 打印正文\n\n这是一段用于 PDF 检索的正文。\n\n| A | B |\n|---|---|\n| 1 | 2 |\n');

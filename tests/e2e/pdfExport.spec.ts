@@ -61,3 +61,24 @@ test('导出 PDF：字节结构合法、多页、每页位图含文字像素', a
     expect(dark, '第 ' + (index + 1) + ' 页必须有文字像素').toBeGreaterThan(200);
   }
 });
+// 批注标记不应进入 PDF：与 HTML/长图一致，默认剥离（DG4）。
+test('导出 PDF：批注标记不进产物（正文仍保留）', async ({ page }) => {
+  await openEditor(page);
+  await setSource(page, '正文含<span data-comment-id="c1">被批注的文字</span><span data-comment-badge="c1">1</span>以及后续内容。');
+  await page.locator('.md-preview').evaluate((el) => el.__awaitPreviewReady());
+  const result = await page.evaluate(async () => {
+    const { stripCommentMarks } = await import('/src/editor/shareExportUtils.ts');
+    const preview = document.querySelector('.md-preview')!;
+    const clone = preview.cloneNode(true) as Element;
+    const before = clone.querySelectorAll('[data-comment-id], [data-comment-badge]').length;
+    stripCommentMarks(clone);
+    return {
+      before,
+      after: clone.querySelectorAll('[data-comment-id], [data-comment-badge]').length,
+      text: (clone.textContent || '').replace(/\s+/g, '')
+    };
+  });
+  expect(result.before).toBeGreaterThan(0);
+  expect(result.after).toBe(0);
+  expect(result.text).toContain('被批注的文字');
+});

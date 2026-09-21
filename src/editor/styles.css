@@ -634,6 +634,7 @@
      顺序上早于本文件，此处以普通声明即可胜出。
      ============================================================ */
   @media print {
+    /* 系统打印（Ctrl+P / WebView2 打印）固定页边距；「导出页边距」设置只作用于导出 PDF。 */
     @page { margin: 14mm 16mm; }
 
     /* 页面级滚动锁（shell.css html/body overflow:hidden、100vh 壳）会裁掉
@@ -713,11 +714,9 @@
       height: auto !important;
     }
 
-    /* 跟随预览不覆盖纸色变量；白纸模式才套用下面的灰阶 token。 */
-    body[data-print-paper='follow-preview'] .md-preview { color: var(--paper-text-2) !important; }
-    /* DG1 白纸黑字：只在没有选择跟随预览时覆盖。 */
-    body:not([data-print-paper='follow-preview']),
-    body:not([data-print-paper='follow-preview']) .md-preview {
+    /* DG1 白纸黑字：打印始终覆盖纸色 token，暗纸预览下也不带黑底。 */
+    body,
+    .md-preview {
       --paper-bg: #ffffff !important;
       --paper-bg-soft: #fafafa !important;
       --paper-pre: #f6f6f6 !important;
@@ -738,11 +737,8 @@
     /* 暗纸（墨黑）下 Mermaid 以暗色主题渲染（浅字深底，SVG 内色值在渲染期
        已固化，CSS token 覆盖不到）；打印时整体反色成白底深线。亮色纸
        （parchment/cream/snow/green）的图本就是深字浅底，不需要反色。 */
-    body:not([data-print-paper='follow-preview'])[data-paper='ink'] .mermaid-rendered svg {
+    body[data-paper='ink'] .mermaid-rendered svg {
       filter: invert(1) hue-rotate(180deg);
-    }
-    body[data-print-paper='follow-preview'][data-paper='ink'] .mermaid-rendered svg {
-      filter: none !important;
     }
   }
 /* ===== M2-SETTINGS：设置面板（settingsMethods.ts JS 构建；因 styles.css 已 796 行、受 ≤800 行门禁约束暂以单行压缩，可读版本见 M2-SETTINGS 交接报告） ===== */

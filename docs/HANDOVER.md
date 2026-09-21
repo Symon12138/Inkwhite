@@ -34,11 +34,11 @@
 | 外链图片 | CSP `img-src` 放行 https/http（桌面端外链图片/徽标可显示）；`connect-src` 加 https | `src-tauri/tauri.conf.json` |
 | 无 mac 符号 | 全局已清除 ⌘/⌃/⇧（菜单、上下文菜单、tooltip、示例文档、README） | 全仓 |
 
-导出保真修复暂列 CHANGELOG「未发布」，不包含在现有 1.2.5 安装包内。Word 未做 Word/WPS 实机视觉验收。PDF 导出已改为直接生成文件（`pdfComposer.ts` 纯逻辑 + `pdfMethods.ts` 光栅化分页），不再经过系统打印对话框；正文以位图嵌入，排版与预览一致，代价是文字不可选中/搜索、体积更大。系统打印（Ctrl+P）仍走 `@media print` 白纸黑字，与导出 PDF 相互独立。
+导出保真修复暂列 CHANGELOG「未发布」，不包含在现有 1.2.5 安装包内。Word 未做 Word/WPS 实机视觉验收。PDF 导出已改为直接生成文件（`pdfComposer.ts` 纯逻辑 + `pdfMethods.ts` 光栅化分页），不再经过系统打印对话框；正文以位图嵌入，排版与预览一致，代价是文字不可选中/搜索、体积更大。系统打印（WebView2 打印）仍走 `@media print` 白纸黑字，与导出 PDF 相互独立。长文按「带」分批光栅化（单带设备像素高度上限 12000），避免一次性申请超高画布导致卡死；「打印纸色」设置已移除（应用内无打印入口，无法生效），「导出页边距」只作用于导出 PDF。
 
 ## 2. 测试基线（最近全绿）
 
-- 前端单测：`npm test`（node:test，`tests/unit/`，**487 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
+- 前端单测：`npm test`（node:test，`tests/unit/`，**493 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
 - E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**181 个**，含上下界面字号联动、统一正文/沉浸字号、旧字号迁移、窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）

@@ -4,10 +4,13 @@
 // 做法与长图同源：把预览克隆放进固定版心的宿主里量高度，交给 SVG <foreignObject>
 // 让浏览器按导出 CSS 自行排版并光栅化，再按 A4 页面切成多页、无损压缩进 PDF。
 // 排版、字体、纸色全部与预览同源，不另写渲染器。
+//
+// 长文必须分带渲染：一次性光栅化整篇会申请一张超高画布（几千万像素），
+// 浏览器会长时间卡死甚至直接失败。这里按「带」渲染——每带只覆盖若干页的高度，
+// 内存与耗时随页数线性增长。
 // 纯计算（页面尺寸/边距解析/切页/PDF 字节）在 pdfComposer.ts，便于单测。
 import {
   A4_PAGE,
-  DEFAULT_PAGE_MARGIN_MM,
   mmToPx,
   mmToPt,
   pxToPt,
@@ -17,7 +20,7 @@ import {
   pdfFileName
 } from './pdfComposer.ts';
 import { tauriBridge } from './tauriBridge.ts';
-import { inlineFontFaces } from './shareExportUtils.ts';
+import { inlineFontFaces, stripCommentMarks, replaceFailedDiagrams } from './shareExportUtils.ts';
 import { extractExportCss } from './exportComposer.ts';
 import { resolveCssVariables } from './exportMethods.ts';
 
@@ -25,6 +28,8 @@ const AVOID_BREAK_SELECTOR = 'p, li, pre, blockquote, table, img, h1, h2, h3, h4
 const PDF_SCALES = [2, 1.5, 1];
 const MAX_CANVAS_SIDE = 32000;
 const MAX_CANVAS_AREA = 268435456;
+// 单带设备像素高度上限：够放下数页，又不至于逼近画布上限。
+const MAX_BAND_DEVICE_HEIGHT = 12000;
 
 function pickScale(width: number, height: number): number {
   return PDF_SCALES.find((scale) => {
@@ -53,15 +58,15 @@ function canvasToRgb(canvas: HTMLCanvasElement): Uint8Array {
   return rgb;
 }
 
-// 页面切片：把整张光栅化画布按页高裁到新画布（一张位图一页）。
-function slicePage(source: HTMLCanvasElement, topDevice: number, heightDevice: number): HTMLCanvasElement {
+// 从带画布裁出单页：带内偏移换算成设备像素后原样拷贝。
+function cropPage(band: HTMLCanvasElement, topDevice: number, heightDevice: number): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
-  canvas.width = source.width;
+  canvas.width = band.width;
   canvas.height = Math.max(1, heightDevice);
   const context = canvas.getContext('2d');
   context.fillStyle = '#ffffff';
   context.fillRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(source, 0, topDevice, source.width, heightDevice, 0, 0, source.width, heightDevice);
+  context.drawImage(band, 0, topDevice, band.width, heightDevice, 0, 0, band.width, heightDevice);
   return canvas;
 }
 
@@ -76,12 +81,28 @@ function collectBlocks(host: HTMLElement, hostTop: number): Array<{ top: number;
   return blocks;
 }
 
+// 把连续页归成带：一带的设备像素高度不超过上限，页数多时分多带渲染。
+function planBands(slices: Array<{ top: number; height: number }>, scale: number, pageHeightPx: number) {
+  const bands: Array<{ top: number; height: number; pages: Array<{ top: number; height: number }> }> = [];
+  let current = null;
+  for (const slice of slices) {
+    if (current && (current.height + slice.height) * scale > MAX_BAND_DEVICE_HEIGHT) {
+      bands.push(current);
+      current = null;
+    }
+    if (!current) current = { top: slice.top, height: slice.height, pages: [] };
+    current.pages.push(slice);
+    current.height = slice.top + slice.height - current.top;
+  }
+  if (current) bands.push(current);
+  return bands;
+}
+
 export class PdfMethods {
   async onExportPdf() {
     const prev = this.previewRef.current;
     if (!prev) return;
-    const wasBusy = this._pdfBusy;
-    if (wasBusy) return;
+    if (this._pdfBusy) return;
     this._pdfBusy = true;
     this._setStatus('正在生成 PDF…');
     try {
@@ -110,36 +131,42 @@ export class PdfMethods {
   async _composePdf(preview) {
     const settings = this.settings || {};
     const margin = parsePageMargin(settings.exportPageMargin || '');
-    const contentWidthMm = A4_PAGE.widthMm - margin.left - margin.right;
-    const contentHeightMm = A4_PAGE.heightMm - margin.top - margin.bottom;
-    const contentWidthPx = Math.max(1, Math.round(mmToPx(contentWidthMm)));
-    const pageHeightPx = mmToPx(contentHeightMm);
-    const { host, node } = await this._buildPdfPoster(preview, contentWidthPx, settings);
+    const contentWidthPx = Math.max(1, Math.round(mmToPx(A4_PAGE.widthMm - margin.left - margin.right)));
+    const pageHeightPx = mmToPx(A4_PAGE.heightMm - margin.top - margin.bottom);
+    const { host, node } = await this._buildPdfPoster(preview, contentWidthPx);
     try {
       const hostTop = host.getBoundingClientRect().top;
       const totalHeight = Math.max(1, node.offsetHeight);
-      const scale = pickScale(contentWidthPx, totalHeight);
-      if (!scale) throw new Error('内容过长，超出画布上限 · 建议拆分文档后导出');
       const blocks = collectBlocks(host, hostTop);
       const slices = planPdfBreaks(blocks, pageHeightPx, totalHeight);
-      const canvas = await this._rasterizePdfPoster(node, contentWidthPx, totalHeight, scale, preview);
+      // 倍率按「带」而不是整篇挑：分带后单带很矮，长文也能保持清晰度。
+      const scale = pickScale(contentWidthPx, Math.min(totalHeight, MAX_BAND_DEVICE_HEIGHT / 2));
+      if (!scale) throw new Error('版心过宽，超出画布上限 · 请调大页边距后重试');
+      const bands = planBands(slices, scale, pageHeightPx);
+      const css = this._exportCss(preview);
+      const fontsCss = await inlineFontFaces(document.styleSheets);
+      const paperColor = getComputedStyle(preview).backgroundColor || '#ffffff';
       const pages = [];
-      for ( const slice of slices) {
-        const topDevice = Math.round(slice.top * scale);
-        const heightDevice = Math.max(1, Math.round(slice.height * scale));
-        const pageCanvas = slicePage(canvas, topDevice, heightDevice);
-        const stream = await compressRgb(canvasToRgb(pageCanvas));
-        const heightPt = pxToPt(slice.height);
-        pages.push({
-          stream,
-          filter: 'FlateDecode',
-          widthPx: pageCanvas.width,
-          heightPx: pageCanvas.height,
-          xPt: mmToPt(margin.left),
-          yPt: A4_PAGE.heightPt - mmToPt(margin.top) - heightPt,
-          widthPt: pxToPt(contentWidthPx),
-          heightPt
-        });
+      for (let index = 0; index < bands.length; index += 1) {
+        this._setStatus('正在生成 PDF ' + (index + 1) + '/' + bands.length + '…');
+        const band = bands[index];
+        const canvas = await this._rasterizeBand(node, contentWidthPx, band, scale, css, fontsCss, paperColor);
+        for (const slice of band.pages) {
+          const topDevice = Math.round((slice.top - band.top) * scale);
+          const heightDevice = Math.max(1, Math.round(slice.height * scale));
+          const stream = await compressRgb(canvasToRgb(cropPage(canvas, topDevice, heightDevice)));
+          const heightPt = pxToPt(slice.height);
+          pages.push({
+            stream,
+            filter: 'FlateDecode',
+            widthPx: canvas.width,
+            heightPx: heightDevice,
+            xPt: mmToPt(margin.left),
+            yPt: A4_PAGE.heightPt - mmToPt(margin.top) - heightPt,
+            widthPt: pxToPt(contentWidthPx),
+            heightPt
+          });
+        }
       }
       return buildPdf(pages, { widthPt: A4_PAGE.widthPt, heightPt: A4_PAGE.heightPt });
     } finally {
@@ -147,7 +174,14 @@ export class PdfMethods {
     }
   }
 
-  async _buildPdfPoster(preview, contentWidthPx, settings) {
+  // 导出样式只抽一次：分带渲染时重复抽取会明显拖慢长文导出。
+  _exportCss(preview) {
+    const computed = getComputedStyle(preview);
+    const readVar = (name) => computed.getPropertyValue(name).trim();
+    return resolveCssVariables(extractExportCss(document.styleSheets), readVar);
+  }
+
+  async _buildPdfPoster(preview, contentWidthPx) {
     const doc = preview.ownerDocument;
     const host = doc.createElement('div');
     host.setAttribute('data-pdf-measure-host', '');
@@ -156,6 +190,9 @@ export class PdfMethods {
     clone.className = 'md-preview';
     clone.removeAttribute('contenteditable');
     for (const node of Array.from(clone.querySelectorAll('.code-copy-btn, .table-edit-toolbar'))) node.remove();
+    // 与 HTML/长图一致：批注标记默认剥离；失败图表换成占位文本（不把报错块画进 PDF）。
+    stripCommentMarks(clone);
+    replaceFailedDiagrams(clone);
     const computed = getComputedStyle(preview);
     clone.style.cssText = [
       'width:' + contentWidthPx + 'px',
@@ -180,21 +217,26 @@ export class PdfMethods {
     return { host, node: clone };
   }
 
-  async _rasterizePdfPoster(node, width, height, scale, preview) {
-    const sheets = document.styleSheets;
-    const computed = getComputedStyle(preview);
-    const readVar = (name) => computed.getPropertyValue(name).trim();
-    const css = resolveCssVariables(extractExportCss(sheets), readVar);
-    const fontsCss = await inlineFontFaces(sheets);
+  // 只渲染一条带：用 relative 位移把该带移到 foreignObject 顶部，再按带高定画布。
+  async _rasterizeBand(node, width, band, scale, css, fontsCss, paperColor) {
     const { rasterizeNode } = await import('./shareExportUtils.ts');
+    const bandHeight = Math.min(band.height, MAX_BAND_DEVICE_HEIGHT / scale);
     return rasterizeNode(node, {
       width,
-      height,
+      height: bandHeight,
       scale,
       css,
       fontsCss,
       wrapperClass: 'md-preview',
-      paperColor: computed.backgroundColor || '#ffffff'
+      wrapperStyle: 'position:relative;top:-' + band.top + 'px;',
+      paperColor,
+      // 取不回的图（跨源、断链）写成缺图说明，不留一段错位空白。
+      onInlineFailed: (img, src) => {
+        const missing = node.ownerDocument.createElement('div');
+        missing.className = 'longimg-missing';
+        missing.textContent = '图片未能载入 · ' + (img.getAttribute('alt') || src);
+        img.replaceWith(missing);
+      }
     });
   }
 }

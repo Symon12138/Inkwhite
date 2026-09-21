@@ -32,9 +32,6 @@ export class SettingsMethods {
     this.settings = settings;
     if (typeof document !== 'undefined') {
       document.body.style.setProperty('--menu-font-size', settings.menuFontSizePx + 'px');
-      // 打印纸色：跟随预览时打属性，@media print 按 body[data-print-paper] 放行原纸色。
-      if (settings.printPaper === 'follow-preview') document.body.setAttribute('data-print-paper', 'follow-preview');
-      else document.body.removeAttribute('data-print-paper');
     }
     const targets = [
       this.sourceRef && this.sourceRef.current,
@@ -128,13 +125,8 @@ export class SettingsMethods {
         '开启后编辑区与预览使用浏览器原生拼写检查。'),
       this._buildToggleRow('autosave', '自动保存到本地文件',
         '关闭后不再自动写回已打开的本地文件；浏览器草稿始终自动保存（不丢稿），显式保存（Ctrl+S）仍写入本地文件。'),
-      this._buildTextRow('exportPageMargin', '导出/打印页边距',
-        '与打印页边距一致，导出与打印共用。示例：14mm 16mm'),
-      this._buildRadioRow('printPaper', '打印纸色',
-        '白纸：打印始终白底黑字（默认）；跟随预览：按预览纸色打印。', [
-        { value: 'white', label: '白纸' },
-        { value: 'follow-preview', label: '跟随预览' }
-      ])
+      this._buildTextRow('exportPageMargin', '导出页边距',
+        '仅用于「导出 PDF」。示例：14mm 16mm')
     );
     return body;
   }

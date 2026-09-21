@@ -44,7 +44,6 @@ test('打开面板→修改全部设置→刷新后保持', async ({ page }) => 
   await page.locator('[data-settings-key="autosave"]').uncheck();
   await page.locator('[data-settings-key="exportPageMargin"]').fill('18mm 20mm');
   await page.locator('[data-settings-key="exportPageMargin"]').press('Tab'); // 提交 change
-  await page.getByRole('radio', { name: '跟随预览' }).check();
 
   // 变更即写 localStorage
   await page.waitForFunction(([key]) => {
@@ -52,7 +51,7 @@ test('打开面板→修改全部设置→刷新后保持', async ({ page }) => 
     if (!raw) return false;
     const s = JSON.parse(raw);
     return s.spellcheck === false && s.autosave === false
-      && s.exportPageMargin === '18mm 20mm' && s.printPaper === 'follow-preview';
+      && s.exportPageMargin === '18mm 20mm';
   }, [SETTINGS_KEY]);
 
   // 应用即时生效
@@ -66,7 +65,6 @@ test('打开面板→修改全部设置→刷新后保持', async ({ page }) => 
   await expect(page.locator('[data-settings-key="spellcheck"]')).not.toBeChecked();
   await expect(page.locator('[data-settings-key="autosave"]')).not.toBeChecked();
   await expect(page.locator('[data-settings-key="exportPageMargin"]')).toHaveValue('18mm 20mm');
-  await expect(page.getByRole('radio', { name: '跟随预览' })).toBeChecked();
 });
 
 test('关闭自动保存后编辑→刷新→草稿仍在（B19 不丢稿）', async ({ page }) => {
