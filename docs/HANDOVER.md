@@ -6,7 +6,7 @@
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
 - 本地目录：`E:\Project\AI\inkwhite`
-- 版本：**1.2.5**（2026-09-21 已发布 GitHub Release v1.2.5）· 界面字号联动、统一正文字号、导出保真（HTML/Word/PDF 直出）；安装包与发布资产按 v1.2.5 构建，更新日志见根目录 `CHANGELOG.md`（中文）
+- 版本：**1.2.6**（2026-11-11）· 框架 UI 换皮（Inter + DeepSeek 蓝）、导出保真（HTML/Word/PDF 直出）、易用性打磨；安装包与发布资产按 v1.2.6 构建，更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -34,7 +34,7 @@
 | 外链图片 | CSP `img-src` 放行 https/http（桌面端外链图片/徽标可显示）；`connect-src` 加 https | `src-tauri/tauri.conf.json` |
 | 无 mac 符号 | 全局已清除 ⌘/⌃/⇧（菜单、上下文菜单、tooltip、示例文档、README） | 全仓 |
 
-导出保真与 PDF 直出等改动已并入 v1.2.5（见 CHANGELOG）。Word 未做 Word/WPS 实机视觉验收。已移除冗余生产依赖 `html-to-docx`（生产代码零引用、不进构建产物，仅被「被否决方案」的 spike 测试引用并带入大量传递依赖；结论保留在 `docs/WORD_SPIKE.md`，对应 spike 测试同步退役）。PDF 导出已改为直接生成文件（`pdfComposer.ts` 纯逻辑 + `pdfMethods.ts` 光栅化分页），不再经过系统打印对话框；正文以位图嵌入，排版与预览一致，代价是文字不可选中/搜索、体积更大。系统打印（WebView2 打印）仍走 `@media print` 白纸黑字，与导出 PDF 相互独立。长文按「带」分批光栅化（单带设备像素高度上限 12000），避免一次性申请超高画布导致卡死；「打印纸色」设置已移除（应用内无打印入口，无法生效），「导出页边距」只作用于导出 PDF。
+导出保真、PDF 直出与界面换皮已并入 v1.2.6（见 CHANGELOG）。Word 未做 Word/WPS 实机视觉验收。已移除冗余生产依赖 `html-to-docx`（生产代码零引用、不进构建产物，仅被「被否决方案」的 spike 测试引用并带入大量传递依赖；结论保留在 `docs/WORD_SPIKE.md`，对应 spike 测试同步退役）。PDF 导出已改为直接生成文件（`pdfComposer.ts` 纯逻辑 + `pdfMethods.ts` 光栅化分页），不再经过系统打印对话框；正文以位图嵌入，排版与预览一致，代价是文字不可选中/搜索、体积更大。系统打印（WebView2 打印）仍走 `@media print` 白纸黑字，与导出 PDF 相互独立。长文按「带」分批光栅化（单带设备像素高度上限 12000），避免一次性申请超高画布导致卡死；「打印纸色」设置已移除（应用内无打印入口，无法生效），「导出页边距」只作用于导出 PDF。
 
 ## 2. 测试基线（最近全绿）
 

@@ -1,5 +1,8 @@
 import { test, expect, openEditor, clickMenubarItem } from './fixtures';
 import { ViewMethods } from '../../src/editor/viewMethods.ts';
+import { readFileSync } from 'node:fs';
+
+const APP_VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version as string;
 
 // 回归：帮助 → 关于 必须显示版本信息，而不是设置面板。
 test('帮助 → 关于 显示版本与许可，且不是设置面板', async ({ page }) => {
@@ -10,7 +13,7 @@ test('帮助 → 关于 显示版本与许可，且不是设置面板', async ({
   await expect(dialog).toHaveAttribute('aria-label', '关于 飞白 Inkwhite');
   const body = await dialog.innerText();
   expect(body).toContain('飞白');
-  expect(body).toMatch(/1\.2\.5/);
+  expect(body).toContain(APP_VERSION);
   expect(body).toContain('MIT');
   expect(body).not.toContain('界面字号');
 });
