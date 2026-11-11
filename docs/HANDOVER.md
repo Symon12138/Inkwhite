@@ -5,8 +5,8 @@
 
 - 项目：飞白 Inkwhite —— Tauri 2 桌面 Markdown 编辑器（Windows 为主，macOS 兼容）
 - 远程：`github.com/Symon12138/Inkwhite`（Public / **MIT**，Copyright 2026 jishuai）
-- 本地目录：`E:\Project\AI\workbuddy\inkwhite`（原 `mojian-markdown` 已改名；旧目录待删除）
-- 版本：**1.2.5**（2026-09-17）· 上下界面字号联动、统一正文字号；安装包与发布资产按 v1.2.5 构建，更新日志见根目录 `CHANGELOG.md`（中文）
+- 本地目录：`E:\Project\AI\inkwhite`
+- 版本：**1.2.5**（2026-09-21 已发布 GitHub Release v1.2.5）· 界面字号联动、统一正文字号、导出保真（HTML/Word/PDF 直出）；安装包与发布资产按 v1.2.5 构建，更新日志见根目录 `CHANGELOG.md`（中文）
 
 ---
 
@@ -40,7 +40,7 @@
 
 - 前端单测：`npm test`（node:test，`tests/unit/`，**493 个**，含菜单字号校验/持久化、annotationFile、contextMenu/fontMethods/fileTreeMethods/adversarial/syntaxCheatsheet 等）
 - Rust 单测：`npm run test:rust`（`src-tauri/src/*_tests.rs`，含授权/安全/文件监听等）
-- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**181 个**，含上下界面字号联动、统一正文/沉浸字号、旧字号迁移、窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
+- E2E：`npm run test:e2e`（Playwright，`tests/e2e/`，**184 个**，含上下界面字号联动、统一正文/沉浸字号、旧字号迁移、窄屏换行菜单边界/窗口缩放重定位、菜单字号即时应用/持久化/正文隔离/恢复默认、菜单遮挡回归、右键菜单/字体同步/格式工具栏/阅读模式等）
 - 全量门禁：`npm run check`（代码体积 ≤800 行/函数 ≤140 行 + tsc + 单测 + cargo + 构建）
 
 ## 3. 架构速览
@@ -66,7 +66,7 @@
 - **npm 全局缓存**：`npm install` 在默认缓存路径（`E:\environment\nodejs\node_cache`）可能被 OS 拒绝，
   用 `npm install --cache <项目内路径>` 规避。
 - **代理**：Clash 127.0.0.1:7890 可能故障；git 推送失败时用 `git -c http.proxy= push` 直连。
-- **发布**：`npm run tauri:build` 后 `npm run release`（自动读版本→打 tag→建/更新 GitHub Release→传 exe+msi）。
+- **发布**：`npm run tauri:build` 后 `npm run release`（自动读版本→打 tag→建/更新 GitHub Release→传 exe+msi+便携 zip）。
 
 ## 5. 已知遗留 / 建议的下一步（按优先级）
 

@@ -60,6 +60,70 @@ export class SettingsMethods {
     }
   }
 
+  // ===== 关于 =====
+
+  openAbout() {
+    const overlay = this._buildAboutModal();
+    overlay.style.display = 'flex';
+  }
+
+  closeAbout() {
+    if (this._aboutEl) this._aboutEl.style.display = 'none';
+  }
+
+  _buildAboutModal() {
+    if (this._aboutEl) return this._aboutEl;
+    const overlay = document.createElement('div');
+    overlay.className = 'settings-overlay';
+    const modal = document.createElement('div');
+    modal.className = 'settings-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-label', '关于 飞白 Inkwhite');
+
+    const head = document.createElement('div');
+    head.className = 'settings-modal-head';
+    const title = document.createElement('strong');
+    title.className = 'settings-modal-title';
+    title.textContent = '关于 飞白 Inkwhite';
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'settings-modal-close';
+    close.textContent = '×';
+    close.title = '关闭（Esc）';
+    close.setAttribute('aria-label', '关闭');
+    close.addEventListener('click', () => this.closeAbout());
+    head.append(title, close);
+
+    const body = document.createElement('div');
+    body.className = 'settings-body';
+    const info = document.createElement('div');
+    info.className = 'settings-row';
+    const text = document.createElement('span');
+    text.className = 'settings-row-text';
+    const name = document.createElement('b');
+    name.textContent = '飞白 Inkwhite';
+    const version = document.createElement('small');
+    version.textContent = '版本 ' + __APP_VERSION__ + ' · MIT 许可证 · Copyright 2026 jishuai';
+    const desc = document.createElement('small');
+    desc.textContent = '面向阅读、学习与评注的 Markdown 桌面编辑器。';
+    text.append(name, version, desc);
+    info.append(text);
+    body.append(info);
+
+    modal.append(head, body);
+    overlay.appendChild(modal);
+    overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) this.closeAbout(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !this._aboutEl) return;
+      if (this._aboutEl.style.display !== 'flex') return;
+      e.preventDefault();
+      this.closeAbout();
+    });
+    document.body.appendChild(overlay);
+    this._aboutEl = overlay;
+    return overlay;
+  }
+
   // ===== 面板开关 =====
 
   openSettings() {
@@ -195,30 +259,6 @@ export class SettingsMethods {
     return row;
   }
 
-  _buildRadioRow(key, label, hint, options) {
-    const row = document.createElement('div');
-    row.className = 'settings-row';
-    const group = document.createElement('div');
-    group.className = 'settings-radios';
-    options.forEach((option) => {
-      const item = document.createElement('label');
-      item.className = 'settings-radio';
-      const input = document.createElement('input');
-      input.type = 'radio';
-      input.name = 'settings-' + key;
-      input.value = option.value;
-      input.dataset.settingsKey = key;
-      input.addEventListener('change', () => {
-        if (input.checked) this._setSetting(key, input.value);
-      });
-      const span = document.createElement('span');
-      span.textContent = option.label;
-      item.append(input, span);
-      group.appendChild(item);
-    });
-    row.append(this._buildRowText(label, hint), group);
-    return row;
-  }
 
   _syncSettingsPanel() {
     if (!this._settingsEl) return;

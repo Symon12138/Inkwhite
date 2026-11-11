@@ -658,7 +658,11 @@ export class ViewMethods {
     const t = new Date();
     const hh = String(t.getHours()).padStart(2, '0');
     const mm = String(t.getMinutes()).padStart(2, '0');
-    this._setStatus('已自动保存草稿 · ' + hh + ':' + mm);
+    // 背景事件：若刚显示过错误类消息（5 秒保护期），不覆盖，
+    // 避免用户还没看清就被「已自动保存草稿」冲掉。
+    if (!this._statusProtectedUntil || Date.now() >= this._statusProtectedUntil) {
+      this._setStatus('已自动保存草稿 · ' + hh + ':' + mm);
+    }
     // 打开了本地文件时，草稿同时写穿回本地（异步，不阻塞输入）。
     if (typeof this._maybeWriteThroughLocalFile === 'function') this._maybeWriteThroughLocalFile();
     // M5：同步活动标签（内容/dirty/标题）
@@ -666,7 +670,12 @@ export class ViewMethods {
   }
 
 
-  _setStatus(msg) { if (this.saveStatusRef.current) this.saveStatusRef.current.textContent = msg; }
+  // 错误/失败类消息限时保护 5 秒，避免被后台自动保存提示冲掉；
+  // 其余状态（就绪、已保存、已复制等）不保护，保持原有即时刷新行为。
+  _setStatus(msg) {
+    if (/失败|错误|不可|无法|未能/.test(String(msg))) this._statusProtectedUntil = Date.now() + 5000;
+    if (this.saveStatusRef.current) this.saveStatusRef.current.textContent = msg;
+  }
 
 
   _applyFont() {
