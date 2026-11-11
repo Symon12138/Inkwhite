@@ -778,6 +778,11 @@ body.boot-editor .editor-main > .preview-pane,
 body.boot-editor .editor-main > .editor-divider { display: none !important; }
 body.boot-editor .editor-main > .source-pane { display: flex !important; }
 
+/* 界面大标题统一 Montserrat（--font-display），正文/控件仍走 Inter。 */
+.settings-modal-title, .longimg-modal-title, .close-confirm-box strong,
+.syntax-cheatsheet-title strong, .pane-title, .panel-title, .document-sidebar-title { font-family: var(--font-display); }
+
+
 /* 弹层入场：一次克制的时刻（遮罩淡入 + 卡片轻移）；transform/opacity 不触发重排，
    reduced-motion 由 tokens.css 全局关停。 */
 @keyframes ink-overlay-in { from { opacity: 0; } to { opacity: 1; } }
@@ -791,5 +796,4 @@ body.boot-editor .editor-main > .source-pane { display: flex !important; }
 .settings-row { border: none; border-bottom: 1px solid var(--border-faint);
   border-radius: 0; background: transparent; padding: 14px 8px; }
 .settings-row:last-child { border-bottom: none; }
-
 

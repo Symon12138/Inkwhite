@@ -18,6 +18,8 @@
 
 第三方依赖及字体等材料适用各自的许可条款。仓耳今楷字体不随仓库授权，其使用与再分发受字体所有者及来源平台的条款约束。
 
+界面字体 **Inter**（Copyright © 2016–2020 The Inter Project Authors）与 **Montserrat**（Copyright © 2011–2017 The Montserrat Project Authors）均采用 **SIL Open Font License 1.1**，随安装包分发于 `public/fonts/dsh/`，许可文本见同目录 `Inter-OFL.txt` 与 `Montserrat-OFL.txt`。二者允许随软件捆绑、嵌入与再分发，但不得单独售卖、不得使用保留字体名发布衍生版本。
+
 ## 5. 联系
 
 商业授权、品牌合作或侵权线索，请联系：<dong.fly.ming@gmail.com>。

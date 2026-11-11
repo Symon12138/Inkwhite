@@ -43,10 +43,12 @@ test('editor uses the complete local Canger reading font without remote fonts', 
   } else {
     console.log('[font] 阅读字体缺失（授权限制），跳过字体加载严格断言');
   }
-  // 本地字体共两份：仓颉阅读正文 + 「飞白」品牌子集（均不出网）
-  expect(fontRequests).toHaveLength(2);
+  // 必备两份：仓颉阅读正文 + 「飞白」品牌子集；框架另有 Inter/Montserrat（随包分发）。
+  // 断言「都本地、无远程」而非硬编码数量，避免新增界面字体时误报。
   expect(fontRequests.some((u) => u.includes('/cejk-subset.woff2'))).toBe(true);
   expect(fontRequests.some((u) => u.includes('/feibai-brand.woff2'))).toBe(true);
+  expect(fontRequests.every((u) => u.startsWith('http://127.0.0.1:4650/') || u.startsWith('http://localhost:4650/'))).toBe(true);
+  expect(fontRequests.some((u) => u.includes('/fonts/dsh/'))).toBe(true);
   expect(await page.locator('.md-preview').evaluate((element) => getComputedStyle(element).fontFamily))
     .toContain('Canger JinKai 04');
 });

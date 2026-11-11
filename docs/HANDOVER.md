@@ -30,7 +30,7 @@
 | 阅读模式（查看型默认） | 启动即预览视图并**记忆上次视图模式**（editor/split/preview 持久化）；预览与编辑视图版心 Typora 式居中，共用 `--read-column`（820px，左右留白；全屏宽幅 1240px 不受限；窄屏 <761px 铺满）；**阅读位置记忆**：按文件路径/草稿名存 localStorage（`md-editor-read-pos-v1`，保留最近 300 篇），打开文件/切标签自动回到上次位置 | `MarkdownEditorLogic.ts`、`readingPositionMethods.ts`、`viewMethods.ts`、`styles.css` |
 | 沉浸式阅读 | 全屏/宽屏、五档纸色（墨黑/羊皮纸/米黄/清爽白/豆沙绿） | `viewMethods.ts`、`styles.css` |
 | 语法大全 | 帮助菜单一键打开，40+ 分组卡片 + 搜索/分类筛选 + 预览 + 一键插入/复制（插入后预览模式自动切分屏） | `syntaxCheatsheetData.ts`、`syntaxCheatsheetMethods.ts`、`syntaxCheatsheet.css` |
-| 外观 | 墨笺暗色主题、左上角「飞白」狂草书法印章（`images/feibai_kuangcao_jianfei_s.jpg`）、预览外链小角标（SVG mask） | `theme/tokens.css`、`desktopM4.css`、`styles.css` |
+| 外观 | 框架 Inter + DeepSeek 蓝（参考 DeepSeek Harness）、大标题 Montserrat；阅读纸面保留楷体与五档纸色；「飞白」狂草印章、预览外链小角标（SVG mask）。Inter/Montserrat 均为 SIL OFL 1.1，随包分发于 `public/fonts/dsh/` | `theme/tokens.css`、`desktopM4.css`、`styles.css` |
 | 外链图片 | CSP `img-src` 放行 https/http（桌面端外链图片/徽标可显示）；`connect-src` 加 https | `src-tauri/tauri.conf.json` |
 | 无 mac 符号 | 全局已清除 ⌘/⌃/⇧（菜单、上下文菜单、tooltip、示例文档、README） | 全仓 |
 

@@ -6,30 +6,33 @@
    桌面端保持「墨」暗色。
    ============================================================ */
 
-/* 品牌草书字体：柳建毛草（SIL OFL 1.1，可随包分发）「飞白」二字子集，
-   由 scripts/subset-brand-font.mjs 生成（4.7MB → ~1.2KB）。任何机器无需
-   系统字体即可显示品牌字。 */
-@font-face {
-  font-family: 'Feibai Brand';
-  src: url('/fonts/brand/feibai-brand.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* ===== 界面字体（随包分发，SIL OFL 1.1；见 public/fonts/dsh/*-OFL.txt）=====
+   Inter 用于框架 UI，Montserrat 用于品牌/大标题。阅读正文仍走 --read 楷体，
+   不随框架换皮改变——内容区与 chrome 分层，避免把书卷气换成工具感。 */
+@font-face { font-family: Inter; src: url('/fonts/dsh/Inter-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Inter; src: url('/fonts/dsh/Inter-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Inter; src: url('/fonts/dsh/Inter-SemiBold.woff2') format('woff2'); font-weight: 600 700; font-style: normal; font-display: swap; }
+@font-face { font-family: Montserrat; src: url('/fonts/dsh/montserrat-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Montserrat; src: url('/fonts/dsh/montserrat-medium.woff2') format('woff2'); font-weight: 500 700; font-style: normal; font-display: swap; }
+
+/* 品牌草书：飞白印章字（子集，1.2KB） */
+@font-face { font-family: 'Feibai Brand'; src: url('/fonts/brand/feibai-brand.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
 
 :root {
   /* ----- 字体 ----- */
   /* Web 与扩展均优先使用 GB2312 金楷完整子集，生僻字由系统字体兜底。 */
   --read: 'Canger JinKai 04', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'Songti SC', 'Noto Serif CJK SC', serif;
-  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  --sans: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, 'PingFang SC', 'Microsoft YaHei', monospace;
   /* 品牌书法字（草书/行楷风）：舒体→行楷→楷体→cursive 回退。
      系统书法字体为专有授权，不随包分发；用户机器装有时即生效。 */
   --brand-font: 'FZShuTi', '方正舒体', 'STXingkai', '华文行楷', 'Xingkai SC', 'Kaiti SC', '楷体', cursive;
+  /* 界面大标题/弹层标题：Montserrat，与 DSH 的 display 语气一致；正文仍走 Inter */
+  --font-display: Montserrat, Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
   /* ----- 圆角（控件 / 面板卡片 / 胶囊）----- */
-  --radius-control: 4px;
-  --radius-surface: 8px;
+  --radius-control: 6px;
+  --radius-surface: 12px;
   --radius-pill: 999px;
 
   /* ----- 字号 scale（UI 界面字号；正文内标题/代码用 em 相对值，
@@ -49,47 +52,47 @@
   /* ============ 框架（chrome）：中性灰，与内容纸面分层 ============ */
 
   /* ----- 背景（暗色不用近黑：深灰级减少光晕眩光）----- */
-  --bg: #1a1b1d;
-  --bg-2: #232427;
-  --bg-3: #1e1f22;
-  --bg-input: #1a1b1d;
-  --bg-source: #202124;
-  --pre-bg: #151619;
-  --code-bg: #232427;
-  --quote-bg: #1f2023;
-  --th-bg: #2a2c30;
+  --bg: #14161c;
+  --bg-2: #1c1f28;
+  --bg-3: #181b23;
+  --bg-input: #101319;
+  --bg-source: #161920;
+  --pre-bg: #101319;
+  --code-bg: #1c202a;
+  --quote-bg: #191d26;
+  --th-bg: #222735;
 
   /* ----- 边框 ----- */
-  --border: #3a3c41;
-  --border-soft: #313338;
-  --border-faint: #2a2c30;
+  --border: #2c3240;
+  --border-soft: #252b37;
+  --border-faint: #1f2530;
 
   /* ----- 文字（层级靠明度，不靠字号）----- */
-  --text: #ecece9;
-  --text-2: #c9c9c3;
-  --text-3: #a5a59d;
-  --text-4: #7b7b73;
+  --text: #e9edf5;
+  --text-2: #c3cad8;
+  --text-3: #98a2b6;
+  --text-4: #6f7a90;
 
-  /* ----- 琥珀强调 ----- */
-  --accent: #f0a838;
-  --accent-2: #d18a18;
-  --accent-ink: #14110d;
-  --accent-soft: rgba(240, 168, 56, 0.15);
-  --mark-bg: rgba(240, 168, 56, 0.22);
-  --sel: rgba(240, 168, 56, 0.28);
+  /* ----- DeepSeek 蓝强调 ----- */
+  --accent: #4d92fe;
+  --accent-2: #4176e6;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(77, 146, 254, 0.16);
+  --mark-bg: rgba(77, 146, 254, 0.24);
+  --sel: rgba(77, 146, 254, 0.30);
 
   /* ----- 语义色 ----- */
-  --good: #8aa67c;
-  --danger: #ba675f;
-  --info: #86b8d6;
+  --good: #4ecb71;
+  --danger: #f0616d;
+  --info: #4d92fe;
 
   /* ----- 顶栏与划词工具条 ----- */
-  --header-bg: rgba(26, 27, 29, 0.92);
-  --tool-bg: rgba(44, 45, 49, 0.97);
-  --tool-border: #45474d;
-  --tool-text: #e8e8e2;
-  --tool-divider: #515358;
-  --tool-hover: rgba(240, 168, 56, 0.16);
+  --header-bg: rgba(20, 22, 28, 0.94);
+  --tool-bg: rgba(28, 32, 42, 0.97);
+  --tool-border: #2c3240;
+  --tool-text: #e9edf5;
+  --tool-divider: #343c4c;
+  --tool-hover: rgba(77, 146, 254, 0.16);
 
   /* ============ 纸面（paper）：阅读/编辑内容的独立配色 ============
      默认跟随框架主题（暗→墨、亮→羊皮纸）；用户显式选择后由
@@ -102,12 +105,12 @@
   --paper-text: #f2ecdf;
   --paper-text-2: #cfc8b8;
   --paper-text-3: #958a76;
-  --paper-accent: #f0a838;
-  --paper-mark: rgba(240, 168, 56, 0.22);
-  --paper-sel: rgba(240, 168, 56, 0.28);
+  --paper-accent: #4d92fe;
+  --paper-mark: rgba(77, 146, 254, 0.24);
+  --paper-sel: rgba(77, 146, 254, 0.30);
   --paper-code-string: #8aa67c;
   --paper-code-number: #d69052;
-  --paper-code-function: #d7ba7d;
+  --paper-code-function: #7aa7ff;
   --paper-code-type: #86b8d6;
 
   /* ----- 纸面排版 ----- */
@@ -117,51 +120,51 @@
   --paper-letter-spacing: 0.04em;
 
   /* ----- 阴影（小=按钮 / 中=下拉、工具条 / 大=弹层），双层叠加 ----- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.22);
-  --shadow-md: 0 3px 8px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.4), 0 30px 80px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 0 0 1px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.28), 0 2px 6px rgba(0,0,0,.18);
+  --shadow-md: 0 1px 2px rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.18), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,.4), 0 30px 80px rgba(0,0,0,.45);
   --shadow: var(--shadow-md);
 }
 
 :root[data-theme='light'],
 body.editor-active[data-theme='light'] {
   /* ----- 框架：中性浅灰（内容纸色独立，见 paper 层）----- */
-  --bg: #f5f5f3;
-  --bg-2: #eaeae6;
-  --bg-3: #f0f0ed;
+  --bg: #f7f8fa;
+  --bg-2: #eef1f6;
+  --bg-3: #f2f4f8;
   --bg-input: #ffffff;
-  --bg-source: #edede9;
-  --pre-bg: #ecece6;
-  --code-bg: #e7e7e1;
-  --quote-bg: #efefeb;
-  --th-bg: #e2e2db;
+  --bg-source: #f4f6fa;
+  --pre-bg: #eef1f6;
+  --code-bg: #e9edf4;
+  --quote-bg: #f1f4f9;
+  --th-bg: #e6ebf3;
 
-  --border: #d6d5cd;
-  --border-soft: #deddd6;
-  --border-faint: #e4e3dc;
+  --border: #d8dde6;
+  --border-soft: #e2e6ee;
+  --border-faint: #e9edf3;
 
-  --text: #26241f;
-  --text-2: #3f3e37;
-  --text-3: #5c5b52;
-  --text-4: #8f8d82;
+  --text: #1b2330;
+  --text-2: #38424f;
+  --text-3: #5b6675;
+  --text-4: #8a94a3;
 
-  --accent: #bd7a0c;
-  --accent-2: #9c6408;
-  --accent-ink: #fffaf0;
-  --accent-soft: rgba(189, 122, 12, 0.12);
-  --mark-bg: rgba(245, 193, 74, 0.48);
-  --sel: rgba(189, 122, 12, 0.18);
+  --accent: #2563eb;
+  --accent-2: #1d4ed8;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(37, 99, 235, 0.10);
+  --mark-bg: rgba(77, 146, 254, 0.26);
+  --sel: rgba(37, 99, 235, 0.16);
 
-  --good: #5f8a4f;
-  --danger: #a8524a;
-  --info: #3d7ea6;
+  --good: #16a34a;
+  --danger: #dc2626;
+  --info: #2563eb;
 
-  --header-bg: rgba(245, 245, 243, 0.92);
+  --header-bg: rgba(247, 248, 250, 0.94);
   --tool-bg: rgba(255, 255, 255, 0.98);
-  --tool-border: #d6d5cd;
-  --tool-text: #3a3931;
-  --tool-divider: #d6d5cd;
-  --tool-hover: rgba(189, 122, 12, 0.1);
+  --tool-border: #d8dde6;
+  --tool-text: #38424f;
+  --tool-divider: #e2e6ee;
+  --tool-hover: rgba(37, 99, 235, 0.08);
 
   /* 亮色框架下纸面默认：暖橙羊皮纸（参照微信读书） */
   --paper-bg: var(--paper-swatch-parchment);
@@ -172,17 +175,17 @@ body.editor-active[data-theme='light'] {
   --paper-text: #2b2218;
   --paper-text-2: #4f4334;
   --paper-text-3: #6e6249;
-  --paper-accent: #bd7a0c;
-  --paper-mark: rgba(245, 193, 74, 0.48);
-  --paper-sel: rgba(189, 122, 12, 0.18);
+  --paper-accent: #2563eb;
+  --paper-mark: rgba(37, 99, 235, 0.26);
+  --paper-sel: rgba(37, 99, 235, 0.16);
   --paper-code-string: #5f8a4f;
   --paper-code-number: #b06f2e;
-  --paper-code-function: #8f6f28;
+  --paper-code-function: #1d4ed8;
   --paper-code-type: #3d7ea6;
 
-  --shadow-sm: 0 1px 2px rgba(120, 100, 60, 0.12), 0 2px 6px rgba(120, 100, 60, 0.08);
-  --shadow-md: 0 3px 8px rgba(120, 100, 60, 0.1), 0 10px 30px rgba(120, 100, 60, 0.16);
-  --shadow-lg: 0 10px 30px rgba(120, 100, 60, 0.14), 0 30px 80px rgba(120, 100, 60, 0.18);
+  --shadow-sm: 0 0 0 1px rgba(16,24,40,.05), 0 1px 2px rgba(16,24,40,.08), 0 2px 6px rgba(16,24,40,.05);
+  --shadow-md: 0 1px 2px rgba(16,24,40,.08), 0 4px 8px rgba(16,24,40,.06), 0 10px 30px rgba(16,24,40,.10);
+  --shadow-lg: 0 10px 30px rgba(16,24,40,.12), 0 30px 80px rgba(16,24,40,.14);
 }
 
 /* ============================================================
@@ -201,12 +204,12 @@ body[data-paper='ink'][data-paper] {
   --paper-text: #f2ecdf;
   --paper-text-2: #cfc8b8;
   --paper-text-3: #958a76;
-  --paper-accent: #f0a838;
-  --paper-mark: rgba(240, 168, 56, 0.22);
-  --paper-sel: rgba(240, 168, 56, 0.28);
+  --paper-accent: #4d92fe;
+  --paper-mark: rgba(77, 146, 254, 0.24);
+  --paper-sel: rgba(77, 146, 254, 0.30);
   --paper-code-string: #8aa67c;
   --paper-code-number: #d69052;
-  --paper-code-function: #d7ba7d;
+  --paper-code-function: #7aa7ff;
   --paper-code-type: #86b8d6;
 }
 
@@ -220,12 +223,12 @@ body[data-paper='parchment'][data-paper] {
   --paper-text: #2b2218;
   --paper-text-2: #4f4334;
   --paper-text-3: #6e6249;
-  --paper-accent: #bd7a0c;
-  --paper-mark: rgba(245, 193, 74, 0.48);
-  --paper-sel: rgba(189, 122, 12, 0.18);
+  --paper-accent: #2563eb;
+  --paper-mark: rgba(37, 99, 235, 0.26);
+  --paper-sel: rgba(37, 99, 235, 0.16);
   --paper-code-string: #5f8a4f;
   --paper-code-number: #b06f2e;
-  --paper-code-function: #8f6f28;
+  --paper-code-function: #1d4ed8;
   --paper-code-type: #3d7ea6;
 }
 
@@ -239,12 +242,12 @@ body[data-paper='cream'][data-paper] {
   --paper-text: #2b2218;
   --paper-text-2: #4f4334;
   --paper-text-3: #6e6249;
-  --paper-accent: #bd7a0c;
-  --paper-mark: rgba(245, 193, 74, 0.48);
-  --paper-sel: rgba(189, 122, 12, 0.18);
+  --paper-accent: #2563eb;
+  --paper-mark: rgba(37, 99, 235, 0.26);
+  --paper-sel: rgba(37, 99, 235, 0.16);
   --paper-code-string: #5f8a4f;
   --paper-code-number: #b06f2e;
-  --paper-code-function: #8f6f28;
+  --paper-code-function: #1d4ed8;
   --paper-code-type: #3d7ea6;
 }
 
@@ -259,12 +262,12 @@ body[data-paper='snow'][data-paper] {
   --paper-text: #24262b;
   --paper-text-2: #3f434a;
   --paper-text-3: #6b7078;
-  --paper-accent: #bd7a0c;
-  --paper-mark: rgba(245, 193, 74, 0.45);
-  --paper-sel: rgba(189, 122, 12, 0.16);
+  --paper-accent: #2563eb;
+  --paper-mark: rgba(37, 99, 235, 0.26);
+  --paper-sel: rgba(37, 99, 235, 0.16);
   --paper-code-string: #5f8a4f;
   --paper-code-number: #b06f2e;
-  --paper-code-function: #8f6f28;
+  --paper-code-function: #1d4ed8;
   --paper-code-type: #3d7ea6;
 }
 
@@ -278,12 +281,12 @@ body[data-paper='green'][data-paper] {
   --paper-text: #1f2b1c;
   --paper-text-2: #384733;
   --paper-text-3: #576851;
-  --paper-accent: #8a6a0e;
-  --paper-mark: rgba(240, 168, 56, 0.3);
-  --paper-sel: rgba(138, 106, 14, 0.2);
+  --paper-accent: #1d4ed8;
+  --paper-mark: rgba(37, 99, 235, 0.24);
+  --paper-sel: rgba(29, 78, 216, 0.18);
   --paper-code-string: #4a6d3c;
   --paper-code-number: #a05f24;
-  --paper-code-function: #7a5e1e;
+  --paper-code-function: #1d4ed8;
   --paper-code-type: #2f6a8e;
 }
 
