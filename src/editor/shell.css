@@ -667,10 +667,11 @@ textarea.md-source {
 .footer-stats { flex: none; display: flex; align-items: center; gap: 18px; }
 .font-controls { display: flex; align-items: center; gap: 7px; }
 .font-controls-label { color: var(--text-3); letter-spacing: 0.1em; }
-.font-size-value { min-width: 50px; color: var(--text-2); text-align: center; }
+.font-size-value { min-width: 50px; color: var(--text-2); text-align: center; font-variant-numeric: tabular-nums; }
 /* 字号与文档统计之间用细分隔线分组，避免右侧挤成一团 */
 .word-count {
   color: var(--text-2);
+  font-variant-numeric: tabular-nums;
   padding-left: 18px;
   border-left: 1px solid var(--border);
 }

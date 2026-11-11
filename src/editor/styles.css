@@ -777,3 +777,19 @@ body.boot-preview .editor-main > .preview-pane { display: flex !important; }
 body.boot-editor .editor-main > .preview-pane,
 body.boot-editor .editor-main > .editor-divider { display: none !important; }
 body.boot-editor .editor-main > .source-pane { display: flex !important; }
+
+/* 弹层入场：一次克制的时刻（遮罩淡入 + 卡片轻移）；transform/opacity 不触发重排，
+   reduced-motion 由 tokens.css 全局关停。 */
+@keyframes ink-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ink-modal-in { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
+.settings-overlay[style*='flex'] { animation: ink-overlay-in .18s ease-out both; }
+.settings-overlay[style*='flex'] .settings-modal { animation: ink-modal-in .22s cubic-bezier(.22, 1, .36, 1) both; }
+
+/* 设置行：规范 §1-4「一排相同描边即视觉噪音」——只去逐行边框，
+   改用留白分组 + 底部细分隔；保留原有左右分布，不强制控件换行。 */
+.settings-body { gap: 4px; }
+.settings-row { border: none; border-bottom: 1px solid var(--border-faint);
+  border-radius: 0; background: transparent; padding: 14px 8px; }
+.settings-row:last-child { border-bottom: none; }
+
+
