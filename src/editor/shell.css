@@ -728,3 +728,10 @@ textarea.md-source {
 .more-tools .header-menu-item, .tab-add, .paper-dot, .menu-shortcut {
   font-weight: 500;
 }
+
+/* 单栏视图的快捷切换：分屏时两栏同屏，无需切换按钮。
+   editor-mode-active 下源码栏可见 → 显示「预览效果」；
+   preview-mode-active 下预览栏可见 → 显示「编辑」。 */
+.tbtn.tool-pill.view-switch { display: none; }
+.editor-main.editor-mode-active .source-switch-preview { display: inline-flex; }
+.editor-main.preview-mode-active .preview-switch-editor { display: inline-flex; }

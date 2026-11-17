@@ -27,7 +27,7 @@
 | 划线批注 | 马克笔/波浪线/直线/想法 + 批注面板，localStorage 持久化 | `commentMethods.ts` |
 | 导出 | HTML 保留预览容器、字号/纸色及内置正文字体；Word 捕获可映射字体/字号/段落/文本样式；PDF 直接生成文件（A4 分页、复用预览渲染、不经打印对话框，正文为位图）；复杂 Word 布局、分页、字体嵌入尚不保真 | `exportMethods.ts`、`wordExport.ts`、`wordExportStyles.ts`、`pdfComposer.ts`、`pdfMethods.ts`、`longImageMethods.ts` |
 | 本地文件双向同步 | autosave 写穿、外部修改自动重载、冲突状态 Ctrl+S 覆盖；授权持久化（`granted-paths.json`） | `localFileSyncMethods.ts`、`src-tauri/src/{commands,grants,file_watcher}.rs` |
-| 阅读模式（查看型默认） | 启动即预览视图并**记忆上次视图模式**（editor/split/preview 持久化）；预览与编辑视图版心 Typora 式居中，共用 `--read-column`（820px，左右留白；全屏宽幅 1240px 不受限；窄屏 <761px 铺满）；**阅读位置记忆**：按文件路径/草稿名存 localStorage（`md-editor-read-pos-v1`，保留最近 300 篇），打开文件/切标签自动回到上次位置 | `MarkdownEditorLogic.ts`、`readingPositionMethods.ts`、`viewMethods.ts`、`styles.css` |
+| 阅读模式（查看型默认） | 启动即预览视图并**记忆上次视图模式**（editor/split/preview 持久化）；编辑/预览单栏视图各有一个工具栏快捷键互相切换（分屏时隐藏）；预览与编辑视图版心 Typora 式居中，共用 `--read-column`（820px，左右留白；全屏宽幅 1240px 不受限；窄屏 <761px 铺满）；**阅读位置记忆**：按文件路径/草稿名存 localStorage（`md-editor-read-pos-v1`，保留最近 300 篇），打开文件/切标签自动回到上次位置 | `MarkdownEditorLogic.ts`、`readingPositionMethods.ts`、`viewMethods.ts`、`styles.css` |
 | 沉浸式阅读 | 全屏/宽屏、五档纸色（墨黑/羊皮纸/米黄/清爽白/豆沙绿） | `viewMethods.ts`、`styles.css` |
 | 语法大全 | 帮助菜单一键打开，40+ 分组卡片 + 搜索/分类筛选 + 预览 + 一键插入/复制（插入后预览模式自动切分屏） | `syntaxCheatsheetData.ts`、`syntaxCheatsheetMethods.ts`、`syntaxCheatsheet.css` |
 | 外观 | 框架 Inter + DeepSeek 蓝（参考 DeepSeek Harness）、大标题 Montserrat；阅读纸面保留楷体与五档纸色；「飞白」狂草印章、预览外链小角标（SVG mask）。Inter/Montserrat 均为 SIL OFL 1.1，随包分发于 `public/fonts/dsh/` | `theme/tokens.css`、`desktopM4.css`、`styles.css` |
